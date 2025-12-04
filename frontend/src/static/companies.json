@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "name": "Google",
+    "logo": "https://logo.clearbit.com/google.com",
+    "location": "Bangalore"
+  },
+  {
+    "id": 2,
+    "name": "Amazon",
+    "logo": "https://logo.clearbit.com/amazon.com",
+    "location": "Hyderabad"
+  },
+  {
+    "id": 3,
+    "name": "Figma",
+    "logo": "https://logo.clearbit.com/figma.com",
+    "location": "Remote"
+  },
+  {
+    "id": 4,
+    "name": "Microsoft",
+    "logo": "https://logo.clearbit.com/microsoft.com",
+    "location": "Noida"
+  },
+  {
+    "id": 5,
+    "name": "Meta",
+    "logo": "https://logo.clearbit.com/meta.com",
+    "location": "Gurugram"
+  },
+  {
+    "id": 6,
+    "name": "Netflix",
+    "logo": "https://logo.clearbit.com/netflix.com",
+    "location": "Remote"
+  }
+]

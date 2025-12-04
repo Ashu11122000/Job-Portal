@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "title": "Senior React Developer",
+    "company": "Google",
+    "location": "Bangalore",
+    "salary": "₹30 LPA",
+    "type": "Full-time"
+  },
+  {
+    "id": 2,
+    "title": "Backend Engineer",
+    "company": "Amazon",
+    "location": "Hyderabad",
+    "salary": "₹28 LPA",
+    "type": "Remote"
+  },
+  {
+    "id": 3,
+    "title": "UI/UX Designer",
+    "company": "Figma",
+    "location": "Remote",
+    "salary": "₹18 LPA",
+    "type": "Contract"
+  },
+  {
+    "id": 4,
+    "title": "Full Stack Developer",
+    "company": "Microsoft",
+    "location": "Noida",
+    "salary": "₹25 LPA",
+    "type": "Full-time"
+  },
+  {
+    "id": 5,
+    "title": "Data Scientist",
+    "company": "IBM",
+    "location": "Pune",
+    "salary": "₹32 LPA",
+    "type": "Full-time"
+  },
+  {
+    "id": 6,
+    "title": "Cloud Engineer",
+    "company": "Accenture",
+    "location": "Gurugram",
+    "salary": "₹22 LPA",
+    "type": "Hybrid"
+  },
+  {
+    "id": 7,
+    "title": "DevOps Engineer",
+    "company": "Infosys",
+    "location": "Mysore",
+    "salary": "₹16 LPA",
+    "type": "Full-time"
+  },
+  {
+    "id": 8,
+    "title": "Product Manager",
+    "company": "Flipkart",
+    "location": "Bangalore",
+    "salary": "₹35 LPA",
+    "type": "Full-time"
+  },
+  {
+    "id": 9,
+    "title": "Cybersecurity Analyst",
+    "company": "Deloitte",
+    "location": "Mumbai",
+    "salary": "₹20 LPA",
+    "type": "Hybrid"
+  },
+  {
+    "id": 10,
+    "title": "Android Developer",
+    "company": "Paytm",
+    "location": "Noida",
+    "salary": "₹18 LPA",
+    "type": "Full-time"
+  },
+  {
+    "id": 11,
+    "title": "iOS Developer",
+    "company": "Swiggy",
+    "location": "Bangalore",
+    "salary": "₹20 LPA",
+    "type": "Full-time"
+  },
+  {
+    "id": 12,
+    "title": "AI/ML Engineer",
+    "company": "NVIDIA",
+    "location": "Remote",
+    "salary": "₹40 LPA",
+    "type": "Remote"
+  },
+  {
+    "id": 13,
+    "title": "QA Automation Engineer",
+    "company": "TCS",
+    "location": "Chennai",
+    "salary": "₹14 LPA",
+    "type": "Full-time"
+  },
+  {
+    "id": 14,
+    "title": "Frontend Developer",
+    "company": "Zomato",
+    "location": "Gurugram",
+    "salary": "₹17 LPA",
+    "type": "Hybrid"
+  },
+  {
+    "id": 15,
+    "title": "Node.js Developer",
+    "company": "Ola",
+    "location": "Bangalore",
+    "salary": "₹19 LPA",
+    "type": "Full-time"
+  }
+]
