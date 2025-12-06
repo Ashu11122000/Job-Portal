@@ -1,7 +1,5 @@
-// src/config/index.js
 import connectDB from "./db.js";
-// in future you can add more like:
-// import cloudinary from "./cloudinary.js";
-// import logger from "./logger.js";
+import logger from "./logger.js";
+import cloudinary from "./cloudinary.js";
 
-export { connectDB };
+export { connectDB, logger, cloudinary };

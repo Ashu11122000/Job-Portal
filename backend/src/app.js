@@ -3,7 +3,9 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import compression from "compression";
-import authRoutes from "./routes/authRoutes.js";
+import errorHandler from "./middleware/errorHandler.js";
+import { limiter } from "./middleware/rateLimiter.js";
+import registerRoutes from "./loaders/routes.js";
 
 const app = express();
 
@@ -14,6 +16,7 @@ app.use(cors());
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(compression());
+app.use(limiter);
 
 // 🧠 Health Check
 app.get("/", (req, res) => {
@@ -23,7 +26,18 @@ app.get("/", (req, res) => {
   });
 });
 
-// 🔐 Auth Routes
-app.use("/api/auth", authRoutes);
+// 🔐 Register Routes
+registerRoutes(app);
+
+// 404 handler - catch all unmatched routes
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+  });
+});
+
+// Error Handler Middleware (Must be last)
+app.use(errorHandler);
 
 export default app;
