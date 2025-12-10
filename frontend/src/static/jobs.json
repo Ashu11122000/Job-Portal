@@ -1,122 +1,14 @@
 [
-  {
-    "id": 1,
-    "title": "Senior React Developer",
-    "company": "Google",
-    "location": "Bangalore",
-    "salary": "₹30 LPA",
-    "type": "Full-time"
-  },
-  {
-    "id": 2,
-    "title": "Backend Engineer",
-    "company": "Amazon",
-    "location": "Hyderabad",
-    "salary": "₹28 LPA",
-    "type": "Remote"
-  },
-  {
-    "id": 3,
-    "title": "UI/UX Designer",
-    "company": "Figma",
-    "location": "Remote",
-    "salary": "₹18 LPA",
-    "type": "Contract"
-  },
-  {
-    "id": 4,
-    "title": "Full Stack Developer",
-    "company": "Microsoft",
-    "location": "Noida",
-    "salary": "₹25 LPA",
-    "type": "Full-time"
-  },
-  {
-    "id": 5,
-    "title": "Data Scientist",
-    "company": "IBM",
-    "location": "Pune",
-    "salary": "₹32 LPA",
-    "type": "Full-time"
-  },
-  {
-    "id": 6,
-    "title": "Cloud Engineer",
-    "company": "Accenture",
-    "location": "Gurugram",
-    "salary": "₹22 LPA",
-    "type": "Hybrid"
-  },
-  {
-    "id": 7,
-    "title": "DevOps Engineer",
-    "company": "Infosys",
-    "location": "Mysore",
-    "salary": "₹16 LPA",
-    "type": "Full-time"
-  },
-  {
-    "id": 8,
-    "title": "Product Manager",
-    "company": "Flipkart",
-    "location": "Bangalore",
-    "salary": "₹35 LPA",
-    "type": "Full-time"
-  },
-  {
-    "id": 9,
-    "title": "Cybersecurity Analyst",
-    "company": "Deloitte",
-    "location": "Mumbai",
-    "salary": "₹20 LPA",
-    "type": "Hybrid"
-  },
-  {
-    "id": 10,
-    "title": "Android Developer",
-    "company": "Paytm",
-    "location": "Noida",
-    "salary": "₹18 LPA",
-    "type": "Full-time"
-  },
-  {
-    "id": 11,
-    "title": "iOS Developer",
-    "company": "Swiggy",
-    "location": "Bangalore",
-    "salary": "₹20 LPA",
-    "type": "Full-time"
-  },
-  {
-    "id": 12,
-    "title": "AI/ML Engineer",
-    "company": "NVIDIA",
-    "location": "Remote",
-    "salary": "₹40 LPA",
-    "type": "Remote"
-  },
-  {
-    "id": 13,
-    "title": "QA Automation Engineer",
-    "company": "TCS",
-    "location": "Chennai",
-    "salary": "₹14 LPA",
-    "type": "Full-time"
-  },
-  {
-    "id": 14,
-    "title": "Frontend Developer",
-    "company": "Zomato",
-    "location": "Gurugram",
-    "salary": "₹17 LPA",
-    "type": "Hybrid"
-  },
-  {
-    "id": 15,
-    "title": "Node.js Developer",
-    "company": "Ola",
-    "location": "Bangalore",
-    "salary": "₹19 LPA",
-    "type": "Full-time"
-  }
+  {"id":1,"title":"Senior React Developer","company":"Google","location":"Bangalore","salary":"₹30 LPA","type":"Full-time","experience":"5+ years","skills":["React","Redux","TypeScript"]},
+  {"id":2,"title":"Backend Engineer","company":"Amazon","location":"Hyderabad","salary":"₹28 LPA","type":"Remote","experience":"4+ years","skills":["Node.js","AWS","SQL"]},
+  {"id":3,"title":"UI/UX Designer","company":"Figma","location":"Remote","salary":"₹18 LPA","type":"Contract","experience":"2+ years","skills":["Figma","Prototyping"]},
+  {"id":4,"title":"Full Stack Developer","company":"Microsoft","location":"Bangalore","salary":"₹32 LPA","type":"Full-time","experience":"5+ years","skills":["React","C#",".NET"]},
+  {"id":5,"title":"Frontend Developer (Next.js)","company":"Netflix","location":"Mumbai","salary":"₹26 LPA","type":"Full-time","experience":"3+ years","skills":["React","Next.js","SSR"]},
+  {"id":6,"title":"Data Engineer","company":"Flipkart","location":"Bangalore","salary":"₹27 LPA","type":"Full-time","experience":"4+ years","skills":["Python","Spark","AWS"]},
+  {"id":7,"title":"DevOps Engineer","company":"Zoho","location":"Chennai","salary":"₹20 LPA","type":"Hybrid","experience":"3+ years","skills":["Docker","Kubernetes","CI/CD"]},
+  {"id":8,"title":"Mobile App Developer (Flutter)","company":"Paytm","location":"Noida","salary":"₹22 LPA","type":"Full-time","experience":"3+ years","skills":["Flutter","Dart"]},
+  {"id":9,"title":"Machine Learning Engineer","company":"IBM","location":"Pune","salary":"₹35 LPA","type":"Full-time","experience":"5+ years","skills":["Python","TensorFlow","ML"]},
+  {"id":10,"title":"QA Automation Engineer","company":"TCS","location":"Hyderabad","salary":"₹12 LPA","type":"Full-time","experience":"2+ years","skills":["Selenium","Java"]},
+  {"id":11,"title":"Product Designer","company":"Swiggy","location":"Bengaluru","salary":"₹24 LPA","type":"Full-time","experience":"3+ years","skills":["UX","Product Design"]},
+  {"id":12,"title":"Intern - Software Engineer","company":"StartUpX","location":"Remote","salary":"₹6 LPA","type":"Internship","experience":"0-1 years","skills":["JavaScript","React"]}
 ]

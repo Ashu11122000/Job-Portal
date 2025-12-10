@@ -5,8 +5,9 @@ import applicationRoutes from "../routes/applicationRoutes.js";
 import userRoutes from "../routes/userRoutes.js";
 import notificationRoutes from "../routes/notificationRoutes.js";
 import analyticsRoutes from "../routes/analyticsRoutes.js";
+import uploadRoutes from "../routes/uploadRoutes.js";
 
-export default function registerRoutes(app) {
+export default function routes(app) {
   app.use("/api/auth", authRoutes);
   app.use("/api/jobs", jobRoutes);
   app.use("/api/companies", companyRoutes);
@@ -14,5 +15,5 @@ export default function registerRoutes(app) {
   app.use("/api/users", userRoutes);
   app.use("/api/notifications", notificationRoutes);
   app.use("/api/analytics", analyticsRoutes);
-  return app;
-};
+  app.use("/api/upload", uploadRoutes); // ← new
+}

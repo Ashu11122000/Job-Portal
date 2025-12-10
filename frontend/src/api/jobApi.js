@@ -1,32 +1,26 @@
-export const jobApi = {
-  getJobs: async () => {
-    return {
-      data: [
-        {
-          id: 1,
-          title: "Frontend Developer",
-          company: "Google",
-          salary: "₹15 LPA",
-        },
-        {
-          id: 2,
-          title: "Backend Developer",
-          company: "Microsoft",
-          salary: "₹18 LPA",
-        },
-      ],
-    };
-  },
+import axiosInstance from "./axiosInstance";
 
-  getJobById: async (id) => {
-    return {
-      data: {
-        id,
-        title: "Frontend Developer",
-        description: "Build UI components...",
-        location: "Gurugram",
-        salary: "₹15–20 LPA",
-      },
-    };
-  },
+// ✅ GET ALL JOBS (PUBLIC)
+export const getAllJobs = () => {
+  return axiosInstance.get("/jobs");
+};
+
+// ✅ GET SINGLE JOB
+export const getJobById = (id) => {
+  return axiosInstance.get(`/jobs/${id}`);
+};
+
+// ✅ CREATE JOB (Recruiter/Admin)
+export const createJob = (jobData) => {
+  return axiosInstance.post("/jobs", jobData);
+};
+
+// ✅ UPDATE JOB
+export const updateJob = (id, jobData) => {
+  return axiosInstance.put(`/jobs/${id}`, jobData);
+};
+
+// ✅ DELETE JOB
+export const deleteJob = (id) => {
+  return axiosInstance.delete(`/jobs/${id}`);
 };

@@ -1,43 +1,38 @@
-import React from "react";
-import { FaMapMarkerAlt, FaMoneyBillWave, FaBriefcase } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
-export default function JobCard({ job, onClick }) {
+export default function JobCard({ job }) {
+  const navigate = useNavigate();
+
   return (
-    <div
-      className="border bg-white p-6 rounded-xl shadow-sm hover:shadow-xl transition cursor-pointer"
-      onClick={onClick}
-    >
-      {/* Job Title */}
-      <h3 className="text-xl font-semibold text-gray-900">{job.title}</h3>
+    <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition">
+      <h3 className="text-lg font-bold text-slate-900 mb-2">{job.title}</h3>
 
-      {/* Company Name */}
-      <p className="text-gray-500 text-sm mt-1">{job.company}</p>
+      <p className="text-slate-600 mb-1">
+        {job.company?.name || "Company Not Available"}
+      </p>
 
-      {/* Details Section */}
-      <div className="flex flex-col gap-2 mt-4 text-sm text-gray-700">
-        {/* Location */}
-        <div className="flex items-center gap-2">
-          <FaMapMarkerAlt className="text-blue-600" />
-          <span>{job.location}</span>
-        </div>
+      <p className="text-sm text-slate-500 mb-4">
+        {job.location || "Location not specified"}
+      </p>
 
-        {/* Salary */}
-        <div className="flex items-center gap-2">
-          <FaMoneyBillWave className="text-green-600" />
-          <span>{job.salary}</span>
-        </div>
+      <p className="text-indigo-600 font-semibold mb-4">
+        ₹{job.salaryRange?.min?.toLocaleString()} - ₹
+        {job.salaryRange?.max?.toLocaleString()}
+      </p>
 
-        {/* Job Type */}
-        <div className="flex items-center gap-2">
-          <FaBriefcase className="text-orange-500" />
-          <span>{job.type}</span>
-        </div>
+      <div className="flex justify-between items-center">
+        <span className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full">
+          {job.jobType}
+        </span>
+
+        {/* ✅ WORKING VIEW JOB BUTTON */}
+        <button
+          onClick={() => navigate(`/jobs/${job._id || job.id}`)}
+          className="text-sm text-white bg-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-700"
+        >
+          View Job
+        </button>
       </div>
-
-      {/* Apply / View Button */}
-      <button className="mt-5 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
-        View Details
-      </button>
     </div>
   );
 }

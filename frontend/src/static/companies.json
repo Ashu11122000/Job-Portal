@@ -1,38 +1,12 @@
 [
-  {
-    "id": 1,
-    "name": "Google",
-    "logo": "https://logo.clearbit.com/google.com",
-    "location": "Bangalore"
-  },
-  {
-    "id": 2,
-    "name": "Amazon",
-    "logo": "https://logo.clearbit.com/amazon.com",
-    "location": "Hyderabad"
-  },
-  {
-    "id": 3,
-    "name": "Figma",
-    "logo": "https://logo.clearbit.com/figma.com",
-    "location": "Remote"
-  },
-  {
-    "id": 4,
-    "name": "Microsoft",
-    "logo": "https://logo.clearbit.com/microsoft.com",
-    "location": "Noida"
-  },
-  {
-    "id": 5,
-    "name": "Meta",
-    "logo": "https://logo.clearbit.com/meta.com",
-    "location": "Gurugram"
-  },
-  {
-    "id": 6,
-    "name": "Netflix",
-    "logo": "https://logo.clearbit.com/netflix.com",
-    "location": "Remote"
-  }
+  {"id":1,"name":"Google","logo":"https://logo.clearbit.com/google.com","location":"Bangalore","employees":"100k+","industry":"Tech"},
+  {"id":2,"name":"Amazon","logo":"https://logo.clearbit.com/amazon.com","location":"Hyderabad","employees":"200k+","industry":"E-commerce"},
+  {"id":3,"name":"Figma","logo":"https://logo.clearbit.com/figma.com","location":"Remote","employees":"1k+","industry":"Design"},
+  {"id":4,"name":"Microsoft","logo":"https://logo.clearbit.com/microsoft.com","location":"Bangalore","employees":"180k+","industry":"Tech"},
+  {"id":5,"name":"Netflix","logo":"https://logo.clearbit.com/netflix.com","location":"Mumbai","employees":"10k+","industry":"Media"},
+  {"id":6,"name":"Flipkart","logo":"https://logo.clearbit.com/flipkart.com","location":"Bangalore","employees":"50k+","industry":"E-commerce"},
+  {"id":7,"name":"Zoho","logo":"https://logo.clearbit.com/zoho.com","location":"Chennai","employees":"10k+","industry":"SaaS"},
+  {"id":8,"name":"Paytm","logo":"https://logo.clearbit.com/paytm.com","location":"Noida","employees":"5k+","industry":"Fintech"},
+  {"id":9,"name":"IBM","logo":"https://logo.clearbit.com/ibm.com","location":"Pune","employees":"200k+","industry":"Enterprise"},
+  {"id":10,"name":"TCS","logo":"https://logo.clearbit.com/tcs.com","location":"Hyderabad","employees":"300k+","industry":"IT Services"}
 ]
