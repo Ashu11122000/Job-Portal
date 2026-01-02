@@ -59,7 +59,7 @@ export default function JobDetail() {
   if (!job) return <p className="p-10 text-center">Job not found.</p>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 px-6 py-24">
+    <div className="min-h-screen bg-linear-to-br from-indigo-50 to-purple-50 px-6 py-24">
       <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl p-10">
         {/* ✅ JOB HEADER */}
         <div className="border-b pb-8 mb-8">
@@ -165,7 +165,7 @@ export default function JobDetail() {
           <button
             onClick={handleApply}
             disabled={applyLoading}
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-10 py-3 rounded-full font-semibold shadow hover:scale-105 transition"
+            className="bg-linear-to-r from-indigo-600 to-purple-600 text-white px-10 py-3 rounded-full font-semibold shadow hover:scale-105 transition"
           >
             {applyLoading ? "Applying..." : "Apply Now"}
           </button>

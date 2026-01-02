@@ -7,25 +7,31 @@ import {
   FiBriefcase,
   FiUsers,
   FiArrowRight,
+  FiTrendingUp,
 } from "react-icons/fi";
 
 export default function HowItWorks() {
   return (
-    <section className="relative w-full py-40 overflow-hidden bg-linear-to-br from-slate-950 via-indigo-950 to-slate-900">
-      {/* ✅ AMBIENT GLOW */}
+    <section
+      className="relative w-full py-40 overflow-hidden
+                        bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900"
+    >
+      {/* ================= AMBIENT AURORA ================= */}
       <motion.div
-        animate={{ x: [0, 160, 0], y: [0, -120, 0] }}
-        transition={{ duration: 28, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -top-80 -left-80 w-[850px] h-[850px] bg-indigo-500/25 rounded-full blur-[260px]"
+        animate={{ x: [0, 180, 0], y: [0, -140, 0] }}
+        transition={{ duration: 34, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -top-96 -left-96 w-[900px] h-[900px]
+                   bg-indigo-500/25 rounded-full blur-[280px]"
       />
       <motion.div
-        animate={{ x: [0, -160, 0], y: [0, 120, 0] }}
-        transition={{ duration: 32, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -bottom-80 -right-80 w-[850px] h-[850px] bg-purple-500/25 rounded-full blur-[280px]"
+        animate={{ x: [0, -180, 0], y: [0, 140, 0] }}
+        transition={{ duration: 38, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -bottom-96 -right-96 w-[900px] h-[900px]
+                   bg-purple-500/25 rounded-full blur-[300px]"
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        {/* ✅ PREMIUM HEADER */}
+        {/* ================= HEADER ================= */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -33,152 +39,194 @@ export default function HowItWorks() {
           transition={{ duration: 1 }}
           className="text-center mb-28"
         >
-          <span className="inline-flex items-center gap-2 mb-6 px-10 py-2 rounded-full text-sm font-semibold bg-white/10 backdrop-blur-xl text-indigo-300 border border-white/15 shadow-[0_0_30px_rgba(99,102,241,0.35)]">
-            ⚙️ Simple 4-Step Intelligent System
+          <span
+            className="inline-flex items-center gap-2 mb-6 px-10 py-2
+                           rounded-full text-sm font-semibold
+                           bg-white/10 backdrop-blur-xl
+                           text-indigo-300 border border-white/15
+                           shadow-[0_0_30px_rgba(99,102,241,0.35)]"
+          >
+            <FiTrendingUp />
+            AI-Powered Hiring Workflow
           </span>
 
-          <h2 className="text-5xl md:text-6xl font-black bg-linear-to-r from-indigo-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-            How Our Hiring Ecosystem Works
+          <h2
+            className="text-5xl md:text-6xl font-black
+                         bg-gradient-to-r from-indigo-400 via-blue-400 to-purple-400
+                         bg-clip-text text-transparent"
+          >
+            How the Platform Works
           </h2>
 
           <p className="text-slate-400 mt-8 text-xl max-w-3xl mx-auto leading-relaxed">
-            A seamless, AI-assisted workflow designed to help professionals get
-            hired faster and companies build elite teams with precision.
+            A secure, intelligent hiring ecosystem that connects professionals
+            and employers through verified data, automation, and real-time
+            insights.
           </p>
 
           <div className="mt-12 flex justify-center">
-            <div className="h-1.5 w-60 rounded-full bg-linear-to-r from-indigo-500 via-blue-500 to-purple-500 shadow-[0_0_30px_rgba(99,102,241,0.9)]" />
+            <div
+              className="h-1.5 w-64 rounded-full
+                            bg-gradient-to-r from-indigo-500 via-blue-500 to-purple-500
+                            shadow-[0_0_35px_rgba(99,102,241,0.9)]"
+            />
           </div>
         </motion.div>
 
-        {/* ✅ DUAL FLOW GRID */}
-        <div className="grid md:grid-cols-2 gap-16 perspective-[1400px]">
-          {/* ✅ JOB SEEKER FLOW */}
-          <motion.div
-            initial={{ opacity: 0, x: -70 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.9 }}
-            whileHover={{ rotateY: 6 }}
-            className="relative bg-white/10 backdrop-blur-2xl border border-white/15 rounded-3xl p-14 shadow-[0_40px_110px_rgba(0,0,0,0.45)]"
-          >
-            <h3 className="text-3xl font-black text-indigo-300 mb-12 flex items-center gap-3">
-              <FiUserPlus /> For Job Seekers
-            </h3>
+        {/* ================= DUAL FLOW ================= */}
+        <div className="grid md:grid-cols-2 gap-20 perspective-[1600px]">
+          {/* ================= JOB SEEKER ================= */}
+          <FlowCard
+            title="For Job Seekers"
+            accent="indigo"
+            icon={<FiUserPlus />}
+            steps={[
+              {
+                icon: <FiUserPlus />,
+                title: "Create Intelligent Profile",
+                desc: "Resume parsing, skill detection, and experience mapping powered by AI.",
+              },
+              {
+                icon: <FiSearch />,
+                title: "Discover Relevant Jobs",
+                desc: "Smart recommendations based on role fit, salary, and growth potential.",
+              },
+              {
+                icon: <FiSend />,
+                title: "Apply Instantly",
+                desc: "One-click applications with recruiter-ready profiles.",
+              },
+              {
+                icon: <FiCheckCircle />,
+                title: "Track Hiring Progress",
+                desc: "Interview stages, feedback, offers, and onboarding in one dashboard.",
+              },
+            ]}
+          />
 
-            <Step
-              color="indigo"
-              icon={<FiUserPlus />}
-              title="Create Smart Profile"
-              desc="Build your AI-powered profile with resume parsing and skills detection."
-            />
-            <Step
-              color="indigo"
-              icon={<FiSearch />}
-              title="Discover Matching Jobs"
-              desc="Advanced filters and salary intelligence show you only relevant roles."
-            />
-            <Step
-              color="indigo"
-              icon={<FiSend />}
-              title="Instant Application"
-              desc="One-click apply with automated recruiter screening."
-            />
-            <Step
-              color="indigo"
-              icon={<FiCheckCircle />}
-              title="Get Hired Faster"
-              desc="Track interviews, offers & onboarding in one dashboard."
-            />
-          </motion.div>
-
-          {/* ✅ EMPLOYER FLOW */}
-          <motion.div
-            initial={{ opacity: 0, x: 70 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.9 }}
-            whileHover={{ rotateY: -6 }}
-            className="relative bg-white/10 backdrop-blur-2xl border border-white/15 rounded-3xl p-14 shadow-[0_40px_110px_rgba(0,0,0,0.45)]"
-          >
-            <h3 className="text-3xl font-black text-purple-300 mb-12 flex items-center gap-3">
-              <FiBriefcase /> For Employers
-            </h3>
-
-            <Step
-              color="purple"
-              icon={<FiBriefcase />}
-              title="Post High-Intent Jobs"
-              desc="Create premium job posts with AI-optimized visibility."
-            />
-            <Step
-              color="purple"
-              icon={<FiUsers />}
-              title="Shortlist Top Talent"
-              desc="Smart ranking system highlights best-fit candidates instantly."
-            />
-            <Step
-              color="purple"
-              icon={<FiCheckCircle />}
-              title="Hire With Confidence"
-              desc="Verified profiles, background sync & interview scoring."
-            />
-            <Step
-              color="purple"
-              icon={<FiCheckCircle />}
-              title="Scale Teams Rapidly"
-              desc="Bulk hiring tools for startups & enterprise workforce expansion."
-            />
-          </motion.div>
+          {/* ================= EMPLOYER ================= */}
+          <FlowCard
+            title="For Employers"
+            accent="purple"
+            icon={<FiBriefcase />}
+            steps={[
+              {
+                icon: <FiBriefcase />,
+                title: "Publish High-Intent Jobs",
+                desc: "Optimized job listings with maximum visibility and talent reach.",
+              },
+              {
+                icon: <FiUsers />,
+                title: "Identify Top Talent",
+                desc: "AI-driven shortlisting based on skills, experience, and intent.",
+              },
+              {
+                icon: <FiCheckCircle />,
+                title: "Interview With Confidence",
+                desc: "Verified candidates, interview scoring, and collaboration tools.",
+              },
+              {
+                icon: <FiCheckCircle />,
+                title: "Scale Hiring Faster",
+                desc: "Bulk hiring, pipeline analytics, and enterprise-grade controls.",
+              },
+            ]}
+          />
         </div>
 
-        {/* ✅ ULTRA CTA */}
+        {/* ================= CTA ================= */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-          className="mt-28 text-center"
+          transition={{ delay: 0.4 }}
+          className="mt-32 text-center"
         >
-          <a
+          <motion.a
             href="/register"
-            className="relative inline-flex items-center gap-3 bg-linear-to-r from-indigo-600 to-purple-600 text-white px-20 py-6 rounded-full font-black shadow-[0_25px_90px_rgba(99,102,241,0.7)] hover:scale-110 transition-all"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.96 }}
+            className="inline-flex items-center gap-4
+                       bg-gradient-to-r from-indigo-600 to-purple-600
+                       text-white px-20 py-6 rounded-full
+                       font-black text-lg
+                       shadow-[0_30px_100px_rgba(99,102,241,0.75)]
+                       transition-all"
           >
-            Get Started Today <FiArrowRight />
-          </a>
+            Start Your Journey <FiArrowRight />
+          </motion.a>
         </motion.div>
       </div>
     </section>
   );
 }
 
-/* ✅ PREMIUM STEP COMPONENT */
-function Step({ icon, title, desc, color }) {
-  return (
-    <div className="relative flex items-start gap-6 mb-10">
-      {/* ✅ TIMELINE */}
-      <div
-        className={`absolute left-7 top-16 w-0.5 h-full ${
-          color === "indigo"
-            ? "bg-linear-to-b from-indigo-500 to-indigo-300"
-            : "bg-linear-to-b from-purple-500 to-purple-300"
-        }`}
-      />
+/* ================= FLOW CARD ================= */
 
-      {/* ✅ ICON */}
-      <div
-        className={`relative w-16 h-16 rounded-full flex items-center justify-center shadow-xl ${
-          color === "indigo"
-            ? "bg-linear-to-br from-indigo-500 to-indigo-700"
-            : "bg-linear-to-br from-purple-500 to-purple-700"
-        }`}
+function FlowCard({ title, steps, icon, accent }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: accent === "indigo" ? -70 : 70 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.9 }}
+      whileHover={{ rotateY: accent === "indigo" ? 6 : -6 }}
+      className="relative bg-white/10 backdrop-blur-2xl
+                 border border-white/15 rounded-3xl
+                 p-14 shadow-[0_45px_130px_rgba(0,0,0,0.5)]"
+    >
+      <h3
+        className={`text-3xl font-black mb-14 flex items-center gap-3
+                      ${
+                        accent === "indigo"
+                          ? "text-indigo-300"
+                          : "text-purple-300"
+                      }`}
       >
-        <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center text-indigo-600 text-xl">
+        {icon} {title}
+      </h3>
+
+      {steps.map((s, i) => (
+        <Step key={i} {...s} accent={accent} isLast={i === steps.length - 1} />
+      ))}
+    </motion.div>
+  );
+}
+
+/* ================= STEP ================= */
+
+function Step({ icon, title, desc, accent, isLast }) {
+  return (
+    <div className="relative flex items-start gap-6 mb-12">
+      {!isLast && (
+        <div
+          className={`absolute left-8 top-16 w-0.5 h-full
+            ${
+              accent === "indigo"
+                ? "bg-gradient-to-b from-indigo-500 to-indigo-300"
+                : "bg-gradient-to-b from-purple-500 to-purple-300"
+            }`}
+        />
+      )}
+
+      <div
+        className={`relative w-16 h-16 rounded-full flex items-center justify-center
+          shadow-xl
+          ${
+            accent === "indigo"
+              ? "bg-gradient-to-br from-indigo-500 to-indigo-700"
+              : "bg-gradient-to-br from-purple-500 to-purple-700"
+          }`}
+      >
+        <div
+          className="w-11 h-11 rounded-full bg-white
+                        flex items-center justify-center
+                        text-indigo-600 text-xl"
+        >
           {icon}
         </div>
       </div>
 
-      {/* ✅ TEXT */}
       <div>
         <h4 className="text-lg font-bold text-white">{title}</h4>
         <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>

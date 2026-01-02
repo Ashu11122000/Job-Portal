@@ -1,85 +1,171 @@
 import { motion } from "framer-motion";
+import { FiMapPin, FiClock, FiTrendingUp, FiBriefcase } from "react-icons/fi";
 import jobs from "../../static/jobs.json";
 
 export default function TrendingJobsSlider() {
   return (
-    <section className="relative w-full py-28 overflow-hidden bg-linear-to-br from-purple-50 via-white to-indigo-50">
-      {/* ✅ Background Glow */}
+    <section
+      className="relative w-full py-32 overflow-hidden
+                        bg-gradient-to-br from-[#faf5ff] via-white to-[#eef2ff]"
+    >
+      {/* ================= AMBIENT AURORA ================= */}
       <motion.div
-        animate={{ x: [0, 80, 0], y: [0, -40, 0] }}
-        transition={{ duration: 18, repeat: Infinity }}
-        className="absolute -top-40 left-1/3 w-[520px] h-[520px] bg-purple-400/20 rounded-full blur-[140px]"
+        animate={{ x: [0, 160, 0], y: [0, -80, 0] }}
+        transition={{ duration: 32, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -top-64 left-1/4 w-[760px] h-[760px]
+                   bg-purple-400/25 rounded-full blur-[180px]"
+      />
+
+      {/* Soft glass overlay */}
+      <div
+        className="absolute inset-0 bg-gradient-to-b
+                      from-white/40 via-transparent to-transparent
+                      backdrop-blur-[2px]"
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        {/* ✅ Section Header */}
+        {/* ================= HEADER ================= */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-20"
+          transition={{ duration: 1 }}
+          className="text-center mb-24"
         >
-          <span className="inline-block mb-5 px-6 py-2 rounded-full text-sm font-semibold bg-purple-100 text-purple-700 shadow-sm">
-            🔥 Hot Right Now
+          <span
+            className="inline-flex items-center gap-2 mb-6 px-7 py-2
+                           text-sm font-semibold rounded-full
+                           bg-purple-100 text-purple-700
+                           shadow-md shadow-purple-200"
+          >
+            <FiTrendingUp />
+            Hot & Trending This Week
           </span>
 
-          <h2 className="text-5xl font-extrabold bg-linear-to-r from-purple-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent">
-            Trending Jobs
+          <h2
+            className="text-6xl font-black tracking-tight
+                         bg-gradient-to-r from-purple-700 via-indigo-600 to-blue-600
+                         bg-clip-text text-transparent
+                         drop-shadow-[0_10px_25px_rgba(79,70,229,0.3)]"
+          >
+            Most Applied Jobs
           </h2>
 
-          <p className="text-slate-600 mt-5 text-lg max-w-2xl mx-auto">
-            Most applied jobs this week from top hiring companies.
+          <p className="mt-6 text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+            These roles are seeing the highest candidate activity right now —
+            driven by demand, compensation, and career growth.
           </p>
 
-          {/* Decorative Line */}
-          <div className="mt-8 flex justify-center">
-            <div className="h-[3px] w-36 rounded-full bg-linear-to-r from-purple-500 via-indigo-500 to-blue-500 shadow-[0_0_18px_rgba(99,102,241,0.6)]"></div>
-          </div>
+          <motion.div
+            initial={{ width: 0 }}
+            whileInView={{ width: 160 }}
+            transition={{ duration: 1 }}
+            className="mx-auto mt-10 h-[3px] rounded-full
+                       bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500
+                       shadow-[0_0_26px_rgba(99,102,241,0.75)]"
+          />
         </motion.div>
 
-        {/* ✅ SLIDER TRACK */}
-        <div className="relative overflow-hidden">
+        {/* ================= SLIDER ================= */}
+        <div className="relative overflow-hidden pt-6">
+          {/* Cinematic fade edges */}
+          <div
+            className="pointer-events-none absolute inset-y-0 left-0 w-32
+                          bg-gradient-to-r from-white to-transparent z-10"
+          />
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 w-32
+                          bg-gradient-to-l from-white to-transparent z-10"
+          />
+
+          {/* Continuous track */}
           <motion.div
             animate={{ x: ["0%", "-100%"] }}
-            transition={{
-              duration: 30,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-            className="flex gap-10 w-max"
+            transition={{ duration: 48, repeat: Infinity, ease: "linear" }}
+            className="flex gap-16 w-max"
           >
             {[...jobs, ...jobs].map((job, index) => (
               <motion.div
                 key={`${job.id}-${index}`}
-                whileHover={{ y: -10, scale: 1.05 }}
-                className="min-w-[320px] bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl p-6 shadow-lg hover:shadow-[0_20px_50px_rgba(99,102,241,0.35)] transition-all duration-300"
+                whileHover={{
+                  y: -14,
+                  scale: 1.05,
+                  rotateX: 3,
+                  rotateY: -3,
+                  transition: { type: "spring", stiffness: 180, damping: 16 },
+                }}
+                className="relative min-w-[360px] p-8 rounded-3xl
+                           bg-white/85 backdrop-blur-2xl
+                           border border-white/50
+                           shadow-[0_30px_90px_rgba(0,0,0,0.12)]
+                           hover:shadow-[0_45px_130px_rgba(79,70,229,0.35)]
+                           transition-all duration-300"
               >
+                {/* Glow pulse */}
+                <motion.div
+                  animate={{ opacity: [0.25, 0.5, 0.25] }}
+                  transition={{ duration: 6, repeat: Infinity }}
+                  className="absolute -top-12 left-1/2 -translate-x-1/2
+                             w-40 h-40 bg-purple-400/30
+                             rounded-full blur-[70px]"
+                />
+
+                {/* Meta header */}
+                <div className="flex items-center justify-between text-xs mb-4">
+                  <span
+                    className="flex items-center gap-1
+                                   px-3 py-1 rounded-full
+                                   bg-emerald-100 text-emerald-700 font-semibold"
+                  >
+                    <FiTrendingUp /> Trending
+                  </span>
+
+                  <span className="flex items-center gap-1 text-slate-500">
+                    <FiClock /> Posted recently
+                  </span>
+                </div>
+
                 {/* Company */}
                 <p className="text-sm font-semibold text-indigo-600">
                   {job.company}
                 </p>
 
                 {/* Title */}
-                <h3 className="mt-2 text-xl font-bold text-slate-800">
+                <h3 className="mt-2 text-2xl font-bold text-slate-900 leading-snug">
                   {job.title}
                 </h3>
 
                 {/* Location */}
-                <p className="text-slate-500 text-sm mt-1">{job.location}</p>
+                <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
+                  <FiMapPin />
+                  {job.location}
+                </div>
+
+                {/* Role Type */}
+                <div className="mt-4 flex items-center gap-2 text-sm text-slate-600">
+                  <FiBriefcase />
+                  Full-time • High growth team
+                </div>
 
                 {/* Salary */}
-                <p className="mt-4 text-indigo-700 font-semibold">
+                <p className="mt-6 text-indigo-700 font-bold text-lg">
                   💰 {job.salary}
                 </p>
 
-                {/* Apply CTA */}
-                <a
+                {/* CTA */}
+                <motion.a
                   href={`/jobs/${job.id}`}
-                  className="inline-block mt-6 bg-linear-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-full text-sm font-semibold shadow hover:scale-105 transition"
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.96 }}
+                  className="inline-block mt-7
+                             bg-gradient-to-r from-indigo-600 to-purple-600
+                             text-white px-8 py-3 rounded-full
+                             text-sm font-semibold
+                             shadow-lg hover:shadow-indigo-400/50
+                             transition-all"
                 >
                   Apply Now
-                </a>
+                </motion.a>
               </motion.div>
             ))}
           </motion.div>

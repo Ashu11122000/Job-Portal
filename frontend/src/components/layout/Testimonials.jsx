@@ -1,5 +1,10 @@
 import { motion } from "framer-motion";
-import { FiStar, FiMessageCircle, FiTrendingUp } from "react-icons/fi";
+import {
+  FiStar,
+  FiMessageCircle,
+  FiTrendingUp,
+  FiCheckCircle,
+} from "react-icons/fi";
 
 const testimonials = [
   {
@@ -9,8 +14,9 @@ const testimonials = [
     company: "Startup India",
     image: "https://i.pravatar.cc/150?img=12",
     rating: 5,
+    highlight: "Hired in 3 weeks",
     message:
-      "JobPortal completely transformed my career. I cracked a premium product role within 3 weeks.",
+      "JobPortal completely transformed my job search. The AI matching surfaced roles I would never have found on my own.",
   },
   {
     id: 2,
@@ -19,8 +25,9 @@ const testimonials = [
     company: "TechNova",
     image: "https://i.pravatar.cc/150?img=32",
     rating: 5,
+    highlight: "6 hires in 30 days",
     message:
-      "We hired 6 engineers in one month. Candidate quality and response rate is outstanding.",
+      "The candidate quality and response rate are outstanding. It has become our primary hiring platform.",
   },
   {
     id: 3,
@@ -29,8 +36,9 @@ const testimonials = [
     company: "CloudCore",
     image: "https://i.pravatar.cc/150?img=56",
     rating: 4,
+    highlight: "Interviews in 48 hrs",
     message:
-      "The AI job matching is insanely accurate. I received interviews within 48 hours.",
+      "The accuracy of job recommendations is impressive. I started receiving interview calls within two days.",
   },
   {
     id: 4,
@@ -39,8 +47,9 @@ const testimonials = [
     company: "DesignHub",
     image: "https://i.pravatar.cc/150?img=45",
     rating: 5,
+    highlight: "48% salary hike",
     message:
-      "The resume tools and interview prep helped me negotiate a 48% salary hike.",
+      "The resume tools and interview prep helped me negotiate a significant salary increase with confidence.",
   },
   {
     id: 5,
@@ -49,8 +58,9 @@ const testimonials = [
     company: "InfraScale",
     image: "https://i.pravatar.cc/150?img=18",
     rating: 5,
+    highlight: "Premium visibility",
     message:
-      "This platform gives serious visibility to premium tech jobs. Highly recommended.",
+      "This platform gives serious exposure to high-quality tech roles. It feels curated, not cluttered.",
   },
   {
     id: 6,
@@ -59,109 +69,161 @@ const testimonials = [
     company: "FinTech Pro",
     image: "https://i.pravatar.cc/150?img=28",
     rating: 5,
+    highlight: "Enterprise scale",
     message:
-      "We scaled our entire engineering team using JobPortal. Best hiring platform in India.",
+      "We scaled our engineering team efficiently. JobPortal is now embedded in our hiring workflow.",
   },
 ];
 
 export default function Testimonials() {
   return (
-    <section className="relative w-full py-40 overflow-hidden bg-linear-to-br from-slate-950 via-indigo-950 to-slate-900">
-      {/* ✅ AMBIENT GLOW */}
+    <section
+      className="relative w-full py-40 overflow-hidden
+                        bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900"
+    >
+      {/* ================= AMBIENT DEPTH ================= */}
       <motion.div
-        animate={{ x: [0, 160, 0], y: [0, -130, 0] }}
-        transition={{ duration: 30, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -top-80 -left-80 w-[800px] h-[800px] bg-indigo-500/25 rounded-full blur-[240px]"
+        animate={{ x: [0, 180, 0], y: [0, -140, 0] }}
+        transition={{ duration: 36, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -top-96 -left-96 w-[900px] h-[900px]
+                   bg-indigo-500/25 rounded-full blur-[280px]"
       />
       <motion.div
-        animate={{ x: [0, -160, 0], y: [0, 130, 0] }}
-        transition={{ duration: 34, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -bottom-80 -right-80 w-[800px] h-[800px] bg-purple-500/25 rounded-full blur-[260px]"
+        animate={{ x: [0, -180, 0], y: [0, 140, 0] }}
+        transition={{ duration: 40, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -bottom-96 -right-96 w-[900px] h-[900px]
+                   bg-purple-500/25 rounded-full blur-[300px]"
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        {/* ✅ PREMIUM HEADER */}
+        {/* ================= HEADER ================= */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 1 }}
           className="text-center mb-28"
         >
-          <span className="inline-flex items-center gap-2 mb-6 px-8 py-2 rounded-full text-sm font-semibold bg-white/10 backdrop-blur-xl text-indigo-300 border border-white/15 shadow-[0_0_30px_rgba(99,102,241,0.35)]">
-            <FiTrendingUp /> Real Career Growth
+          <span
+            className="inline-flex items-center gap-2 mb-6 px-8 py-2
+                           rounded-full text-sm font-semibold
+                           bg-white/10 backdrop-blur-xl
+                           text-indigo-300 border border-white/15
+                           shadow-[0_0_30px_rgba(99,102,241,0.35)]"
+          >
+            <FiTrendingUp />
+            Proven Career Outcomes
           </span>
 
-          <h2 className="text-5xl md:text-6xl font-black bg-linear-to-r from-indigo-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-            Trusted By Talent & Enterprises
+          <h2
+            className="text-5xl md:text-6xl font-black
+                         bg-gradient-to-r from-indigo-400 via-blue-400 to-purple-400
+                         bg-clip-text text-transparent"
+          >
+            Trusted by Professionals & Hiring Teams
           </h2>
 
           <p className="text-slate-400 mt-8 text-xl max-w-3xl mx-auto leading-relaxed">
-            Thousands of professionals and recruiters use JobPortal daily to
-            build powerful careers and world-class teams.
+            Real stories from candidates and recruiters who achieved measurable
+            hiring and career success using JobPortal.
           </p>
 
           <div className="mt-12 flex justify-center">
-            <div className="h-1.5 w-60 rounded-full bg-linear-to-r from-indigo-500 via-blue-500 to-purple-500 shadow-[0_0_30px_rgba(99,102,241,0.9)]" />
+            <div
+              className="h-1.5 w-64 rounded-full
+                            bg-gradient-to-r from-indigo-500 via-blue-500 to-purple-500
+                            shadow-[0_0_35px_rgba(99,102,241,0.9)]"
+            />
           </div>
         </motion.div>
 
-        {/* ✅ TESTIMONIAL GRID */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-14 perspective-[1400px]">
+        {/* ================= TESTIMONIAL GRID ================= */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-16 perspective-[1600px]">
           {testimonials.map((item, index) => (
             <motion.div
               key={item.id}
-              initial={{ opacity: 0, y: 50 }}
+              initial={{ opacity: 0, y: 60 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.12 }}
+              transition={{ delay: index * 0.12, duration: 0.7 }}
               whileHover={{
-                rotateX: -10,
-                rotateY: 10,
-                scale: 1.08,
-                y: -18,
+                y: -16,
+                scale: 1.06,
+                rotateX: -8,
+                rotateY: 8,
+                transition: { type: "spring", stiffness: 140, damping: 16 },
               }}
               className="relative group transform-gpu"
             >
-              {/* ✅ NEON BORDER */}
-              <div className="absolute inset-0 rounded-3xl bg-linear-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-100 blur-2xl transition duration-500" />
+              {/* Soft glow */}
+              <div
+                className="absolute inset-0 rounded-3xl
+                              bg-gradient-to-r from-indigo-500 to-purple-600
+                              opacity-0 group-hover:opacity-25
+                              blur-3xl transition duration-500"
+              />
 
-              {/* ✅ GLASS CARD */}
-              <div className="relative bg-white/10 backdrop-blur-2xl border border-white/15 rounded-3xl p-10 shadow-[0_35px_90px_rgba(0,0,0,0.45)]">
-                {/* ✅ MESSAGE ICON */}
-                <div className="absolute -top-6 right-8 w-12 h-12 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-xl">
+              {/* Card */}
+              <div
+                className="relative bg-white/10 backdrop-blur-2xl
+                              border border-white/15 rounded-3xl
+                              p-12 shadow-[0_40px_120px_rgba(0,0,0,0.55)]"
+              >
+                {/* Quote icon */}
+                <div
+                  className="absolute -top-6 right-8
+                                w-12 h-12 rounded-full
+                                bg-indigo-500 text-white
+                                flex items-center justify-center
+                                shadow-xl"
+                >
                   <FiMessageCircle />
                 </div>
 
-                {/* ✅ USER */}
-                <div className="flex items-center gap-4 mb-6">
+                {/* User */}
+                <div className="flex items-center gap-5 mb-6">
                   <div className="relative">
-                    <div className="absolute inset-0 rounded-full bg-indigo-500 blur-md opacity-40" />
+                    <div
+                      className="absolute inset-0 rounded-full
+                                    bg-indigo-500 blur-md opacity-40"
+                    />
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="relative w-16 h-16 rounded-full object-cover shadow-xl"
+                      className="relative w-16 h-16 rounded-full
+                                 object-cover shadow-xl"
                     />
                   </div>
 
                   <div>
-                    <h4 className="text-lg font-bold text-white">
+                    <h4 className="text-lg font-bold text-white flex items-center gap-2">
                       {item.name}
+                      <FiCheckCircle className="text-indigo-400 text-sm" />
                     </h4>
                     <p className="text-slate-400 text-sm">
-                      {item.role} @ {item.company}
+                      {item.role} · {item.company}
                     </p>
                   </div>
                 </div>
 
-                {/* ✅ RATING */}
+                {/* Highlight */}
+                <div
+                  className="inline-flex items-center gap-2 mb-4
+                                px-4 py-1 rounded-full
+                                bg-emerald-100 text-emerald-700
+                                text-sm font-semibold"
+                >
+                  {item.highlight}
+                </div>
+
+                {/* Rating */}
                 <div className="flex gap-1 text-yellow-400 mb-5">
                   {[...Array(item.rating)].map((_, i) => (
-                    <FiStar key={i} className="animate-pulse" />
+                    <FiStar key={i} />
                   ))}
                 </div>
 
-                {/* ✅ MESSAGE */}
+                {/* Message */}
                 <p className="text-slate-300 text-base leading-relaxed">
                   “{item.message}”
                 </p>
@@ -170,20 +232,27 @@ export default function Testimonials() {
           ))}
         </div>
 
-        {/* ✅ PRIMARY CTA */}
+        {/* ================= CTA ================= */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.6 }}
-          className="mt-28 text-center"
+          className="mt-32 text-center"
         >
-          <a
+          <motion.a
             href="/register"
-            className="relative inline-flex items-center gap-3 bg-linear-to-r from-indigo-600 to-purple-600 text-white px-20 py-6 rounded-full font-black shadow-[0_25px_90px_rgba(99,102,241,0.7)] hover:scale-110 transition-all"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.96 }}
+            className="inline-flex items-center gap-4
+                       bg-gradient-to-r from-indigo-600 to-purple-600
+                       text-white px-20 py-6 rounded-full
+                       font-black text-lg
+                       shadow-[0_30px_110px_rgba(99,102,241,0.75)]
+                       transition-all"
           >
             Start Your Success Story
-          </a>
+          </motion.a>
         </motion.div>
       </div>
     </section>

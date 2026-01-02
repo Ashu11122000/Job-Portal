@@ -53,7 +53,7 @@ export default function Login() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-[radial-gradient(circle_at_top,theme(colors.indigo.900),theme(colors.purple.900),black)] overflow-hidden px-4">
+    <div className="relative min-h-screen flex items-center justify-center bg-[radial-gradient(circle_at_top,var(--color-indigo-900),var(--color-purple-900),black)] overflow-hidden px-4">
       {/* ✅ Animated Background Glow */}
       <motion.div
         animate={{ x: [0, 120, 0], y: [0, -80, 0] }}
@@ -74,7 +74,7 @@ export default function Login() {
         transition={{ duration: 0.8 }}
         className="relative z-10 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-[0_30px_100px_rgba(79,70,229,0.6)] p-12 w-full max-w-md"
       >
-        <h2 className="text-4xl font-black text-center bg-gradient-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent mb-10">
+        <h2 className="text-4xl font-black text-center bg-linear-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent mb-10">
           Welcome Back
         </h2>
 
@@ -118,12 +118,12 @@ export default function Login() {
         <button
           type="submit"
           disabled={loading}
-          className="relative overflow-hidden w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg shadow-[0_20px_60px_rgba(99,102,241,0.6)] hover:scale-105 transition-all"
+          className="relative overflow-hidden w-full bg-linear-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg shadow-[0_20px_60px_rgba(99,102,241,0.6)] hover:scale-105 transition-all"
         >
           <span className="relative z-10 flex items-center justify-center gap-2">
             {loading ? "Logging in..." : "Login"} <FiArrowRight />
           </span>
-          <span className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 opacity-0 hover:opacity-30 transition" />
+          <span className="absolute inset-0 bg-linear-to-r from-purple-600 to-indigo-600 opacity-0 hover:opacity-30 transition" />
         </button>
 
         {/* ✅ FOOTER */}

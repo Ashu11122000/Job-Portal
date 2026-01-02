@@ -37,11 +37,11 @@ export default function About() {
         {/* ✅ AURORA GLOW BACKGROUNDS */}
         <motion.div
           style={{ y: yBg }}
-          className="absolute -top-[28rem] -left-[28rem] w-[1100px] h-[1100px] bg-indigo-500/30 rounded-full blur-[280px]"
+          className="absolute -top-112 -left-112 w-[1100px] h-[1100px] bg-indigo-500/30 rounded-full blur-[280px]"
         />
         <motion.div
           style={{ y: yBg }}
-          className="absolute bottom-[-20rem] right-[-20rem] w-[900px] h-[900px] bg-purple-500/30 rounded-full blur-[300px]"
+          className="absolute -bottom-80 -right-80 w-[900px] h-[900px] bg-purple-500/30 rounded-full blur-[300px]"
         />
         <motion.div
           animate={{ opacity: [0.4, 0.8, 0.4] }}
@@ -66,7 +66,7 @@ export default function About() {
             initial={{ opacity: 0, y: 60 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
-            className="text-6xl md:text-7xl font-black mb-8 bg-gradient-to-r from-indigo-300 via-sky-300 to-purple-300 bg-clip-text text-transparent leading-tight"
+            className="text-6xl md:text-7xl font-black mb-8 bg-linear-to-r from-indigo-300 via-sky-300 to-purple-300 bg-clip-text text-transparent leading-tight"
           >
             Powering the Future of
             <br />
@@ -95,7 +95,7 @@ export default function About() {
           >
             <a
               href="/jobs"
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-12 py-4 rounded-full font-semibold shadow-[0_20px_60px_rgba(99,102,241,0.6)] hover:scale-105 transition"
+              className="bg-linear-to-r from-indigo-600 to-purple-600 text-white px-12 py-4 rounded-full font-semibold shadow-[0_20px_60px_rgba(99,102,241,0.6)] hover:scale-105 transition"
             >
               Explore Jobs
             </a>
@@ -156,7 +156,7 @@ export default function About() {
         </div>
       </section>
       {/* ================= ULTRA PREMIUM MISSION / VISION ================= */}
-      <section className="relative py-40 overflow-hidden bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50">
+      <section className="relative py-40 overflow-hidden bg-linear-to-br from-slate-50 via-indigo-50 to-purple-50">
         {/* ✅ Ambient Aurora Background */}
         <motion.div
           animate={{ x: [0, 140, 0], y: [0, -90, 0] }}
@@ -255,7 +255,7 @@ export default function About() {
       </section>
 
       {/* ================= GLOBAL IMPACT — ULTRA PREMIUM ================= */}
-      <section className="relative py-40 overflow-hidden bg-gradient-to-br from-slate-100 via-indigo-50 to-purple-100">
+      <section className="relative py-40 overflow-hidden bg-linear-to-br from-slate-100 via-indigo-50 to-purple-100">
         {/* ✅ Dynamic Aurora Background */}
         <motion.div
           animate={{ x: [0, 140, 0], y: [0, -90, 0] }}
@@ -346,8 +346,8 @@ export default function About() {
                 <div
                   className={`relative z-10 w-20 h-20 mx-auto mb-8 rounded-2xl flex items-center justify-center text-3xl shadow-xl ${
                     item.accent === "indigo"
-                      ? "bg-gradient-to-br from-indigo-500 to-indigo-700 text-white"
-                      : "bg-gradient-to-br from-purple-500 to-purple-700 text-white"
+                      ? "bg-linear-to-br from-indigo-500 to-indigo-700 text-white"
+                      : "bg-linear-to-br from-purple-500 to-purple-700 text-white"
                   }`}
                 >
                   {item.icon}
@@ -395,7 +395,7 @@ export default function About() {
       </section>
 
       {/* ================= CORE VALUES — ULTRA PREMIUM ================= */}
-      <section className="relative py-40 overflow-hidden bg-gradient-to-br from-white via-indigo-50 to-purple-50">
+      <section className="relative py-40 overflow-hidden bg-linear-to-br from-white via-indigo-50 to-purple-50">
         {/* ✅ Ambient Motion Glow */}
         <motion.div
           animate={{ x: [0, 140, 0], y: [0, -120, 0] }}
@@ -479,8 +479,8 @@ export default function About() {
                 <div
                   className={`relative z-10 w-20 h-20 mx-auto mb-8 rounded-2xl flex items-center justify-center text-3xl shadow-xl ${
                     item.accent === "indigo"
-                      ? "bg-gradient-to-br from-indigo-500 to-indigo-700 text-white"
-                      : "bg-gradient-to-br from-purple-500 to-purple-700 text-white"
+                      ? "bg-linear-to-br from-indigo-500 to-indigo-700 text-white"
+                      : "bg-linear-to-br from-purple-500 to-purple-700 text-white"
                   }`}
                 >
                   {item.icon}
@@ -495,7 +495,7 @@ export default function About() {
                 </p>
 
                 {/* ✅ Value Strength Indicator */}
-                <div className="relative z-10 mt-8 h-1 w-24 mx-auto rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 shadow-[0_0_20px_rgba(99,102,241,0.8)]" />
+                <div className="relative z-10 mt-8 h-1 w-24 mx-auto rounded-full bg-linear-to-r from-indigo-500 to-purple-500 shadow-[0_0_20px_rgba(99,102,241,0.8)]" />
               </motion.div>
             ))}
           </div>
@@ -529,7 +529,7 @@ export default function About() {
         </div>
       </section>
       {/* ================= ULTRA PREMIUM AWARDS & RECOGNITION ================= */}
-      <section className="relative py-40 overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      <section className="relative py-40 overflow-hidden bg-linear-to-br from-indigo-50 via-white to-purple-50">
         {/* ✅ Floating Aurora Background */}
         <motion.div
           animate={{ x: [0, 160, 0], y: [0, -120, 0] }}
@@ -610,8 +610,8 @@ export default function About() {
                 <div
                   className={`relative z-10 w-24 h-24 mx-auto mb-10 rounded-2xl flex items-center justify-center text-4xl shadow-xl ${
                     item.glow === "indigo"
-                      ? "bg-gradient-to-br from-indigo-500 to-indigo-800 text-white"
-                      : "bg-gradient-to-br from-purple-500 to-purple-800 text-white"
+                      ? "bg-linear-to-br from-indigo-500 to-indigo-800 text-white"
+                      : "bg-linear-to-br from-purple-500 to-purple-800 text-white"
                   }`}
                 >
                   🏅
@@ -628,7 +628,7 @@ export default function About() {
                 {/* ✅ Trust Meter */}
                 <div className="relative z-10 mt-6">
                   <div className="h-1.5 w-full rounded-full bg-slate-200 overflow-hidden">
-                    <div className="h-full w-[95%] bg-gradient-to-r from-indigo-500 to-purple-600 shadow-[0_0_18px_rgba(99,102,241,0.8)]" />
+                    <div className="h-full w-[95%] bg-linear-to-r from-indigo-500 to-purple-600 shadow-[0_0_18px_rgba(99,102,241,0.8)]" />
                   </div>
                   <p className="text-xs text-slate-500 mt-3 font-semibold tracking-wider">
                     Industry Trust Score: 95%
@@ -695,7 +695,7 @@ export default function About() {
       </section>
 
       {/* ================= ULTRA PREMIUM TEAM ================= */}
-      <section className="relative py-40 overflow-hidden bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50">
+      <section className="relative py-40 overflow-hidden bg-linear-to-br from-slate-50 via-indigo-50 to-purple-50">
         {/* ✅ Ambient Glow */}
         <motion.div
           animate={{ x: [0, 140, 0], y: [0, -90, 0] }}
@@ -721,7 +721,7 @@ export default function About() {
               👑 Executive Leadership
             </span>
 
-            <h2 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-indigo-600 via-sky-600 to-purple-600 bg-clip-text text-transparent mb-6">
+            <h2 className="text-5xl md:text-6xl font-black bg-linear-to-r from-indigo-600 via-sky-600 to-purple-600 bg-clip-text text-transparent mb-6">
               Leadership Team
             </h2>
 
@@ -774,7 +774,7 @@ export default function About() {
                 className="relative group transform-gpu"
               >
                 {/* ✅ Neon Border */}
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-100 blur-xl transition duration-500" />
+                <div className="absolute inset-0 rounded-3xl bg-linear-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-100 blur-xl transition duration-500" />
 
                 {/* ✅ Glass Leadership Card */}
                 <div className="relative bg-white/85 backdrop-blur-2xl border border-white/50 rounded-3xl shadow-[0_30px_90px_rgba(79,70,229,0.3)] p-10 text-center">
@@ -816,7 +816,7 @@ export default function About() {
       </section>
 
       {/* ================= CAREER CTA ================= */}
-      <section className="py-36 bg-gradient-to-r from-indigo-700 to-purple-700 text-white text-center">
+      <section className="py-36 bg-linear-to-r from-indigo-700 to-purple-700 text-white text-center">
         <h2 className="text-5xl font-black mb-6">
           Join Us & Build the Hiring Infrastructure of Tomorrow
         </h2>
