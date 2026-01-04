@@ -17,6 +17,11 @@ import CertificationTracker from "./pages/tools/CertificationTracker";
 import Blogs from "./pages/Blogs";
 import "./App.css";
 
+/* ======= DASHBOARD IMPORTS (ADDED, not removing anything) ======= */
+import AdminDashboard from "./pages/dashboard/AdminDashboard";
+import RecruiterDashboard from "./pages/dashboard/RecruiterDasboard";
+import CandidateDashboard from "./pages/dashboard/CandidateDashboard";
+
 function App() {
   return (
     <Router>
@@ -31,17 +36,18 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/career-tools" element={<CareerTools />} />
         <Route path="/jobs/:id" element={<JobDetail />} />
-        <Route path="/career-tools" element={<CareerTools />} />
         <Route path="/tools/resume-builder" element={<ResumeBuilder />} />
         <Route path="/tools/career-roadmap" element={<CareerRoadmap />} />
         <Route path="/tools/salary-estimator" element={<SalaryEstimator />} />
         <Route path="/tools/cover-letter" element={<CoverLetterTool />} />
         <Route path="/tools/mock-interview" element={<MockInterviewTool />} />
-        <Route
-          path="/tools/certification-tracker"
-          element={<CertificationTracker />}
-        />
+        <Route path="/tools/certification-tracker" element={<CertificationTracker />} />
         <Route path="/blog" element={<Blogs />} />
+
+        {/* ===== DASHBOARD ROUTES (ADDED, FIXES ERROR) ===== */}
+        <Route path="/dashboard/admin" element={<AdminDashboard />} />
+        <Route path="/dashboard/recruiter" element={<RecruiterDashboard />} />
+        <Route path="/dashboard/candidate" element={<CandidateDashboard />} />
       </Routes>
     </Router>
   );

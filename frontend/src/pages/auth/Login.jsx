@@ -28,11 +28,16 @@ export default function Login() {
     setLoading(true);
     setError("");
 
+    console.log("➡ Calling Login API: POST /api/auth/login"); // added for integration visibility
+    console.log("➡ Payload Sent:", formData);
+
     try {
       const res = await axios.post(
         "http://localhost:5000/api/auth/login",
         formData
       );
+
+      console.log("✅ Login API Response:", res.data); // added for debugging
 
       // ✅ SAFE LOGIN CALL (WILL NOT CRASH)
       if (res?.data?.user && res?.data?.token) {
@@ -46,6 +51,7 @@ export default function Login() {
         setError("Invalid login response from server");
       }
     } catch (err) {
+      console.error("❌ Login API Error:", err.response?.data || err.message); // added for clarity
       setError(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
@@ -72,7 +78,7 @@ export default function Login() {
         initial={{ opacity: 0, y: 40, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.8 }}
-        className="relative z-10 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-[0_30px_100px_rgba(79,70,229,0.6)] p-12 w-full max-w-md"
+        className="relative z-10 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-[0_20px_60px_rgba(99,102,241,0.6)] p-12 w-full max-w-md"
       >
         <h2 className="text-4xl font-black text-center bg-linear-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent mb-10">
           Welcome Back
@@ -97,7 +103,7 @@ export default function Login() {
             placeholder="Email Address"
             onChange={handleChange}
             required
-            className="w-full bg-white/10 border border-white/20 text-white placeholder-white/50 rounded-xl py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full bg-white/10 border border-white/20 text-black placeholder-white/50 rounded-xl py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
@@ -110,7 +116,7 @@ export default function Login() {
             placeholder="Password"
             onChange={handleChange}
             required
-            className="w-full bg-white/10 border border-white/20 text-white placeholder-white/50 rounded-xl py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full bg-white/10 border border-white/20 text-black placeholder-white/50 rounded-xl py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 

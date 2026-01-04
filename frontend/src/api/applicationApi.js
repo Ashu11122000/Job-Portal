@@ -13,3 +13,8 @@ export const updateApplicationStatus = (id, status) =>
 
 export const deleteApplication = (id) =>
   axiosInstance.delete(`/applications/${id}`);
+
+
+// ✅ NEW API added for candidate dashboard
+export const getMyApplications = (userId) =>
+  axiosInstance.get(`/applications/user/${userId}`);

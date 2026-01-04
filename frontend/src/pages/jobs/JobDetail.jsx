@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"; // <-- keep this only once
 import { useParams, useNavigate } from "react-router-dom";
 import { getJobById } from "../../api/jobApi";
 import { applyForJob } from "../../api/applicationApi";
@@ -61,14 +61,14 @@ export default function JobDetail() {
   return (
     <div className="min-h-screen bg-linear-to-br from-indigo-50 to-purple-50 px-6 py-24">
       <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl p-10">
-        {/* ✅ JOB HEADER */}
+        {/* JOB HEADER */}
         <div className="border-b pb-8 mb-8">
           <h1 className="text-4xl font-black text-slate-900 mb-2">
             {job.title}
           </h1>
 
           <p className="text-lg text-indigo-600 font-semibold mb-1">
-            {job.company?.name}
+            {job.company}
           </p>
 
           <p className="text-slate-500">
@@ -77,20 +77,15 @@ export default function JobDetail() {
           </p>
 
           <p className="text-indigo-700 font-bold text-xl mt-4">
-            ₹{job.salaryRange?.min?.toLocaleString()} – ₹
-            {job.salaryRange?.max?.toLocaleString()} / year
+            {job.salary}
           </p>
         </div>
 
-        {/* ✅ JOB OVERVIEW GRID */}
+        {/* JOB OVERVIEW GRID */}
         <div className="grid md:grid-cols-3 gap-6 mb-10">
           <InfoCard title="Job Type" value={job.jobType || "Full-Time"} />
           <InfoCard title="Experience" value={job.experience || "Fresher"} />
           <InfoCard title="Work Mode" value={job.workMode || "Onsite"} />
-          <InfoCard
-            title="Department"
-            value={job.department || "Engineering"}
-          />
           <InfoCard title="Openings" value={job.openings || "1"} />
           <InfoCard
             title="Posted On"
@@ -98,12 +93,12 @@ export default function JobDetail() {
           />
         </div>
 
-        {/* ✅ JOB DESCRIPTION */}
+        {/* JOB DESCRIPTION */}
         <Section title="Job Description">
           {job.description || "No job description provided."}
         </Section>
 
-        {/* ✅ RESPONSIBILITIES */}
+        {/* RESPONSIBILITIES */}
         <Section title="Key Responsibilities">
           <ul className="list-disc ml-6 text-slate-700 space-y-2">
             {(
@@ -119,23 +114,21 @@ export default function JobDetail() {
           </ul>
         </Section>
 
-        {/* ✅ SKILLS */}
+        {/* SKILLS */}
         <Section title="Required Skills">
           <div className="flex flex-wrap gap-3">
-            {(job.skills || ["React", "Java", "Spring Boot", "MySQL"]).map(
-              (skill, i) => (
-                <span
-                  key={i}
-                  className="bg-indigo-100 text-indigo-700 px-4 py-1.5 rounded-full text-sm font-medium"
-                >
-                  {skill}
-                </span>
-              )
-            )}
+            {(job.skills || ["React", "JavaScript"]).map((skill, i) => (
+              <span
+                key={i}
+                className="bg-indigo-100 text-indigo-700 px-4 py-1.5 rounded-full text-sm font-medium"
+              >
+                {skill}
+              </span>
+            ))}
           </div>
         </Section>
 
-        {/* ✅ BENEFITS */}
+        {/* BENEFITS */}
         <Section title="Benefits & Perks">
           <ul className="list-disc ml-6 text-slate-700 space-y-2">
             {(
@@ -152,7 +145,7 @@ export default function JobDetail() {
           </ul>
         </Section>
 
-        {/* ✅ ABOUT COMPANY */}
+        {/* ABOUT COMPANY */}
         <Section title="About the Company">
           <p className="text-slate-700 leading-relaxed">
             {job.company?.about ||
@@ -160,7 +153,7 @@ export default function JobDetail() {
           </p>
         </Section>
 
-        {/* ✅ APPLY BUTTON */}
+        {/* APPLY BUTTON */}
         <div className="mt-10 flex gap-6">
           <button
             onClick={handleApply}
@@ -182,7 +175,7 @@ export default function JobDetail() {
   );
 }
 
-/* ✅ REUSABLE INFO CARD */
+/* REUSABLE INFO CARD */
 function InfoCard({ title, value }) {
   return (
     <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-5">
@@ -192,7 +185,7 @@ function InfoCard({ title, value }) {
   );
 }
 
-/* ✅ REUSABLE SECTION */
+/* REUSABLE SECTION */
 function Section({ title, children }) {
   return (
     <div className="mb-10">

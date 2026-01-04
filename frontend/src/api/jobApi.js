@@ -1,26 +1,11 @@
-import axiosInstance from "./axiosInstance";
+import axios from "axios";
 
-// ✅ GET ALL JOBS (PUBLIC)
-export const getAllJobs = () => {
-  return axiosInstance.get("/jobs");
-};
+const axiosInstance = axios.create({
+  baseURL: "http://localhost:5000/api",
+});
 
-// ✅ GET SINGLE JOB
-export const getJobById = (id) => {
-  return axiosInstance.get(`/jobs/${id}`);
-};
-
-// ✅ CREATE JOB (Recruiter/Admin)
-export const createJob = (jobData) => {
-  return axiosInstance.post("/jobs", jobData);
-};
-
-// ✅ UPDATE JOB
-export const updateJob = (id, jobData) => {
-  return axiosInstance.put(`/jobs/${id}`, jobData);
-};
-
-// ✅ DELETE JOB
-export const deleteJob = (id) => {
-  return axiosInstance.delete(`/jobs/${id}`);
-};
+export const getAllJobs = () => axiosInstance.get("/jobs");
+export const getJobById = (id) => axiosInstance.get(`/jobs/${id}`);
+export const createJob = (jobData) => axiosInstance.post("/jobs", jobData);
+export const updateJob = (id, jobData) => axiosInstance.put(`/jobs/${id}`, jobData);
+export const deleteJob = (id) => axiosInstance.delete(`/jobs/${id}`);

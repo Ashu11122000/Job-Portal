@@ -22,6 +22,8 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const API_BASE = "http://localhost:5000/api/auth"; // added but not replacing existing lines
+
   const handleChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   };
@@ -31,11 +33,18 @@ export default function Register() {
     setError("");
     setLoading(true);
 
+    console.log("➡ Sending Register Request with Data:", form);
+
     try {
       const res = await axios.post(
         "http://localhost:5000/api/auth/register",
         form
-      );
+      , {
+        timeout: 8000,
+        withCredentials: true
+      });
+
+      console.log("✅ Register API Response:", res.data);
 
       // ✅ SAFE REGISTER + LOGIN
       if (res?.data?.user && res?.data?.token) {
@@ -45,6 +54,7 @@ export default function Register() {
         setError("Invalid registration response from server");
       }
     } catch (err) {
+      console.error("❌ Register API Error:", err.response?.data || err.message);
       setError(
         err.response?.data?.message ||
           "Registration failed, please check details."
@@ -74,6 +84,7 @@ export default function Register() {
         initial={{ opacity: 0, y: 40, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.8 }}
+         style={{ color: "black" }}
         className="relative z-10 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-[0_30px_100px_rgba(79,70,229,0.6)] p-12 w-full max-w-md"
       >
         <h2 className="text-4xl font-black text-center bg-linear-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent mb-10">
@@ -129,12 +140,12 @@ export default function Register() {
 
         {/* ✅ ROLE */}
         <div className="mb-8 relative">
-          <FiShield className="absolute top-1/2 -translate-y-1/2 left-4 text-white/70" />
+          <FiShield className="absolute top-1/2 -translate-y-1/2 left-4 text-black/70" />
           <select
             name="role"
             value={form.role}
             onChange={handleChange}
-            className="w-full bg-white/10 border border-white/20 text-white rounded-xl py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full bg-white/10 border border-white/20 text-black rounded-xl py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-indigo-500"
           >
             <option value="candidate">Candidate</option>
             <option value="recruiter">Recruiter</option>
