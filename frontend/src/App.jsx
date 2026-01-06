@@ -17,10 +17,17 @@ import CertificationTracker from "./pages/tools/CertificationTracker";
 import Blogs from "./pages/Blogs";
 import "./App.css";
 
-/* ======= DASHBOARD IMPORTS (ADDED, not removing anything) ======= */
+/* ======= DASHBOARD IMPORTS (Existing kept) ======= */
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import RecruiterDashboard from "./pages/dashboard/RecruiterDasboard";
 import CandidateDashboard from "./pages/dashboard/CandidateDashboard";
+
+/* ======= PHASE 3 (Company + Job pages kept) ======= */
+import CompanyProfile from "./pages/company/CompanyProfile";
+import ManageJobs from "./pages/company/ManageJobs";
+import PostJob from "./pages/jobs/PostJob";
+import CompanyJobs from "./pages/jobs/CompanyJobs.";
+import JobsByCompany from "./pages/company/JobsByCompany";
 
 function App() {
   return (
@@ -28,6 +35,7 @@ function App() {
       <Navbar />
 
       <Routes>
+        {/* Existing routes kept */}
         <Route path="/" element={<Home />} />
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/login" element={<Login />} />
@@ -44,10 +52,18 @@ function App() {
         <Route path="/tools/certification-tracker" element={<CertificationTracker />} />
         <Route path="/blog" element={<Blogs />} />
 
-        {/* ===== DASHBOARD ROUTES (ADDED, FIXES ERROR) ===== */}
+        {/* Dashboard routes kept */}
         <Route path="/dashboard/admin" element={<AdminDashboard />} />
         <Route path="/dashboard/recruiter" element={<RecruiterDashboard />} />
         <Route path="/dashboard/candidate" element={<CandidateDashboard />} />
+
+        {/* Phase 3 company/job routes kept */}
+        <Route path="/companies" element={<CompanyProfile />} />
+        <Route path="/company/manage" element={<ManageJobs />} />
+        <Route path="/jobs/post" element={<PostJob />} />
+        <Route path="/company/profile/:id" element={<CompanyProfile />} />
+        <Route path="/company/:id/jobs" element={<CompanyJobs />} />
+        <Route path="/companies/jobs" element={<JobsByCompany />} />
       </Routes>
     </Router>
   );

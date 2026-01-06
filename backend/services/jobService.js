@@ -86,3 +86,30 @@ export const deleteJob = async (id) => {
     throw new Error("Failed to delete job from database");
   }
 };
+
+
+// Assign Job (Create)
+export const insertJob = async (jobData) => {
+  const sql = `INSERT INTO jobs (title, company, location, salary, description, company_id)
+               VALUES (?, ?, ?, ?, ?, ?)`;
+
+  const { title, company, location, salary, description, company_id } = jobData;
+
+  const [result] = await pool.query(sql, [
+    title,
+    company,
+    location,
+    salary,
+    description,
+    company_id || null,
+  ]);
+
+  return result;
+};
+
+// List Jobs by Company
+export const fetchJobsByCompany = async (companyId) => {
+  const sql = `SELECT * FROM jobs WHERE company_id = ? ORDER BY created_at DESC`;
+  const [rows] = await pool.query(sql, [companyId]);
+  return rows;
+};

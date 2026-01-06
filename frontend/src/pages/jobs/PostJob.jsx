@@ -1,90 +1,146 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { FiMapPin, FiDollarSign, FiBriefcase, FiSend, FiUsers } from "react-icons/fi";
-import { createJob } from "../../api/jobApi";
+import { FiMapPin, FiDollarSign, FiSend, FiUsers, FiBriefcase } from "react-icons/fi";
+import { createJob } from "../../api/jobApi"; // existing kept
+import axiosInstance from "../../api/axiosInstance"; // existing kept
 
 export default function PostJob() {
   const [form, setForm] = useState({
     title: "",
     company: "",
+    company_id: "",
     location: "",
     salary: "",
     description: "",
   });
 
-  const [loading, setLoading] = useState(false);
+  const [companies, setCompanies] = useState([]); // dropdown list
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  // Load companies for dropdown
+  useEffect(() => {
+    axiosInstance
+      .get("/api/company") // FIXED ✔ correct API path
+      .then((res) => {
+        setCompanies(res.data?.data || []);
+      })
+      .catch((err) => {
+        console.error("Company API Error:", err);
+        setError("Unable to load company list");
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleCompanySelect = (e) => {
+    const companyId = e.target.value;
+    const selected = companies.find((c) => c.id === Number(companyId));
+
+    if (selected) {
+      setForm((prev) => ({
+        ...prev,
+        company: selected.name,
+        company_id: selected.id,
+        location: selected.location,
+      }));
+    } else {
+      setForm((prev) => ({
+        ...prev,
+        company_id: companyId,
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
+    setError("");
 
     try {
-      const res = await createJob(form);
+      const res = await axiosInstance.post("/api/jobs", form); // FIXED ✔ send job correctly
       if (res.data?.success) {
         setMessage("Job posted successfully!");
-        setForm({ title: "", company: "", location: "", salary: "", description: "" });
+        setForm({
+          title: "",
+          company: "",
+          company_id: "",
+          location: "",
+          salary: "",
+          description: "",
+        });
       }
     } catch (err) {
-      console.error(err);
-      setMessage("Failed to post job. Try again.");
+      console.error("Job API Error:", err);
+      setError(err.response?.data?.message || "Failed to post job. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-linear-to-br from-slate-950 via-indigo-950 to-purple-950 px-6 py-24 overflow-hidden">
-      
-      {/* Premium Background Glow */}
-      <motion.div
-        animate={{ x: [0, 120, 0], y: [0, -100, 0] }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -top-40 -left-40 w-[650px] h-[650px] bg-indigo-500/25 rounded-full blur-[180px]"
-      />
-
-      <motion.div
-        animate={{ x: [0, -140, 0], y: [0, 120, 0] }}
-        transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -bottom-60 -right-60 w-[750px] h-[750px] bg-purple-500/30 rounded-full blur-[190px]"
-      />
-
-      {/* Form Card */}
+    <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-100 px-6 py-20">
       <motion.form
         onSubmit={handleSubmit}
-        initial={{ opacity: 0, y: 60, scale: 0.9 }}
+        initial={{ opacity: 0, y: 40, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.7, type: "spring", stiffness: 120 }}
-        className="relative z-10 w-full max-w-3xl bg-white/15 backdrop-blur-2xl border border-white/30 rounded-[32px] p-14 shadow-[0_40px_140px_rgba(99,102,241,0.35)]"
+        transition={{ type: "spring", stiffness: 120 }}
+        className="w-full max-w-3xl bg-white/70 backdrop-blur-2xl border border-black/10 rounded-[28px] p-10 shadow-xl text-black"
       >
-
-        {/* Header */}
-        <h2 className="text-5xl font-black text-center text-black mb-10 tracking-tight drop-shadow-lg">
-          Post a Job
+        <h2 className="text-4xl font-black text-center text-black mb-8">
+          <FiBriefcase className="inline-block mr-2" /> Post a Job
         </h2>
 
-        {/* Success/Error Message */}
         {message && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-7 text-center text-sm font-semibold px-6 py-3 rounded-2xl border border-emerald-400/40 bg-emerald-500/10 text-emerald-300 shadow-md"
+            className="text-center text-sm font-bold text-green-700 bg-green-100 border border-green-300 px-4 py-2 rounded-xl mb-4"
           >
             {message}
           </motion.div>
         )}
 
-        {/* Input Grid */}
-        <div className="grid md:grid-cols-2 gap-7">
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center text-sm font-bold text-red-700 bg-red-100 border border-red-300 px-4 py-2 rounded-xl mb-4"
+          >
+            {error}
+          </motion.div>
+        )}
 
-          {/* TITLE */}
+        {/* Company Dropdown */}
+        <div className="mb-5">
+          <label className="text-sm font-bold flex items-center gap-2 mb-2">
+            <FiUsers /> Select Company
+          </label>
+          <select
+            name="company_id"
+            value={form.company_id}
+            onChange={handleCompanySelect}
+            required
+            className="w-full bg-white border border-black/20 rounded-2xl py-3 px-4 text-black outline-none shadow-md"
+          >
+            <option value="">-- Choose a company --</option>
+            {companies.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name} ({c.location})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Inputs */}
+        <div className="grid md:grid-cols-2 gap-5">
           <div className="relative">
-            <FiBriefcase className="absolute top-4 left-5 text-black/70 text-xl" />
+            <FiBriefcase className="absolute top-3 left-4 text-black/70" />
             <input
               type="text"
               name="title"
@@ -92,78 +148,71 @@ export default function PostJob() {
               value={form.title}
               onChange={handleChange}
               required
-              className="w-full bg-white/10 border border-white/30 text-black placeholder-black/50 rounded-2xl py-4 pl-14 pr-5 outline-none focus:ring-2 focus:ring-indigo-500 transition"
+              className="w-full bg-white border border-black/20 rounded-2xl py-3 pl-12 pr-4 text-black outline-none shadow-md"
             />
           </div>
 
-          {/* COMPANY */}
           <div className="relative">
-            <FiUsers className="absolute top-4 left-5 text-black/70 text-xl" />
+            <FiUsers className="absolute top-3 left-4 text-black/70" />
             <input
               type="text"
               name="company"
               placeholder="Company Name"
               value={form.company}
-              onChange={handleChange}
-              required
-              className="w-full bg-white/10 border border-white/30 text-black placeholder-black/50 rounded-2xl py-4 pl-14 pr-5 outline-none focus:ring-2 focus:ring-indigo-500 transition"
+              readOnly
+              className="w-full bg-white border border-black/20 rounded-2xl py-3 pl-12 pr-4 text-black outline-none opacity-80"
             />
           </div>
 
-          {/* LOCATION */}
           <div className="relative">
-            <FiMapPin className="absolute top-4 left-5 text-black/70 text-xl" />
+            <FiMapPin className="absolute top-3 left-4 text-black/70" />
             <input
               type="text"
               name="location"
-              placeholder="Location (Remote / City)"
+              placeholder="Location"
               value={form.location}
-              onChange={handleChange}
-              required
-              className="w-full bg-white/10 border border-white/30 text-black placeholder-black/50 rounded-2xl py-4 pl-14 pr-5 outline-none focus:ring-2 focus:ring-indigo-500 transition"
+              readOnly
+              className="w-full bg-white border border-black/20 rounded-2xl py-3 pl-12 pr-4 text-black outline-none opacity-80"
             />
           </div>
 
-          {/* SALARY */}
           <div className="relative">
-            <FiDollarSign className="absolute top-4 left-5 text-black/70 text-xl" />
+            <FiDollarSign className="absolute top-3 left-4 text-black/70" />
             <input
-              type="text"
+              type="number"
               name="salary"
-              placeholder="Salary Range (e.g. 6,00,000 - 15,00,000)"
+              placeholder="Salary"
               value={form.salary}
               onChange={handleChange}
               required
-              className="w-full bg-white/10 border border-white/30 text-black placeholder-black/50 rounded-2xl py-4 pl-14 pr-5 outline-none focus:ring-2 focus:ring-indigo-500 transition"
+              className="w-full bg-white border border-black/20 rounded-2xl py-3 pl-12 pr-4 text-black outline-none shadow-md"
             />
           </div>
-
         </div>
 
-        {/* DESCRIPTION */}
-        <div className="mt-8">
+        {/* Description */}
+        <div className="mt-5">
           <textarea
             name="description"
             placeholder="Job Description"
             value={form.description}
             onChange={handleChange}
             required
-            className="w-full min-h-[200px] bg-white/10 border border-white/30 text-black placeholder-black/50 rounded-2xl p-6 outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            className="w-full min-h-[160px] bg-white border border-black/20 rounded-2xl p-4 text-black outline-none shadow-md"
           />
         </div>
 
-        {/* SUBMIT BUTTON */}
-        <div className="mt-12 text-center">
+        {/* Submit Button */}
+        <div className="mt-8 text-center">
           <motion.button
-            whileHover={{ scale: 1.07 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.96 }}
             disabled={loading}
-            className="bg-gradient-to-r from-indigo-700 to-purple-700 text-white px-16 py-4 rounded-full font-bold text-xl shadow-xl hover:shadow-2xl transition-all inline-flex items-center gap-3 justify-center"
+            className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-10 py-3 rounded-full font-bold shadow-lg inline-flex items-center gap-2"
           >
             {loading ? "Posting..." : "Submit Job"} <FiSend />
           </motion.button>
         </div>
-
       </motion.form>
     </section>
   );

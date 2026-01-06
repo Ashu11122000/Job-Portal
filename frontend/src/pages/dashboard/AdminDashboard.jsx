@@ -196,6 +196,7 @@ export default function AdminDashboard() {
           </AnimatePresence>
         </div>
 
+        
         {/* CHARTS SECTION */}
         <div className="grid md:grid-cols-2 gap-6 mb-10">
           {/* Jobs Growth Line Chart */}
@@ -276,6 +277,58 @@ export default function AdminDashboard() {
           </motion.div>
         )}
       </section>
+
+      <AnimatePresence>
+  {showEditModal && editJobForm && (
+    <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50 p-6">
+      <motion.div
+        initial={{opacity:0,y:20}}
+        animate={{opacity:1,y:0}}
+        exit={{opacity:0,y:-20}}
+        className="bg-gradient-to-br from-indigo-900 to-purple-900 border border-white/10 rounded-3xl p-8 max-w-lg w-full shadow-2xl backdrop-blur-xl"
+      >
+        <h2 className="text-2xl font-black text-white mb-4 flex items-center gap-2">
+          <FiEdit3/> Edit Job
+        </h2>
+
+        <input
+          value={editJobForm.title}
+          onChange={(e)=>setEditJobForm({...editJobForm,title:e.target.value})}
+          className="w-full p-3 rounded-xl bg-white/20 text-white mb-3"
+        />
+        <input
+          value={editJobForm.company}
+          onChange={(e)=>setEditJobForm({...editJobForm,company:e.target.value})}
+          className="w-full p-3 rounded-xl bg-white/20 text-white mb-3"
+        />
+        <input
+          value={editJobForm.location}
+          onChange={(e)=>setEditJobForm({...editJobForm,location:e.target.value})}
+          className="w-full p-3 rounded-xl bg-white/20 text-white mb-3"
+        />
+        <input
+          value={editJobForm.salary}
+          onChange={(e)=>setEditJobForm({...editJobForm,salary:e.target.value})}
+          className="w-full p-3 rounded-xl bg-white/20 text-white mb-3"
+        />
+        <textarea
+          value={editJobForm.description}
+          onChange={(e)=>setEditJobForm({...editJobForm,description:e.target.value})}
+          className="w-full p-3 rounded-xl bg-white/20 text-white min-h-[100px] mb-4"
+        />
+
+        <div className="flex justify-end gap-3">
+          <button onClick={()=>setShowEditModal(false)} className="px-4 py-2 rounded-xl bg-white/10 text-white">Cancel</button>
+          <button onClick={()=>{
+            setJobs(jobs.map(j=>j.id===editJobForm.id?editJobForm:j));
+            setShowEditModal(false);
+          }} className="px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold">Save</button>
+        </div>
+      </motion.div>
+    </div>
+  )}
+</AnimatePresence>
+
 
       {/* FOOTER */}
       <Footer />
