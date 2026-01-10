@@ -1,6 +1,11 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
+
+// ⚠️ IMPORTANT: Load dotenv ONLY in local development
+if (process.env.NODE_ENV !== "production") {
+  const dotenv = await import("dotenv");
+  dotenv.config();
+}
 
 import authRoutes from "./routes/authRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
@@ -14,37 +19,41 @@ import logsRoutes from "./routes/logsRoutes.js";
 
 import logger from "./utils/logger.js";
 
-dotenv.config();
 const app = express();
+
+/* -------------------- MIDDLEWARES -------------------- */
 
 app.use(express.json());
 
-app.use(cors({
-  origin: "http://localhost:5173",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",              // local dev
+      "https://your-frontend.vercel.app",   // production frontend
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
+);
 
 logger.info("Middlewares initialized");
 
-// Existing mounts (kept)
+/* -------------------- ROUTES -------------------- */
+
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
 
-// Company mounts (kept)
 app.use("/api/company", companyRoutes);
 logger.info("Company routes loaded successfully");
+
 app.use("/api/company/logo", companyLogoRoutes);
-
-// Resume Builder API mount
 app.use("/api/resume", resumeRoutes);
-
-// Mock Interview API mount (fixed)
 app.use("/api/mock-interview", mockInterviewRoutes);
-
 app.use("/api/admin/settings", settingsRoutes);
 app.use("/api/admin/logs", logsRoutes);
+
+/* -------------------- ERROR HANDLER -------------------- */
 
 app.use((err, req, res, next) => {
   console.error("🔥 SERVER ERROR →", err);
@@ -56,5 +65,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+/* -------------------- SERVER -------------------- */
+
+const PORT = process.env.PORT || 8080;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
