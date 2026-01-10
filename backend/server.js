@@ -1,10 +1,7 @@
 import express from "express";
 import cors from "cors";
 
-/**
- * Load dotenv ONLY for local development
- * Railway injects env vars automatically in production
- */
+// Load dotenv ONLY locally
 if (process.env.NODE_ENV !== "production") {
   const dotenv = await import("dotenv");
   dotenv.config();
@@ -28,25 +25,21 @@ const app = express();
 
 app.use(express.json());
 
+// ✅ PRODUCTION-READY CORS
 app.use(
   cors({
-    origin: (origin, callback) => {
-      const allowedOrigins = [
-        "http://localhost:5173",                 // local frontend
-        "https://job-portal105.vercel.app",      // ✅ YOUR REAL VERCEL URL
-      ];
-
-      // allow requests with no origin (Postman, curl)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: [
+      "http://localhost:5173",
+      "https://job-portal105.vercel.app", // ✅ YOUR REAL VERCEL URL
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
+
+// ✅ IMPORTANT for preflight
+app.options("*", cors());
 
 logger.info("Middlewares initialized");
 
@@ -55,10 +48,7 @@ logger.info("Middlewares initialized");
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
-
 app.use("/api/company", companyRoutes);
-logger.info("Company routes loaded successfully");
-
 app.use("/api/company/logo", companyLogoRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/mock-interview", mockInterviewRoutes);
@@ -73,7 +63,6 @@ app.use((err, req, res, next) => {
   res.status(500).json({
     success: false,
     message: "Internal server error",
-    error: err.message,
   });
 });
 
