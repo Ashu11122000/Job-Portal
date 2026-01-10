@@ -30,7 +30,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://job-portal105.vercel.app", // ✅ YOUR REAL VERCEL URL
+      "https://job-portal110.vercel.app", // ✅ YOUR REAL VERCEL URL
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
