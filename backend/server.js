@@ -28,13 +28,14 @@ app.use(express.json());
 app.use(
   cors({
     origin: [
-      "http://localhost:5173",              // local dev
-      "https://your-frontend.vercel.app",   // production frontend
+      "http://localhost:5173",            // local dev
+      "https://job-portal.vercel.app",     // <-- REPLACE with your real Vercel URL
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
 );
+
 
 logger.info("Middlewares initialized");
 
