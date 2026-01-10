@@ -17,15 +17,17 @@ CREATE TABLE IF NOT EXISTS jobs (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS applications (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  job_id INT NOT NULL,
-  user_id INT NOT NULL,
-  resume VARCHAR(255),
-  status ENUM('applied','reviewed','selected','rejected') DEFAULT 'applied',
-  applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+CREATE TABLE applications (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  candidate_name VARCHAR(100),
+  job_title VARCHAR(100),
+  status VARCHAR(20),
+  source VARCHAR(50),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  recruiter_id INT,
+  package_lpa FLOAT,
+  joining_date DATE,
+  remote BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS companies (
@@ -49,4 +51,54 @@ CREATE TABLE IF NOT EXISTS analytics (
   metadata JSON,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE resumes (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(100),
+  title VARCHAR(100),
+  summary TEXT,
+  skills TEXT,
+  experience TEXT,
+  education TEXT,
+  certifications TEXT,
+  projects TEXT,
+  email VARCHAR(100),
+  phone VARCHAR(20),
+  location VARCHAR(100),
+  links TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE mock_interviews (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  role VARCHAR(100),
+  difficulty VARCHAR(20),
+  answers JSON NULL,
+  score INT DEFAULT 0,
+  feedback TEXT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS salary_reports (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  role VARCHAR(100) NOT NULL,
+  experience VARCHAR(50) NOT NULL,
+  location VARCHAR(100) NOT NULL,
+  min_lpa INT NOT NULL,
+  max_lpa INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE admin_settings (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  setting_key VARCHAR(100) UNIQUE NOT NULL,
+  setting_value BOOLEAN NOT NULL
+);
+
+CREATE TABLE admin_logs (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  log TEXT NOT NULL,
+  time VARCHAR(100) NOT NULL
 );

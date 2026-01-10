@@ -1,12 +1,18 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+
 import authRoutes from "./routes/authRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
 import applicationRoutes from "./routes/applicationRoutes.js";
-import logger from "./utils/logger.js";
-import companyRoutes from "./routes/companyRoutes.js"; // ✔ ADDED for Company APIs
+import companyRoutes from "./routes/companyRoutes.js";
 import companyLogoRoutes from "./routes/companyLogoRoutes.js";
+import resumeRoutes from "./routes/resumeRoutes.js";
+import mockInterviewRoutes from "./routes/mockInterviewRoutes.js";
+import settingsRoutes from "./routes/settingsRoutes.js";
+import logsRoutes from "./routes/logsRoutes.js";
+
+import logger from "./utils/logger.js";
 
 dotenv.config();
 const app = express();
@@ -21,18 +27,25 @@ app.use(cors({
 
 logger.info("Middlewares initialized");
 
-// Safe mount (Existing routes kept)
+// Existing mounts (kept)
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
 
-// Company API mount (Newly added)
+// Company mounts (kept)
 app.use("/api/company", companyRoutes);
-logger.info("Company routes loaded successfully"); // ✔ NEW LOG ADDED (existing code untouched)
-
+logger.info("Company routes loaded successfully");
 app.use("/api/company/logo", companyLogoRoutes);
 
-// Global error catcher (Existing kept)
+// Resume Builder API mount
+app.use("/api/resume", resumeRoutes);
+
+// Mock Interview API mount (fixed)
+app.use("/api/mock-interview", mockInterviewRoutes);
+
+app.use("/api/admin/settings", settingsRoutes);
+app.use("/api/admin/logs", logsRoutes);
+
 app.use((err, req, res, next) => {
   console.error("🔥 SERVER ERROR →", err);
   logger.error(`API Crash: ${err.message}`);

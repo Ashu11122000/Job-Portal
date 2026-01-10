@@ -1,26 +1,23 @@
 // src/pages/tools/ResumeBuilder.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   FiFileText,
-  FiUser,
-  FiBriefcase,
-  FiLayers,
   FiMail,
   FiPhone,
   FiMapPin,
   FiLink,
-  FiAward,
-  FiBook,
-  FiFolder,
   FiDownload,
   FiMoon,
   FiSun,
+  FiLayers,
   FiZap,
+  FiRefreshCw,
 } from "react-icons/fi";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import Footer from "../../components/layout/Footer";
+import { saveResumeApi, getResumeApi, listResumesApi } from "../../api/resumeApi";
 
 export default function ResumeBuilder() {
   const [template, setTemplate] = useState("modern");
@@ -41,7 +38,6 @@ export default function ResumeBuilder() {
     links: "",
   });
 
-  // visible controls for Option A: checkbox beside each field
   const [visible, setVisible] = useState({
     name: true,
     title: true,
@@ -57,8 +53,8 @@ export default function ResumeBuilder() {
     links: true,
   });
 
-  // JD parser state
-  const [jdText, setJdText] = useState("");
+  const [resumeId, setResumeId] = useState("");
+  const [savedList, setSavedList] = useState([]);
 
   const handleChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -68,27 +64,25 @@ export default function ResumeBuilder() {
     setVisible((v) => ({ ...v, [key]: !v[key] }));
   };
 
-  // 🔥 AI Autofill (Mock → Replace with backend later)
   const autoFill = () => {
     const data = {
       name: "Ashish Kumar",
       title: "Full Stack Developer",
       summary:
-        "Full-stack developer with strong experience in React.js, Spring Boot, MySQL, and cloud deployments. Passionate about building scalable products and solving real business problems.",
+        "Full-stack developer with strong experience in React.js, Spring Boot, MySQL, and cloud deployments.",
       skills: "React.js, Java, Spring Boot, MySQL, Docker, Kubernetes, Git",
       experience:
-        "- Built HRMS web app using React + Spring Boot\n- Implemented RBAC auth and JWT\n- Created scalable microservices",
+        "- Built HRMS using React + Spring Boot\n- Implemented JWT Auth + RBAC",
       education: "B.Tech in Computer Science – 2023 – VTU Bangalore",
-      certifications: "AWS Cloud Practitioner\nJava Certification",
-      projects:
-        "- Netflix Clone (React + TMDB API)\n- Job Portal Backend (Spring Boot + MySQL)",
+      certifications: "AWS Cloud Practitioner, Java Certification",
+      projects: "Netflix Clone, Job Portal Backend",
       email: "ashish@example.com",
       phone: "+91 9876543210",
       location: "Bangalore, India",
-      links: "GitHub.com/ashish, LinkedIn.com/in/ashish",
+      links: "GitHub, LinkedIn",
     };
+
     setForm(data);
-    // also ensure all fields visible
     setVisible((v) => {
       const all = { ...v };
       Object.keys(all).forEach((k) => (all[k] = true));
@@ -96,7 +90,6 @@ export default function ResumeBuilder() {
     });
   };
 
-  // 📄 Export to PDF
   const exportPDF = async () => {
     const resume = document.getElementById("resume-preview");
     if (!resume) return;
@@ -112,26 +105,44 @@ export default function ResumeBuilder() {
     pdf.save("resume.pdf");
   };
 
-  // simple JD parser stubs
-  const parseJD = (text) => {
-    setJdText(text);
+  // ---- API FUNCTIONS ----
+
+  const handleSaveResume = async () => {
+    try {
+      const res = await saveResumeApi(form);
+      setResumeId(res.data.resumeId);
+      alert("Resume saved successfully!");
+    } catch (err) {
+      alert("Failed to save resume");
+      console.error(err);
+    }
   };
 
-  const handleJDExtract = () => {
-    if (!jdText.trim()) return;
-    // mock extraction (replace with real AI call)
-    setForm((prev) => ({
-      ...prev,
-      title: "Software Engineer (extracted)",
-      summary:
-        "Experienced engineer matching role. Extracted from JD: emphasis on React, Node, AWS.",
-      skills: "React, Node.js, AWS, Docker",
-    }));
-    // make sure relevant fields are visible
-    setVisible((v) => ({ ...v, title: true, summary: true, skills: true }));
+  const handleLoadResume = async () => {
+    if (!resumeId) return;
+    try {
+      const res = await getResumeApi(resumeId);
+      setForm(res.data.resume);
+    } catch (err) {
+      alert("Failed to load resume");
+      console.error(err);
+    }
   };
 
-  // 🎨 Dynamic Template Classes
+  const handleRefreshList = async () => {
+    try {
+      const res = await listResumesApi();
+      setSavedList(res.data.resumes);
+    } catch (err) {
+      alert("Failed to fetch resumes list");
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    handleRefreshList();
+  }, []);
+
   const templateStyles = {
     modern: "rounded-3xl border shadow-xl p-10",
     minimal: "border-l-4 border-indigo-600 pl-6 pr-4",
@@ -140,420 +151,131 @@ export default function ResumeBuilder() {
 
   return (
     <>
-      {/* PAGE */}
       <section className="min-h-screen bg-linear-to-br from-indigo-50 via-white to-purple-50 pt-32 pb-24 px-6">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-start">
-          {/* LEFT PANEL – FORM */}
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12">
+
+          {/* LEFT PANEL */}
           <div>
-            {/* TITLE + SHIMMER */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="relative inline-block mb-10"
-            >
-              <h1
-                className="
-        text-4xl md:text-5xl font-extrabold 
-        bg-gradient-to-r from-indigo-700 via-purple-700 to-indigo-700 
-        bg-clip-text text-transparent tracking-tight
-      "
-              >
-                AI Resume Builder
-              </h1>
-
-              {/* SHIMMER EFFECT */}
-              <div className="absolute -bottom-2 left-0 w-full h-[3px] bg-gradient-to-r from-indigo-500 via-purple-600 to-indigo-500 rounded-full overflow-hidden">
-                <div className="animate-[shimmer_2s_infinite] w-1/3 h-full bg-white/60 blur-sm"></div>
-              </div>
-            </motion.div>
-
-            {/* KEYFRAME SHIMMER */}
-            <style>
-              {`
-      @keyframes shimmer {
-        0% { transform: translateX(-150%); }
-        100% { transform: translateX(250%); }
-      }
-    `}
-            </style>
-
-            {/* TEMPLATE PREVIEW THUMBNAILS */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
-              className="flex gap-5 items-center mb-8"
-            >
-              {[
-                {
-                  id: "modern",
-                  label: "Modern",
-                  color: "from-indigo-500 to-purple-500",
-                },
-                {
-                  id: "minimal",
-                  label: "Minimal",
-                  color: "from-slate-300 to-slate-100",
-                },
-                {
-                  id: "ats",
-                  label: "ATS",
-                  color: "from-slate-700 to-slate-900",
-                },
-              ].map((t) => (
-                <div
-                  key={t.id}
-                  onClick={() => setTemplate(t.id)}
-                  className={`cursor-pointer w-20 h-24 rounded-xl border shadow-md bg-gradient-to-b ${
-                    t.color
-                  } flex items-end justify-center pb-2 text-xs font-semibold transition-all duration-300 hover:scale-110 hover:shadow-xl ${
-                    template === t.id ? "ring-4 ring-indigo-600 scale-110" : ""
-                  }`}
-                >
-                  {t.label}
-                </div>
-              ))}
-            </motion.div>
+            <h1 className="text-4xl font-extrabold text-black mb-6">
+              <FiLayers className="inline-block mr-2" /> AI Resume Builder
+            </h1>
 
             {/* ACTION BUTTONS */}
-            <div className="flex gap-4 mb-8">
-              {/* Dark Mode */}
+            <div className="flex gap-4 mb-6">
               <button
                 onClick={() => setDarkMode(!darkMode)}
-                className="px-5 py-2 rounded-xl bg-black text-white flex items-center gap-2 hover:scale-[1.03] transition-all shadow-md"
+                className="px-5 py-2 rounded-xl bg-black text-white flex items-center gap-2 hover:scale-[1.03] shadow-md"
               >
                 {darkMode ? <FiSun /> : <FiMoon />}
                 {darkMode ? "Light" : "Dark"}
               </button>
 
-              {/* AI Auto-fill */}
               <button
                 onClick={autoFill}
-                className="px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold flex items-center gap-3 shadow-lg hover:scale-[1.03]"
+                className="px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold flex items-center gap-2 shadow-lg hover:scale-[1.03]"
               >
                 <FiZap /> Auto-Fill (AI)
               </button>
             </div>
 
-            {/* AI JD PARSER */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-8 bg-white/70 backdrop-blur-xl rounded-2xl border p-5 shadow-lg"
-            >
-              <label className="font-semibold text-slate-700 text-sm mb-2 block">
-                Paste Job Description (AI will extract key skills, summary,
-                role)
-              </label>
-
-              <textarea
-                rows={4}
-                onChange={(e) => parseJD(e.target.value)}
-                placeholder="Paste full job description here..."
-                className="w-full px-4 py-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-
-              <button
-                onClick={handleJDExtract}
-                className="mt-3 w-full py-2 rounded-xl bg-indigo-600 text-white font-semibold hover:scale-[1.02] transition"
-              >
-                Extract Resume Details using AI
+            {/* SAVE / LOAD / REFRESH */}
+            <div className="flex gap-3 mb-4">
+              <button onClick={handleSaveResume} className="px-4 py-2 rounded-xl bg-green-600 text-white font-semibold shadow-lg hover:scale-[1.03]">
+                <FiLayers className="inline mr-2"/> Save Resume
               </button>
-            </motion.div>
 
-            {/* FORM BOX */}
-            <motion.div
-              initial={{ opacity: 0, y: 25 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="space-y-5 bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border p-8"
-            >
-              {/* Full Name */}
-              <Field
-                label="Full Name"
-                name="name"
-                visible={visible.name}
-                toggleVisible={() => toggleVisible("name")}
-              >
-                <input
-                  name="name"
-                  onChange={handleChange}
-                  value={form.name}
-                  disabled={!visible.name}
-                  className={`w-full px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 ${
-                    !visible.name ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  placeholder="e.g. Ankit Sharma"
-                />
+              <button onClick={handleLoadResume} disabled={!resumeId} className="px-4 py-2 rounded-xl bg-blue-600 text-white font-semibold shadow-lg hover:scale-[1.03] disabled:opacity-50">
+                <FiDownload className="inline mr-2"/> Load Resume
+              </button>
+
+              <button onClick={handleRefreshList} className="px-4 py-2 rounded-xl bg-purple-700 text-white font-semibold shadow-lg hover:scale-[1.03]">
+                <FiRefreshCw className="inline mr-2"/> Refresh List
+              </button>
+            </div>
+
+            {/* DROPDOWN */}
+            {savedList.length > 0 && (
+              <select onChange={(e) => setResumeId(e.target.value)} className="w-full p-3 rounded-xl border border-black text-black mb-6 shadow-md">
+                <option value="">Select saved resume</option>
+                {savedList.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name} – {r.title}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            {/* FORM */}
+            <div className="space-y-5 bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border p-8">
+              <Field label="Full Name" visible={visible.name} toggleVisible={() => toggleVisible("name")}>
+                <input name="name" onChange={handleChange} value={form.name} disabled={!visible.name} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
               </Field>
 
-              {/* Headline */}
-              <Field
-                label="Headline / Role"
-                name="title"
-                visible={visible.title}
-                toggleVisible={() => toggleVisible("title")}
-              >
-                <input
-                  name="title"
-                  onChange={handleChange}
-                  value={form.title}
-                  disabled={!visible.title}
-                  className={`w-full px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 ${
-                    !visible.title ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  placeholder="e.g. Frontend Developer | React.js"
-                />
+              <Field label="Headline / Role" visible={visible.title} toggleVisible={() => toggleVisible("title")}>
+                <input name="title" onChange={handleChange} value={form.title} disabled={!visible.title} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
               </Field>
 
-              {/* CONTACT */}
               <div className="grid grid-cols-2 gap-4">
-                <Field
-                  label="Email"
-                  name="email"
-                  visible={visible.email}
-                  toggleVisible={() => toggleVisible("email")}
-                >
-                  <input
-                    name="email"
-                    onChange={handleChange}
-                    value={form.email}
-                    disabled={!visible.email}
-                    className={`w-full px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 ${
-                      !visible.email ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
-                    placeholder="example@mail.com"
-                  />
+                <Field label="Email" visible={visible.email} toggleVisible={() => toggleVisible("email")}>
+                  <input name="email" onChange={handleChange} value={form.email} disabled={!visible.email} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
                 </Field>
 
-                <Field
-                  label="Phone"
-                  name="phone"
-                  visible={visible.phone}
-                  toggleVisible={() => toggleVisible("phone")}
-                >
-                  <input
-                    name="phone"
-                    onChange={handleChange}
-                    value={form.phone}
-                    disabled={!visible.phone}
-                    className={`w-full px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 ${
-                      !visible.phone ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
-                    placeholder="+91 9876543210"
-                  />
+                <Field label="Phone" visible={visible.phone} toggleVisible={() => toggleVisible("phone")}>
+                  <input name="phone" onChange={handleChange} value={form.phone} disabled={!visible.phone} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
                 </Field>
               </div>
 
-              {/* Location */}
-              <Field
-                label="Location"
-                name="location"
-                visible={visible.location}
-                toggleVisible={() => toggleVisible("location")}
-              >
-                <input
-                  name="location"
-                  onChange={handleChange}
-                  value={form.location}
-                  disabled={!visible.location}
-                  className={`w-full px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 ${
-                    !visible.location ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  placeholder="Bengaluru, India"
-                />
+              <Field label="Location" visible={visible.location} toggleVisible={() => toggleVisible("location")}>
+                <input name="location" onChange={handleChange} value={form.location} disabled={!visible.location} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
               </Field>
 
-              {/* Summary */}
-              <Field
-                label="Professional Summary"
-                name="summary"
-                visible={visible.summary}
-                toggleVisible={() => toggleVisible("summary")}
-              >
-                <textarea
-                  name="summary"
-                  rows={3}
-                  onChange={handleChange}
-                  value={form.summary}
-                  disabled={!visible.summary}
-                  className={`w-full px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 ${
-                    !visible.summary ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  placeholder="Brief summary about your experience, stack and achievements."
-                />
+              <Field label="Summary" visible={visible.summary} toggleVisible={() => toggleVisible("summary")}>
+                <textarea name="summary" onChange={handleChange} value={form.summary} disabled={!visible.summary} rows={3} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
               </Field>
 
-              {/* Skills */}
-              <Field
-                label="Skills (comma separated)"
-                name="skills"
-                visible={visible.skills}
-                toggleVisible={() => toggleVisible("skills")}
-              >
-                <textarea
-                  name="skills"
-                  rows={2}
-                  onChange={handleChange}
-                  value={form.skills}
-                  disabled={!visible.skills}
-                  className={`w-full px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 ${
-                    !visible.skills ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  placeholder="React, Java, Spring Boot, MySQL, AWS…"
-                />
+              <Field label="Skills" visible={visible.skills} toggleVisible={() => toggleVisible("skills")}>
+                <textarea name="skills" onChange={handleChange} value={form.skills} disabled={!visible.skills} rows={2} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
               </Field>
 
-              {/* Animated Skill Bars */}
-              <div className="mt-2">
-                {visible.skills &&
-                  form.skills &&
-                  form.skills
-                    .split(",")
-                    .map((skill, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${60 + Math.random() * 35}%` }}
-                        transition={{ duration: 1, ease: "easeOut" }}
-                        className="h-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 mb-3"
-                      />
-                    ))}
-              </div>
-
-              {/* Experience */}
-              <Field
-                label="Experience"
-                name="experience"
-                visible={visible.experience}
-                toggleVisible={() => toggleVisible("experience")}
-              >
-                <textarea
-                  name="experience"
-                  rows={4}
-                  onChange={handleChange}
-                  value={form.experience}
-                  disabled={!visible.experience}
-                  className={`w-full px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 ${
-                    !visible.experience ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  placeholder="- Worked at XYZ...\n- Built job portal project..."
-                />
+              <Field label="Experience" visible={visible.experience} toggleVisible={() => toggleVisible("experience")}>
+                <textarea name="experience" onChange={handleChange} value={form.experience} disabled={!visible.experience} rows={3} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
               </Field>
 
-              {/* Projects */}
-              <Field
-                label="Projects"
-                name="projects"
-                visible={visible.projects}
-                toggleVisible={() => toggleVisible("projects")}
-              >
-                <textarea
-                  name="projects"
-                  rows={3}
-                  onChange={handleChange}
-                  value={form.projects}
-                  disabled={!visible.projects}
-                  className={`w-full px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 ${
-                    !visible.projects ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  placeholder="- Netflix clone using React, TMDB API...\n- HRMS Portal with RBAC..."
-                />
+              <Field label="Education" visible={visible.education} toggleVisible={() => toggleVisible("education")}>
+                <textarea name="education" onChange={handleChange} value={form.education} disabled={!visible.education} rows={2} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
               </Field>
 
-              {/* Education */}
-              <Field
-                label="Education"
-                name="education"
-                visible={visible.education}
-                toggleVisible={() => toggleVisible("education")}
-              >
-                <textarea
-                  name="education"
-                  rows={3}
-                  onChange={handleChange}
-                  value={form.education}
-                  disabled={!visible.education}
-                  className={`w-full px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 ${
-                    !visible.education ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  placeholder="B.Tech in CSE - 2023 - VTU Bangalore..."
-                />
+              <Field label="Projects" visible={visible.projects} toggleVisible={() => toggleVisible("projects")}>
+                <textarea name="projects" onChange={handleChange} value={form.projects} disabled={!visible.projects} rows={2} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
               </Field>
 
-              {/* Certifications */}
-              <Field
-                label="Certifications"
-                name="certifications"
-                visible={visible.certifications}
-                toggleVisible={() => toggleVisible("certifications")}
-              >
-                <textarea
-                  name="certifications"
-                  rows={2}
-                  onChange={handleChange}
-                  value={form.certifications}
-                  disabled={!visible.certifications}
-                  className={`w-full px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 ${
-                    !visible.certifications
-                      ? "opacity-50 cursor-not-allowed"
-                      : ""
-                  }`}
-                  placeholder="- AWS Cloud Practitioner\n- Java Certification"
-                />
+              <Field label="Certifications" visible={visible.certifications} toggleVisible={() => toggleVisible("certifications")}>
+                <textarea name="certifications" onChange={handleChange} value={form.certifications} disabled={!visible.certifications} rows={2} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
               </Field>
 
-              {/* Links */}
-              <Field
-                label="Important Links (comma separated)"
-                name="links"
-                visible={visible.links}
-                toggleVisible={() => toggleVisible("links")}
-              >
-                <textarea
-                  name="links"
-                  rows={2}
-                  onChange={handleChange}
-                  value={form.links}
-                  disabled={!visible.links}
-                  className={`w-full px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 ${
-                    !visible.links ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  placeholder="Portfolio URL, GitHub, LinkedIn..."
-                />
+              <Field label="Links" visible={visible.links} toggleVisible={() => toggleVisible("links")}>
+                <textarea name="links" onChange={handleChange} value={form.links} disabled={!visible.links} rows={1} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
               </Field>
-            </motion.div>
+            </div>
           </div>
 
-          {/* RIGHT SIDE – PREVIEW */}
+          {/* RIGHT PANEL */}
           <motion.div
             id="resume-preview"
-            initial={{ opacity: 0, x: 40 }}
+            className={`${templateStyles[template]} ${darkMode ? "bg-slate-900 text-white" : "bg-white text-black"} shadow-xl`}
+            initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
-            className={`${templateStyles[template]} ${
-              darkMode
-                ? "bg-slate-900 text-white border-slate-700"
-                : "bg-white text-slate-800"
-            }`}
           >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <FiFileText className="text-indigo-500" /> Resume Preview
-              </h2>
-
-              {/* PDF Export */}
-              <button
-                onClick={exportPDF}
-                className="px-3 py-2 rounded-xl bg-indigo-600 text-white text-sm flex items-center gap-2"
-              >
+            <div className="flex justify-between mb-4">
+              <h2 className="text-xl font-bold flex items-center gap-2 text-black"><FiFileText /> Resume Preview</h2>
+              <button onClick={exportPDF} className="px-4 py-2 rounded-xl bg-black text-white font-semibold flex items-center gap-2 hover:scale-[1.03] shadow-lg">
                 <FiDownload /> Export PDF
               </button>
             </div>
 
-            {/* CONTENT */}
-            <ResumeContent form={form} visible={visible} />
+            <ResumePreviewContent form={form} visible={visible} />
           </motion.div>
+
         </div>
       </section>
 
@@ -562,131 +284,35 @@ export default function ResumeBuilder() {
   );
 }
 
-/* ---------------------------- SUB COMPONENTS ---------------------------- */
+// ---- Supporting Components ----
 
-function ResumeContent({ form, visible }) {
-  return (
-    <div className="space-y-6 text-sm">
-      {/* NAME */}
-      {visible.name && (
-        <div>
-          <h1 className="text-2xl font-black">{form.name || "Your Name"}</h1>
-          <p className="text-indigo-500">{form.title || "Your Role"}</p>
-        </div>
-      )}
-
-      {/* CONTACT */}
-      <div className="space-y-1 opacity-90">
-        {visible.email && (
-          <p>
-            <FiMail className="inline mr-2" />{" "}
-            {form.email || "email@example.com"}
-          </p>
-        )}
-        {visible.phone && (
-          <p>
-            <FiPhone className="inline mr-2" />{" "}
-            {form.phone || "+91 98765 43210"}
-          </p>
-        )}
-        {visible.location && (
-          <p>
-            <FiMapPin className="inline mr-2" /> {form.location || "Location"}
-          </p>
-        )}
-      </div>
-
-      {/* SUMMARY */}
-      {visible.summary && <Section title="Summary">{form.summary}</Section>}
-
-      {/* SKILLS */}
-      {visible.skills && (
-        <Section title="Skills">
-          {form.skills &&
-            form.skills.split(",").map((s, i) => (
-              <span
-                key={i}
-                className="inline-block text-xs px-3 py-1 mr-2 mb-2 rounded-full bg-indigo-100 text-indigo-700"
-              >
-                {s.trim()}
-              </span>
-            ))}
-        </Section>
-      )}
-
-      {/* EXPERIENCE */}
-      {visible.experience && (
-        <Section title="Experience" icon={<FiBriefcase />}>
-          {form.experience}
-        </Section>
-      )}
-
-      {/* PROJECTS */}
-      {visible.projects && (
-        <Section title="Projects" icon={<FiFolder />}>
-          {form.projects}
-        </Section>
-      )}
-
-      {/* EDUCATION */}
-      {visible.education && (
-        <Section title="Education" icon={<FiBook />}>
-          {form.education}
-        </Section>
-      )}
-
-      {/* CERTIFICATIONS */}
-      {visible.certifications && (
-        <Section title="Certifications" icon={<FiAward />}>
-          {form.certifications}
-        </Section>
-      )}
-
-      {/* LINKS */}
-      {visible.links && (
-        <Section title="Links" icon={<FiLink />}>
-          {form.links &&
-            form.links.split(",").map((l, i) => (
-              <p key={i} className="underline text-indigo-500">
-                {l.trim()}
-              </p>
-            ))}
-        </Section>
-      )}
-    </div>
-  );
-}
-
-function Field({ label, children, name, visible, toggleVisible }) {
+function Field({ label, children, visible, toggleVisible }) {
   return (
     <div>
-      <label className="flex items-center gap-3 mb-1.5">
-        {/* Checkbox with black border */}
-        <input
-          type="checkbox"
-          checked={visible}
-          onChange={toggleVisible}
-          className="h-5 w-5 border-2 border-black rounded-sm appearance-none checked:bg-indigo-600 checked:border-indigo-600 flex-none"
-          aria-label={`Toggle ${label}`}
-        />
-        <span className="block text-sm font-semibold text-slate-700">
-          {label}
-        </span>
+      <label className="flex items-center gap-2 font-semibold text-black mb-1">
+        <input type="checkbox" checked={visible} onChange={toggleVisible} className="h-4 w-4 border-2 border-black" />
+        {label}
       </label>
       {children}
     </div>
   );
 }
 
-function Section({ title, children, icon }) {
+function ResumePreviewContent({ form, visible }) {
   return (
-    <div>
-      <h3 className="text-sm font-bold mb-2 flex items-center gap-2">
-        {icon} {title}
-      </h3>
-      <div className="whitespace-pre-line opacity-90">
-        {children || `No ${title.toLowerCase()} added`}
-      </div>
+    <div className="space-y-6 text-sm">
+      {visible.name && <h1 className="text-2xl font-black">{form.name}</h1>}
+      {visible.title && <h2 className="text-lg font-bold">{form.title}</h2>}
+      {visible.summary && <p>{form.summary}</p>}
+      {visible.skills && <p><strong>Skills:</strong> {form.skills}</p>}
+      {visible.experience && <p><strong>Experience:</strong> {form.experience}</p>}
+      {visible.education && <p><strong>Education:</strong> {form.education}</p>}
+      {visible.projects && <p><strong>Projects:</strong> {form.projects}</p>}
+      {visible.certifications && <p><strong>Certifications:</strong> {form.certifications}</p>}
+      {visible.email && <p><FiMail className="inline mr-2" />{form.email}</p>}
+      {visible.phone && <p><FiPhone className="inline mr-2" />{form.phone}</p>}
+      {visible.location && <p><FiMapPin className="inline mr-2" />{form.location}</p>}
+      {visible.links && <p><FiLink className="inline mr-2" />{form.links}</p>}
     </div>
   );
 }
