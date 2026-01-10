@@ -1,7 +1,10 @@
 import express from "express";
 import cors from "cors";
 
-// ⚠️ IMPORTANT: Load dotenv ONLY in local development
+/**
+ * Load dotenv ONLY for local development
+ * Railway injects env vars automatically in production
+ */
 if (process.env.NODE_ENV !== "production") {
   const dotenv = await import("dotenv");
   dotenv.config();
@@ -27,15 +30,23 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",            // local dev
-      "https://job-portal.vercel.app",     // <-- REPLACE with your real Vercel URL
-    ],
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        "http://localhost:5173",                 // local frontend
+        "https://job-portal105.vercel.app",      // ✅ YOUR REAL VERCEL URL
+      ];
+
+      // allow requests with no origin (Postman, curl)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
 );
-
 
 logger.info("Middlewares initialized");
 
