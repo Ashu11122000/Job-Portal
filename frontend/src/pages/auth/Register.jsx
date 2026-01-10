@@ -37,7 +37,7 @@ export default function Register() {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/auth/register",
+        "https://job-portal-production-2c0d.up.railway.app/api/auth/register",
         form
       , {
         timeout: 8000,
