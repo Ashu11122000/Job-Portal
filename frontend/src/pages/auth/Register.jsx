@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+// import axios from "axios";
+import { registerUser as registerApi } from "../../api/authApi";
 import { motion } from "framer-motion";
 import { FiUser, FiMail, FiLock, FiShield } from "react-icons/fi";
 import { useAuthContext } from "../../context/AuthContext";
@@ -22,47 +23,41 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const API_BASE = "http://localhost:5000/api/auth"; // added but not replacing existing lines
+  // const API_BASE = "http://localhost:5000/api/auth"; // added but not replacing existing lines
 
   const handleChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    console.log("➡ Sending Register Request with Data:", form);
+  console.log("➡ Sending Register Request with Data:", form);
 
-    try {
-      const res = await axios.post(
-        "https://job-portal-production-2c0d.up.railway.app/api/auth/register",
-        form
-      , {
-        timeout: 8000,
-        withCredentials: true
-      });
+  try {
+    const res = await registerApi(form);
 
-      console.log("✅ Register API Response:", res.data);
+    console.log("✅ Register API Response:", res.data);
 
-      // ✅ SAFE REGISTER + LOGIN
-      if (res?.data?.user && res?.data?.token) {
-        registerUser(res.data.user, res.data.token);
-        navigate("/dashboard");
-      } else {
-        setError("Invalid registration response from server");
-      }
-    } catch (err) {
-      console.error("❌ Register API Error:", err.response?.data || err.message);
-      setError(
-        err.response?.data?.message ||
-          "Registration failed, please check details."
-      );
-    } finally {
-      setLoading(false);
+    if (res?.data?.user && res?.data?.token) {
+      registerUser(res.data.user, res.data.token);
+      navigate("/dashboard");
+    } else {
+      setError("Invalid registration response from server");
     }
-  };
+  } catch (err) {
+    console.error("❌ Register API Error:", err.response?.data || err.message);
+    setError(
+      err.response?.data?.message ||
+        "Registration failed, please check details."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-[radial-gradient(circle_at_top,var(--color-indigo-900),var(--color-purple-900),black)] overflow-hidden px-4">

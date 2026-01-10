@@ -38,8 +38,6 @@ app.use(
   })
 );
 
-// ✅ IMPORTANT for preflight
-app.options("*", cors());
 
 logger.info("Middlewares initialized");
 

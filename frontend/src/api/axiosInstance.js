@@ -1,8 +1,9 @@
 import axios from "axios";
 
-const api = axios.create({
+const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
+  timeout: 10000,
 });
 
-export default api;
+export default axiosInstance;
