@@ -1,21 +1,14 @@
-import mysql from "mysql2";
+import mysql from "mysql2/promise";
 
 const pool = mysql.createPool({
   host: process.env.MYSQLHOST,
   user: process.env.MYSQLUSER,
-  password: process.env.MYSQL_PASSWORD,
+  password: process.env.MYSQLPASSWORD, // ✅ THIS WAS MISSING
   database: process.env.MYSQLDATABASE,
-  port: process.env.MYSQLPORT,
+  port: Number(process.env.MYSQLPORT),
   waitForConnections: true,
   connectionLimit: 10,
+  connectTimeout: 10000,
 });
 
-console.log("🧠 MySQL ENV Loaded →", {
-  MYSQLHOST: process.env.MYSQLHOST,
-  MYSQLUSER: process.env.MYSQLUSER,
-  MYSQLDATABASE: process.env.MYSQLDATABASE,
-  MYSQLPORT: process.env.MYSQLPORT,
-});
-
-
-export default pool.promise();
+export default pool;
