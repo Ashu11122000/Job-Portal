@@ -3,7 +3,7 @@ import mysql from "mysql2";
 const pool = mysql.createPool({
   host: process.env.MYSQLHOST,
   user: process.env.MYSQLUSER,
-  password: process.env.MYSQLPASSWORD,
+  password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQLDATABASE,
   port: process.env.MYSQLPORT,
   waitForConnections: true,

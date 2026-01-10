@@ -1,57 +1,6 @@
 import express from "express";
 import cors from "cors";
 
-/* -------------------- APP INIT -------------------- */
-const app = express();
-
-/* -------------------- CORS (MUST BE FIRST) -------------------- */
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://job-portal-110.vercel.app",
-];
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // allow server-to-server & tools like Postman
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      callback(new Error("CORS not allowed for this origin"));
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
-
-/* ---- PRE-FLIGHT SUPPORT ---- */
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", req.headers.origin);
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization"
-  );
-  res.header(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
-
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(204);
-  }
-
-  next();
-});
-
-/* -------------------- BODY PARSER -------------------- */
-app.use(express.json());
-
-/* -------------------- ROUTES -------------------- */
 import authRoutes from "./routes/authRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
 import applicationRoutes from "./routes/applicationRoutes.js";
@@ -62,31 +11,56 @@ import mockInterviewRoutes from "./routes/mockInterviewRoutes.js";
 import settingsRoutes from "./routes/settingsRoutes.js";
 import logsRoutes from "./routes/logsRoutes.js";
 
+import logger from "./utils/logger.js";
+
+const app = express();
+
+/* -------------------- MIDDLEWARES -------------------- */
+
+// 🔥 VERY IMPORTANT — must be FIRST
+app.use(
+  cors({
+    origin: true,          // allow ALL origins (safe for APIs)
+    credentials: true,
+  })
+);
+
+// Handle preflight correctly (Express 5 fix)
+app.options("*", cors());
+
+app.use(express.json());
+
+logger.info("Middlewares initialized");
+
+/* -------------------- ROUTES -------------------- */
+
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
+
 app.use("/api/company", companyRoutes);
+logger.info("Company routes loaded successfully");
+
 app.use("/api/company/logo", companyLogoRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/mock-interview", mockInterviewRoutes);
 app.use("/api/admin/settings", settingsRoutes);
 app.use("/api/admin/logs", logsRoutes);
 
-/* -------------------- HEALTH CHECK -------------------- */
-app.get("/", (req, res) => {
-  res.send("🚀 Job Portal Backend is running");
-});
-
 /* -------------------- ERROR HANDLER -------------------- */
+
 app.use((err, req, res, next) => {
-  console.error("🔥 SERVER ERROR:", err.message);
+  console.error("🔥 SERVER ERROR →", err);
+  logger.error(err.message);
+
   res.status(500).json({
     success: false,
-    message: err.message,
+    message: err.message || "Internal server error",
   });
 });
 
-/* -------------------- START SERVER -------------------- */
+/* -------------------- SERVER -------------------- */
+
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
