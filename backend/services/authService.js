@@ -1,69 +1,102 @@
-/**
- * Imports the MySQL connection pool you created earlier because db.js exported pool.promise(), this pool allows async DB queries using await.
- * Imports bcrypt library for password hashing & verification.
- * bcrypt.hash() → converts plain password into secure encrypted string.
- * bcrypt.compare() → checks plain password vs hashed password.
- * Imports JWT library to generate authentication tokens using jwt.sign().
- */
-
 import pool from "../config/db.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-// exports an async function named registerUser.It accepts an object as argument, and destructures it directly, when called like: registerUser({ name, email, password, role })
+/* -----------------------------------------
+   REGISTER USER
+------------------------------------------ */
 export const registerUser = async ({ name, email, password, role }) => {
-  
-  // Takes the plain password and converts it into a hashed string & await ensures hashing completes before moving ahead.
-  const hashedPassword = await bcrypt.hash(password, 10);
+  try {
+    // ✅ Safety validation
+    if (!name || !email || !password) {
+      throw new Error("Missing required registration fields");
+    }
 
-  // Runs a MySQL query using the connection pool & [result] means we only care about the query result metadata, not returned rows
-  const [result] = await pool.query(
-    "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
-    [name, email, hashedPassword, role]
-  );
+    // ✅ Check if user already exists
+    const [existing] = await pool.query(
+      "SELECT id FROM users WHERE email = ?",
+      [email]
+    );
 
-  return { id: result.insertId, name, email, role };
+    if (existing.length > 0) {
+      throw new Error("User already exists with this email");
+    }
+
+    // ✅ Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // ✅ Insert user
+    const [result] = await pool.query(
+      `INSERT INTO users (name, email, password, role)
+       VALUES (?, ?, ?, ?)`,
+      [name, email, hashedPassword, role || "candidate"]
+    );
+
+    // ✅ Return clean object (NO password)
+    return {
+      id: result.insertId,
+      name,
+      email,
+      role: role || "candidate",
+    };
+
+  } catch (error) {
+    console.error("❌ registerUser() error:", error.message);
+    throw error; // IMPORTANT: bubble error to controller
+  }
 };
 
+/* -----------------------------------------
+   LOGIN USER
+------------------------------------------ */
 export const loginUser = async (email, password) => {
-  /**
-   * Fetches user record where email matches.
-   * Result is stored in rows array.
-   * ? prevents SQL injection.
-   * [email] replaces the placeholder.
-   */
-  const [rows] = await pool.query("SELECT * FROM users WHERE email = ?", [email]);
+  try {
+    if (!email || !password) {
+      throw new Error("Email and password required");
+    }
 
-  // Gets the first matched user from results.
-  const user = rows[0];
+    const [rows] = await pool.query(
+      "SELECT * FROM users WHERE email = ?",
+      [email]
+    );
 
-  if (!user) return null;
+    if (rows.length === 0) {
+      throw new Error("Invalid email or password");
+    }
 
-  // Compares plain password entered by user with hashed password stored in DB.
-  // Returns true if match, else false.
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return null;
+    const user = rows[0];
 
-  // Creates a JWT token
-  const token = jwt.sign(
-    { id: user.id, email: user.email, role: user.role },
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      throw new Error("Invalid email or password");
+    }
 
-    // Uses secret key from .env to sign the token.
-    process.env.JWT_SECRET,
+    const token = generateToken(user);
 
-    // Token will expire after 7 days.
-    { expiresIn: "7d" }
-  );
+    return {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+      token,
+    };
 
-  return {
-    user: { id: user.id, name: user.name, email: user.email, role: user.role },
-    token
-  };
+  } catch (error) {
+    console.error("❌ loginUser() error:", error.message);
+    throw error;
+  }
 };
 
-// Exports a normal (non-async) function.
-// Takes user object as input.
+/* -----------------------------------------
+   JWT TOKEN
+------------------------------------------ */
 export const generateToken = (user) => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET is not defined");
+  }
+
   return jwt.sign(
     { id: user.id, email: user.email, role: user.role },
     process.env.JWT_SECRET,

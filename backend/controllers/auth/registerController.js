@@ -1,32 +1,48 @@
 import { registerUser } from "../../services/authService.js";
 
-
 /**
- * Exports an async controller named register.
- * It will later be attached to a route like: router.post("/register", register)
- * req = request object, res = response object.
+ * Controller: Register User
+ * Route: POST /api/auth/register
  */
 export const register = async (req, res) => {
+  try {
+    console.log("📥 Register request body:", req.body);
 
-  /**
-   * Exports an async controller named register.
-   * It will later be attached to a route like: router.post("/register", register)
-   * req = request object, res = response object.
-   */
-  console.log("BODY RECEIVED →", req.body); // test log
+    const { name, email, password, role } = req.body;
 
-  /**
-   * Calls the imported registerUser() service function and waits for DB insertion to finish.
-   * Passes entire request body object (req.body) as argument.
-   * That service expects an object like:
-   */
-  const user = await registerUser(req.body);
+    // ✅ 1. Basic validation (VERY IMPORTANT)
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Name, email and password are required",
+      });
+    }
 
-  /**
-   * Sends a JSON response back to client with:
-   *   1. user → data returned from DB insert (no password included)
-   *   2. token: "temp-test-token" → a hard-coded temporary token just for testing
-   * This is NOT a real JWT, just a placeholder until you replace it with generateToken(user) or jwt.sign().
-   */
-  res.json({ user, token: "temp-test-token" });
+    // ✅ 2. Call service (DB logic lives here)
+    const user = await registerUser({ name, email, password, role });
+
+    // ❌ Safety check (prevents silent failure)
+    if (!user) {
+      return res.status(500).json({
+        success: false,
+        message: "User registration failed",
+      });
+    }
+
+    // ✅ 3. Send response (MUST always return)
+    return res.status(201).json({
+      success: true,
+      user,
+      token: "temp-test-token", // replace later with JWT
+    });
+
+  } catch (error) {
+    // ✅ 4. THIS PREVENTS REQUEST TIMEOUT
+    console.error("❌ Register Controller Error:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Internal server error",
+    });
+  }
 };
