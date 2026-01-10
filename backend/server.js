@@ -1,12 +1,57 @@
 import express from "express";
 import cors from "cors";
 
-// Load dotenv ONLY locally
-if (process.env.NODE_ENV !== "production") {
-  const dotenv = await import("dotenv");
-  dotenv.config();
-}
+/* -------------------- APP INIT -------------------- */
+const app = express();
 
+/* -------------------- CORS (MUST BE FIRST) -------------------- */
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://job-portal-110.vercel.app",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow server-to-server & tools like Postman
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      callback(new Error("CORS not allowed for this origin"));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+/* ---- PRE-FLIGHT SUPPORT ---- */
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin);
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization"
+  );
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
+
+/* -------------------- BODY PARSER -------------------- */
+app.use(express.json());
+
+/* -------------------- ROUTES -------------------- */
 import authRoutes from "./routes/authRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
 import applicationRoutes from "./routes/applicationRoutes.js";
@@ -16,32 +61,6 @@ import resumeRoutes from "./routes/resumeRoutes.js";
 import mockInterviewRoutes from "./routes/mockInterviewRoutes.js";
 import settingsRoutes from "./routes/settingsRoutes.js";
 import logsRoutes from "./routes/logsRoutes.js";
-
-import logger from "./utils/logger.js";
-
-const app = express();
-
-/* -------------------- MIDDLEWARES -------------------- */
-
-app.use(express.json());
-
-// ✅ PRODUCTION-READY CORS
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://job-portal110.vercel.app", // ✅ YOUR REAL VERCEL URL
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
-);
-
-
-logger.info("Middlewares initialized");
-
-/* -------------------- ROUTES -------------------- */
 
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
@@ -53,19 +72,21 @@ app.use("/api/mock-interview", mockInterviewRoutes);
 app.use("/api/admin/settings", settingsRoutes);
 app.use("/api/admin/logs", logsRoutes);
 
-/* -------------------- ERROR HANDLER -------------------- */
+/* -------------------- HEALTH CHECK -------------------- */
+app.get("/", (req, res) => {
+  res.send("🚀 Job Portal Backend is running");
+});
 
+/* -------------------- ERROR HANDLER -------------------- */
 app.use((err, req, res, next) => {
-  console.error("🔥 SERVER ERROR →", err);
-  logger.error(`API Crash: ${err.message}`);
+  console.error("🔥 SERVER ERROR:", err.message);
   res.status(500).json({
     success: false,
-    message: "Internal server error",
+    message: err.message,
   });
 });
 
-/* -------------------- SERVER -------------------- */
-
+/* -------------------- START SERVER -------------------- */
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
