@@ -1,6 +1,12 @@
 import express from "express";
 import cors from "cors";
 
+// Load dotenv only locally
+if (process.env.NODE_ENV !== "production") {
+  const dotenv = await import("dotenv");
+  dotenv.config();
+}
+
 import authRoutes from "./routes/authRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
 import applicationRoutes from "./routes/applicationRoutes.js";
@@ -17,18 +23,39 @@ const app = express();
 
 /* -------------------- MIDDLEWARES -------------------- */
 
-// 🔥 VERY IMPORTANT — must be FIRST
+app.use(express.json());
+
+// ✅ CORRECT CORS (NO "*", NO CRASH)
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://job-portal-110.vercel.app",
+];
+
 app.use(
   cors({
-    origin: true,          // allow ALL origins (safe for APIs)
+    origin: (origin, callback) => {
+      // allow server-to-server & curl & Railway health checks
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// Handle preflight correctly (Express 5 fix)
-app.options("*", cors());
-
-app.use(express.json());
+// ✅ HANDLE PREFLIGHT WITHOUT "*"
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+  next();
+});
 
 logger.info("Middlewares initialized");
 
@@ -50,7 +77,7 @@ app.use("/api/admin/logs", logsRoutes);
 /* -------------------- ERROR HANDLER -------------------- */
 
 app.use((err, req, res, next) => {
-  console.error("🔥 SERVER ERROR →", err);
+  console.error("🔥 SERVER ERROR →", err.message);
   logger.error(err.message);
 
   res.status(500).json({
