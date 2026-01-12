@@ -1,7 +1,11 @@
+// src/api/authApi.js
 import axiosInstance from "./axiosInstance";
 
-export const registerUser = (payload) =>
-  axiosInstance.post("/api/auth/register", payload);
+export const registerUser = (data) =>
+  axiosInstance.post("/auth/register", data);
 
-export const loginUser = (payload) =>
-  axiosInstance.post("/api/auth/login", payload);
+export const loginUser = (data) =>
+  axiosInstance.post("/auth/login", data);
+
+export const logoutUser = () =>
+  axiosInstance.post("/auth/logout");

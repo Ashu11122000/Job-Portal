@@ -28,7 +28,9 @@ export default function Login() {
     setError("");
 
     try {
-      const res = await axiosInstance.post("/api/auth/login", formData);
+      // ✅ FIXED: removed extra /api
+      const res = await axiosInstance.post("/auth/login", formData);
+
       const { token, user: userData } = res.data;
 
       if (userData && token) {

@@ -1,17 +1,24 @@
-import axios from "axios";
+// src/api/jobApi.js
+import axiosInstance from "./axiosInstance";
 
-const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/api",
-});
+/* ================= EXISTING APIS ================= */
 
-/* ================= EXISTING APIS (UNCHANGED) ================= */
-export const getAllJobs = () => axiosInstance.get("/jobs");
-export const getJobById = (id) => axiosInstance.get(`/jobs/${id}`);
-export const createJob = (jobData) => axiosInstance.post("/jobs", jobData);
-export const updateJob = (id, jobData) => axiosInstance.put(`/jobs/${id}`, jobData);
-export const deleteJob = (id) => axiosInstance.delete(`/jobs/${id}`);
+export const getAllJobs = () =>
+  axiosInstance.get("/jobs");
 
-/* ================= NEW APIS ADDED (WITHOUT REMOVING ANYTHING) ================= */
+export const getJobById = (id) =>
+  axiosInstance.get(`/jobs/${id}`);
+
+export const createJob = (jobData) =>
+  axiosInstance.post("/jobs", jobData);
+
+export const updateJob = (id, jobData) =>
+  axiosInstance.put(`/jobs/${id}`, jobData);
+
+export const deleteJob = (id) =>
+  axiosInstance.delete(`/jobs/${id}`);
+
+/* ================= ADDITIONAL / OPTIONAL ================= */
 
 /**
  * 👁 Increment job views
@@ -21,16 +28,16 @@ export const incrementViews = (jobId) =>
   axiosInstance.put(`/jobs/views/${jobId}`);
 
 /**
- * 📊 Get jobs posted by recruiter
+ * 📊 Jobs by recruiter
  * GET /api/jobs/recruiter/:recruiterId
- * (optional helper if backend route exists)
+ * (ONLY if backend supports it)
  */
 export const getJobsByRecruiter = (recruiterId) =>
   axiosInstance.get(`/jobs/recruiter/${recruiterId}`);
 
 /**
- * 📈 Job analytics (company + job join)
- * GET /api/jobs/jobs/analytics
+ * 📈 Job analytics
+ * GET /api/jobs/analytics
  */
 export const getJobAnalytics = () =>
-  axiosInstance.get("/jobs/jobs/analytics");
+  axiosInstance.get("/jobs/analytics");
