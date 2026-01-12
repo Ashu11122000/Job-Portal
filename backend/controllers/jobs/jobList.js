@@ -2,7 +2,7 @@ import pool from "../../config/db.js";
 
 /**
  * GET ALL JOBS
- * Returns jobs with company name (JOIN)
+ * Returns jobs with company name
  */
 export const getJobs = async () => {
   const [rows] = await pool.query(`
@@ -16,7 +16,7 @@ export const getJobs = async () => {
       jobs.company_id,
       companies.name AS company
     FROM jobs
-    JOIN companies ON jobs.company_id = companies.id
+    LEFT JOIN companies ON jobs.company_id = companies.id
     ORDER BY jobs.created_at DESC
   `);
 
@@ -39,7 +39,7 @@ export const getJob = async (id) => {
       jobs.company_id,
       companies.name AS company
     FROM jobs
-    JOIN companies ON jobs.company_id = companies.id
+    LEFT JOIN companies ON jobs.company_id = companies.id
     WHERE jobs.id = ?
     `,
     [id]
@@ -50,7 +50,7 @@ export const getJob = async (id) => {
 
 /**
  * CREATE JOB
- * Expects company_id (NOT company name)
+ * Expects company_id
  */
 export const createJob = async (job) => {
   const { title, description, salary, location, company_id } = job;
