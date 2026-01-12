@@ -28,7 +28,7 @@ app.use(express.json());
 // ✅ CORRECT CORS (NO "*", NO CRASH)
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://job-portal-110.vercel.app",
+  "https://job-portal-frontend.vercel.app",
 ];
 
 app.use(
