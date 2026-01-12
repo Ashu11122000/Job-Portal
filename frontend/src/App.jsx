@@ -17,42 +17,66 @@ import CertificationTracker from "./pages/tools/CertificationTracker";
 import Blogs from "./pages/Blogs";
 import "./App.css";
 
-/* ======= DASHBOARD IMPORTS (Existing kept) ======= */
+/* ===== DASHBOARDS ===== */
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import RecruiterDashboard from "./pages/dashboard/RecruiterDasboard";
 import CandidateDashboard from "./pages/dashboard/CandidateDashboard";
 
-/* ======= PHASE 3 Imports FIXED (missing ones added) ======= */
+/* ===== COMPANY / JOB ===== */
 import CompanyProfile from "./pages/company/CompanyProfile";
 import ManageJobs from "./pages/company/ManageJobs";
 import PostJob from "./pages/jobs/PostJob";
-import CompanyJobs from "./pages/company/JobsByCompany";
 import JobsByCompany from "./pages/company/JobsByCompany";
 
-/* ======= Protected Route Import FIXED ======= */
+/* ===== AUTH ===== */
 import ProtectedRoute from "./components/routes/ProtectedRoutes";
 import { useAuthContext } from "./context/AuthContext";
 
 function App() {
-  const { isLoggedInUser, user, role } = useAuthContext();
+  const { isLoggedInUser, user } = useAuthContext();
 
   return (
     <Router>
-      {/* Navbar visible only when user not logged in */}
-      {!isLoggedInUser && <Navbar />}
 
-      {/* Auto redirect to dashboard if already logged in */}
-      {isLoggedInUser && (
-        <Navigate to={`/dashboard/${user?.role || role}`} replace />
-      )}
+      {/* ✅ Navbar visible ONLY after login */}
+      {isLoggedInUser && <Navbar />}
 
       <Routes>
-        {/* Auth routes */}
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        {/* ================= AUTH ENTRY ================= */}
+        <Route
+          path="/"
+          element={
+            isLoggedInUser ? (
+              <Navigate to={`/dashboard/${user?.role}`} replace />
+            ) : (
+              <Login />
+            )
+          }
+        />
 
-        {/* Protected dashboards */}
+        <Route
+          path="/login"
+          element={
+            isLoggedInUser ? (
+              <Navigate to={`/dashboard/${user?.role}`} replace />
+            ) : (
+              <Login />
+            )
+          }
+        />
+
+        <Route
+          path="/register"
+          element={
+            isLoggedInUser ? (
+              <Navigate to={`/dashboard/${user?.role}`} replace />
+            ) : (
+              <Register />
+            )
+          }
+        />
+
+        {/* ================= DASHBOARDS ================= */}
         <Route
           path="/dashboard/admin"
           element={
@@ -80,14 +104,15 @@ function App() {
           }
         />
 
-        {/* Public routes */}
+        {/* ================= PUBLIC (NAVBAR) ================= */}
         <Route path="/jobs" element={<Jobs />} />
+        <Route path="/jobs/:id" element={<JobDetail />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/career-tools" element={<CareerTools />} />
-        <Route path="/jobs/:id" element={<JobDetail />} />
+        <Route path="/blogs" element={<Blogs />} />
 
-        {/* Career tools */}
+        {/* ================= TOOLS ================= */}
         <Route path="/tools/resume-builder" element={<ResumeBuilder />} />
         <Route path="/tools/career-roadmap" element={<CareerRoadmap />} />
         <Route path="/tools/salary-estimator" element={<SalaryEstimator />} />
@@ -95,15 +120,13 @@ function App() {
         <Route path="/tools/mock-interview" element={<MockInterviewTool />} />
         <Route path="/tools/certification-tracker" element={<CertificationTracker />} />
 
-        {/* Company & Job management */}
-        <Route path="/companies" element={<CompanyProfile />} />
+        {/* ================= COMPANY ================= */}
+        <Route path="/companies/jobs" element={<JobsByCompany />} />
+        <Route path="/company/profile/:id" element={<CompanyProfile />} />
         <Route path="/company/manage" element={<ManageJobs />} />
         <Route path="/jobs/post" element={<PostJob />} />
-        <Route path="/company/profile/:id" element={<CompanyProfile />} />
-        <Route path="/company/:id/jobs" element={<CompanyJobs />} />
-        <Route path="/companies/jobs" element={<JobsByCompany />} />
 
-        {/* Fallback */}
+        {/* ================= FALLBACK ================= */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
