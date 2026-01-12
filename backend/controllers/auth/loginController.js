@@ -1,105 +1,40 @@
-import pool from "../config/db.js";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { loginUser } from "../../services/authService.js";
 
-/* -----------------------------------------
-   REGISTER USER
------------------------------------------- */
-export const registerUser = async ({ name, email, password, role }) => {
+/**
+ * POST /api/auth/login
+ */
+export const login = async (req, res) => {
   try {
-    // ✅ Safety validation
-    if (!name || !email || !password) {
-      throw new Error("Missing required registration fields");
-    }
+    const { email, password } = req.body;
 
-    // ✅ Check if user already exists
-    const [existing] = await pool.query(
-      "SELECT id FROM users WHERE email = ?",
-      [email]
-    );
-
-    if (existing.length > 0) {
-      throw new Error("User already exists with this email");
-    }
-
-    // ✅ Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // ✅ Insert user
-    const [result] = await pool.query(
-      `INSERT INTO users (name, email, password, role)
-       VALUES (?, ?, ?, ?)`,
-      [name, email, hashedPassword, role || "candidate"]
-    );
-
-    // ✅ Return clean object (NO password)
-    return {
-      id: result.insertId,
-      name,
-      email,
-      role: role || "candidate",
-    };
-
-  } catch (error) {
-    console.error("❌ registerUser() error:", error.message);
-    throw error; // IMPORTANT: bubble error to controller
-  }
-};
-
-/* -----------------------------------------
-   LOGIN USER
------------------------------------------- */
-export const loginUser = async (email, password) => {
-  try {
     if (!email || !password) {
-      throw new Error("Email and password required");
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required",
+      });
     }
 
-    const [rows] = await pool.query(
-      "SELECT * FROM users WHERE email = ?",
-      [email]
-    );
+    const result = await loginUser(email, password);
 
-    if (rows.length === 0) {
-      throw new Error("Invalid email or password");
+    if (!result) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password",
+      });
     }
 
-    const user = rows[0];
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      throw new Error("Invalid email or password");
-    }
-
-    const token = generateToken(user);
-
-    return {
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-      token,
-    };
+    return res.status(200).json({
+      success: true,
+      user: result.user,
+      token: result.token,
+    });
 
   } catch (error) {
-    console.error("❌ loginUser() error:", error.message);
-    throw error;
-  }
-};
+    console.error("🔥 LOGIN CONTROLLER ERROR:", error);
 
-/* -----------------------------------------
-   JWT TOKEN
------------------------------------------- */
-export const generateToken = (user) => {
-  if (!process.env.JWT_SECRET) {
-    throw new Error("JWT_SECRET is not defined");
+    return res.status(500).json({
+      success: false,
+      message: "Login failed. Please try again later.",
+    });
   }
-
-  return jwt.sign(
-    { id: user.id, email: user.email, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: "7d" }
-  );
 };
