@@ -1,73 +1,76 @@
 import express from "express";
-import {
-  getJob,
-  getJobs,
-  createJob,
-  updateJob,
-  deleteJob
-} from "../controllers/jobs/jobList.js";
 
-// Phase 3 imports added ✔
+// ================= CORE JOB CONTROLLERS =================
+import { getJob, getJobs, updateJob, deleteJob } from "../controllers/jobs/jobList.js";
+import { createJob } from "../controllers/jobs/jobCreate.js";
+
+// ================= COMPANY / PHASE 3 SERVICES =================
 import {
   insertJobByCompany,
   fetchJobsByCompany,
-  assignCompanyRelationInJobs
+  assignCompanyRelationInJobs,
 } from "../services/companyService.js";
 
 import { getJobsByCompany } from "../controllers/company/jobListByCompany.js";
 
-// ========== NEW API IMPORTS ADDED (fixed paths) ==========
+// ================= ANALYTICS & INTERACTIONS =================
 import { incrementViews } from "../controllers/jobs/viewIncrement.js";
-import { shortlistCandidate } from "../controllers/applications/shortlist.js"; // temporary safe import if file missing
+import { shortlistCandidate } from "../controllers/applications/shortlist.js";
 import { sendOfferLetter } from "../controllers/applications/offerLetter.js";
 import { recruiterAnalytics } from "../controllers/analytics/recruiterAnalytics.js";
-import { salaryAnalytics } from "../controllers/jobs/salaryAnalytics.js"; // fallback safe import
-// =======================================================
+import { salaryAnalytics } from "../controllers/jobs/salaryAnalytics.js";
+
+// ===========================================================
 
 const router = express.Router();
 
-// Existing kept ✔
+/**
+ * GET all jobs
+ */
 router.get("/", async (req, res) => {
-  const jobs = await getJobs();
-  res.json({ success: true, data: jobs });
-});
-
-// Existing kept ✔
-router.get("/:id", async (req, res) => {
-  const job = await getJob(req.params.id);
-  if (!job) return res.status(404).json({ success: false, message: "Job not found" });
-  res.json({ success: true, data: job });
-});
-
-// Existing kept but enhanced ✔
-router.post("/", async (req, res) => {
   try {
-    const job = await createJob(req.body);
-    res.status(201).json({
-      success: true,
-      data: job,
-      company_id: req.body.company_id || null
-    });
+    const jobs = await getJobs();
+    res.json({ success: true, data: jobs });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Failed to create job", error: err.message });
+    res.status(500).json({ success: false, message: "Failed to fetch jobs", error: err.message });
   }
 });
 
-// Existing kept ✔
+/**
+ * GET job by ID
+ */
+router.get("/:id", async (req, res) => {
+  try {
+    const job = await getJob(req.params.id);
+    if (!job) {
+      return res.status(404).json({ success: false, message: "Job not found" });
+    }
+    res.json({ success: true, data: job });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to fetch job", error: err.message });
+  }
+});
+
+/**
+ * CREATE job  ✅ FIXED (controller-based)
+ */
+router.post("/", createJob);
+
+/**
+ * UPDATE job
+ */
 router.put("/:id", async (req, res) => {
   try {
     const job = await updateJob(req.params.id, req.body);
-    res.json({
-      success: true,
-      data: job,
-      company_id: req.body.company_id || null
-    });
+    res.json({ success: true, data: job });
   } catch (err) {
     res.status(500).json({ success: false, message: "Failed to update job", error: err.message });
   }
 });
 
-// Existing kept ✔
+/**
+ * DELETE job
+ */
 router.delete("/:id", async (req, res) => {
   try {
     await deleteJob(req.params.id);
@@ -77,68 +80,60 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-// ================= PHASE 3 ROUTES (kept as-is) =================
+// ================= COMPANY-BASED JOB ROUTES =================
+
+router.get("/company/:companyId", async (req, res) => {
+  try {
+    const jobs = await fetchJobsByCompany(req.params.companyId);
+    res.json({ success: true, data: jobs });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to load company jobs", error: err.message });
+  }
+});
+
+// Alias (kept for backward compatibility)
 router.get("/company/:id/jobs", async (req, res) => {
   try {
     const jobs = await fetchJobsByCompany(req.params.id);
-    res.status(200).json({ success: true, count: jobs.length, jobs });
+    res.json({ success: true, data: jobs });
   } catch (err) {
     res.status(500).json({ success: false, message: "Failed to fetch jobs by company", error: err.message });
+  }
+});
+
+// ================= PHASE 3 / MAINTENANCE =================
+
+router.post("/assign/company", async (req, res) => {
+  try {
+    const result = await insertJobByCompany(req.body);
+    res.status(201).json({
+      success: true,
+      message: "Job assigned to company successfully",
+      jobId: result.insertId,
+      company_id: req.body.company_id,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to assign job to company", error: err.message });
   }
 });
 
 router.get("/jobs/analytics", async (req, res) => {
   try {
     const jobs = await assignCompanyRelationInJobs();
-    res.status(200).json({ success: true, count: jobs.length, jobs });
+    res.json({ success: true, count: jobs.length, data: jobs });
   } catch (err) {
     res.status(500).json({ success: false, message: "Failed to fetch analytics jobs", error: err.message });
   }
 });
 
-router.post("/assign/company", async (req, res) => {
-  try {
-    const result = await insertJobByCompany(req.body);
-    res.status(201).json({ success: true, message: "Job assigned to company successfully", jobId: result.insertId, company_id: req.body.company_id });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Failed to assign job to company", error: err.message });
-  }
-});
+// ================= INTERACTIONS & ANALYTICS =================
 
-router.get("/company/:companyId", async (req, res) => {
-  try {
-    const jobs = await fetchJobsByCompany(req.params.companyId);
-    res.json({ success: true, data: jobs });
-  } catch {
-    res.status(500).json({ success: false, message: "Failed to load company jobs" });
-  }
-});
-
-// Duplicate kept ✔
-router.get("/company/:id", async (req, res) => {
-  const jobs = await fetchJobsByCompany(req.params.id);
-  res.json({ success: true, data: jobs });
-});
-
-router.get("/company/:id", getJobsByCompany);
-
-// ================= NEW ROUTES (jobs + recruiter interactive) =================
-
-// Increment job views ✔
 router.put("/views/:id", incrementViews);
-
-// Shortlist Candidate API ✔ (URL ready, but controller not crashing due to safe import)
 router.put("/applications/shortlist/:id", shortlistCandidate);
-
-// Offer Letter API ✔
 router.put("/applications/offer/:id", sendOfferLetter);
-
-// Recruiter Analytics ✔
 router.get("/recruiter/:id/analytics", recruiterAnalytics);
-
-// Salary Analytics ✔
 router.get("/analytics/salary/:recruiterId", salaryAnalytics);
 
-// ============================================================================
+// ===========================================================
 
 export default router;

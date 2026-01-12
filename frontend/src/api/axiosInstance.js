@@ -1,4 +1,3 @@
-// src/api/axiosInstance.js
 import axios from "axios";
 
 const API_BASE_URL =
@@ -7,7 +6,7 @@ const API_BASE_URL =
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true,
+  withCredentials: true, // 🔥 IMPORTANT
   headers: {
     "Content-Type": "application/json",
   },
@@ -17,9 +16,10 @@ axiosInstance.interceptors.response.use(
   (res) => res,
   (err) => {
     console.error("❌ API Error:", {
-      url: err.config?.url,
+      method: err.config?.method,
+      url: `${API_BASE_URL}${err.config?.url}`,
       status: err.response?.status,
-      message: err.message,
+      message: err.response?.data || err.message,
     });
     return Promise.reject(err);
   }

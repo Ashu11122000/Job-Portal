@@ -1,24 +1,22 @@
-import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 
-// Pages
-import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
-import AdminDashboard from "./pages/dashboard/AdminDashboard";
-import RecruiterDashboard from "./pages/dashboard/RecruiterDashboard";
-import CandidateDashboard from "./pages/dashboard/CandidateDashboard";
-import Home from "./pages/Home";
-import About from "./pages/About";
-import Jobs from "./pages/jobs/Jobs";
-import Contact from "./pages/Contact";
-import NotFound from "./pages/Not.found";
+/* ===== AUTH ===== */
+import Login from "../pages/auth/Login";
+import Register from "../pages/auth/Register";
 
-// Wrapper for protected routes
-function ProtectedRoute({ children }) {
-  const { user } = useAuth();
-  return user ? children : <Navigate to="/login" replace />;
-}
+/* ===== DASHBOARDS ===== */
+import AdminDashboard from "../pages/dashboard/AdminDashboard";
+import RecruiterDashboard from "../pages/dashboard/RecruiterDashboard";
+import CandidateDashboard from "../pages/dashboard/CandidateDashboard";
+
+/* ===== PUBLIC PAGES ===== */
+import PublicLayout from "../layouts/PublicLayout";
+import Home from "../pages/Home";
+import About from "../pages/About";
+import Jobs from "../pages/jobs/Jobs";
+import Contact from "../pages/Contact";
+import NotFound from "../pages/NotFound";
 
 export default function AppRouter() {
   const { user } = useAuth();
@@ -27,37 +25,59 @@ export default function AppRouter() {
     <BrowserRouter>
       <Routes>
 
-        {/* Auth Routes */}
-        <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
-        <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
+        {/* ================= AUTH ================= */}
+        <Route
+          path="/login"
+          element={!user ? <Login /> : <Navigate to="/" replace />}
+        />
+        <Route
+          path="/register"
+          element={!user ? <Register /> : <Navigate to="/" replace />}
+        />
 
-        {/* Default Redirect after login */}
+        {/* ================= ROOT REDIRECT ================= */}
         <Route
           path="/"
           element={
             user ? (
-              user.role === "admin" ? <Navigate to="/dashboard/admin" /> :
-              user.role === "recruiter" ? <Navigate to="/dashboard/recruiter" /> :
-              user.role === "candidate" ? <Navigate to="/dashboard/candidate" /> :
-              <Home />
+              user.role === "admin" ? (
+                <Navigate to="/dashboard/admin" replace />
+              ) : user.role === "recruiter" ? (
+                <Navigate to="/dashboard/recruiter" replace />
+              ) : (
+                <Navigate to="/dashboard/candidate" replace />
+              )
             ) : (
-              <Navigate to="/login" />
+              <Navigate to="/login" replace />
             )
           }
         />
 
-        {/* Protected Dashboards */}
-        <Route path="/dashboard/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-        <Route path="/dashboard/recruiter" element={<ProtectedRoute><RecruiterDashboard /></ProtectedRoute>} />
-        <Route path="/dashboard/candidate" element={<ProtectedRoute><CandidateDashboard /></ProtectedRoute>} />
+        {/* ================= DASHBOARDS (NO LAYOUT) ================= */}
+        <Route
+          path="/dashboard/admin"
+          element={user?.role === "admin" ? <AdminDashboard /> : <Navigate to="/" />}
+        />
 
-        {/* Public Routes (visible always) */}
-        <Route path="/home" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/jobs" element={<Jobs />} />
-        <Route path="/contact" element={<Contact />} />
+        <Route
+          path="/dashboard/recruiter"
+          element={user?.role === "recruiter" ? <RecruiterDashboard /> : <Navigate to="/" />}
+        />
 
-        {/* 404 */}
+        <Route
+          path="/dashboard/candidate"
+          element={user?.role === "candidate" ? <CandidateDashboard /> : <Navigate to="/" />}
+        />
+
+        {/* ================= PUBLIC PAGES ================= */}
+        <Route path="/" element={<PublicLayout />}>
+          <Route path="home" element={<Home />} />
+          <Route path="jobs" element={<Jobs />} />
+          <Route path="about" element={<About />} />
+          <Route path="contact" element={<Contact />} />
+        </Route>
+
+        {/* ================= 404 ================= */}
         <Route path="*" element={<NotFound />} />
 
       </Routes>

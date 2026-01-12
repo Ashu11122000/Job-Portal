@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
-import SettingAPI from "../../api/settingsApi.js";
 import {
   FiBriefcase,
   FiTrash2,
@@ -12,9 +11,7 @@ import {
   FiClipboard,
   FiRefreshCw,
   FiUserCheck,
-  FiEdit,
-  FiActivity,
-  FiSettings
+  FiEdit
 } from "react-icons/fi";
 import { getAllJobs } from "../../api/jobApi";
 import { useAuthContext } from "../../context/AuthContext.jsx";
@@ -65,15 +62,11 @@ export default function AdminDashboard() {
   const user = auth?.user || {};
 
   const [jobs, setJobs] = useState([]);
-  const [applications] = useState([]); // preserved as-is
+  const [applications] = useState([]);
   const [accordionOpen, setAccordionOpen] = useState(false);
 
   const [editOpen, setEditOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
-
-  /* ===== RESTORED STATES ===== */
-  const [settings, setSettings] = useState([]);
-  const [logs, setLogs] = useState([]);
 
   const [newJob, setNewJob] = useState({
     title: "",
@@ -85,60 +78,25 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchJobs();
-    fetchSettings();
-    fetchLogs();
   }, []);
 
   const fetchJobs = async () => {
     const res = await getAllJobs();
-    setJobs(res.data?.data || []);
-  };
-
-  /* ===================== SETTINGS (RESTORED) ===================== */
-  const fetchSettings = async () => {
-    try {
-      if (SettingAPI?.getAllSettings) {
-        const res = await SettingAPI.getAllSettings();
-        setSettings(res.data?.settings || []);
-      }
-    } catch {
-      console.warn("⚠ Settings API not available");
-    }
-  };
-
-  /* ===================== SYSTEM LOGS (RESTORED) ===================== */
-  const fetchLogs = async () => {
-    try {
-      if (SettingAPI?.getLogs) {
-        const res = await SettingAPI.getLogs();
-        setLogs(res.data?.logs || []);
-      }
-    } catch {
-      console.warn("⚠ Logs API not available");
-    }
+    setJobs(res?.data?.data || []);
   };
 
   /* ===================== ADD JOB ===================== */
   const handleCreateJobUI = (e) => {
     e.preventDefault();
     setJobs([{ id: Date.now(), ...newJob }, ...jobs]);
-    setNewJob({
-      title: "",
-      company: "",
-      location: "",
-      salary: "",
-      description: "",
-    });
     setAccordionOpen(false);
   };
 
-  /* ===================== DELETE JOB ===================== */
   const handleDeleteJob = (id) => {
     if (!window.confirm("Delete this job?")) return;
     setJobs(jobs.filter((job) => job.id !== id));
   };
 
-  /* ===================== EDIT JOB ===================== */
   const handleEditJob = (job) => {
     setSelectedJob(job);
     setEditOpen(true);
@@ -146,9 +104,7 @@ export default function AdminDashboard() {
 
   const handleUpdateJob = (e) => {
     e.preventDefault();
-    setJobs(
-      jobs.map((j) => (j.id === selectedJob.id ? selectedJob : j))
-    );
+    setJobs(jobs.map((j) => (j.id === selectedJob.id ? selectedJob : j)));
     setEditOpen(false);
   };
 
@@ -174,11 +130,7 @@ export default function AdminDashboard() {
               </button>
 
               <button
-                onClick={() => {
-                  fetchJobs();
-                  fetchSettings();
-                  fetchLogs();
-                }}
+                onClick={fetchJobs}
                 className="p-4 bg-indigo-600/20 rounded-full text-2xl"
               >
                 <FiRefreshCw />
@@ -196,8 +148,8 @@ export default function AdminDashboard() {
                 {["title", "company", "location", "salary"].map((field) => (
                   <input
                     key={field}
-                    placeholder={field}
                     className="p-3 rounded-xl text-black"
+                    placeholder={field}
                     value={newJob[field]}
                     onChange={(e) =>
                       setNewJob({ ...newJob, [field]: e.target.value })
@@ -205,8 +157,8 @@ export default function AdminDashboard() {
                   />
                 ))}
                 <textarea
-                  placeholder="Description"
                   className="p-3 rounded-xl text-black md:col-span-2"
+                  placeholder="Description"
                   value={newJob.description}
                   onChange={(e) =>
                     setNewJob({ ...newJob, description: e.target.value })
@@ -244,13 +196,13 @@ export default function AdminDashboard() {
                 <div className="flex gap-3 mt-4">
                   <button
                     onClick={() => handleEditJob(job)}
-                    className="flex-1 flex items-center justify-center gap-1 bg-yellow-500 py-2 rounded-xl font-bold"
+                    className="flex-1 bg-yellow-500 py-2 rounded-xl font-bold"
                   >
                     <FiEdit /> Edit
                   </button>
                   <button
                     onClick={() => handleDeleteJob(job.id)}
-                    className="flex-1 flex items-center justify-center gap-1 bg-red-600 py-2 rounded-xl font-bold"
+                    className="flex-1 bg-red-600 py-2 rounded-xl font-bold"
                   >
                     <FiTrash2 /> Delete
                   </button>
@@ -261,94 +213,8 @@ export default function AdminDashboard() {
 
           <LatestApplicants applications={applications} />
 
-          {/* SETTINGS SECTION (RESTORED) */}
-          <motion.div className="bg-black/40 border border-white/10 rounded-3xl p-6 shadow-2xl mb-12">
-            <h2 className="text-xl font-black flex items-center gap-2 mb-4">
-              <FiSettings /> Platform Settings
-            </h2>
-            {settings.length ? (
-              settings.map((s, i) => (
-                <p key={i} className="text-sm opacity-80">
-                  {s.key}: {s.value}
-                </p>
-              ))
-            ) : (
-              <p className="text-sm opacity-60">No settings found</p>
-            )}
-          </motion.div>
-
-          {/* SYSTEM LOGS (RESTORED) */}
-          <motion.div className="bg-black/60 border border-white/10 rounded-3xl p-6 shadow-2xl">
-            <h2 className="text-xl font-black flex items-center gap-2 mb-4">
-              <FiActivity /> System Activity Logs
-            </h2>
-            <div className="max-h-60 overflow-auto space-y-2">
-              {logs.length ? (
-                logs.map((l, i) => (
-                  <p key={i} className="text-sm opacity-80">
-                    [{l.time || "—"}] {l.message || l.msg}
-                  </p>
-                ))
-              ) : (
-                <p className="text-sm opacity-60">No logs available</p>
-              )}
-            </div>
-          </motion.div>
-
         </section>
       </div>
-
-      {/* EDIT MODAL */}
-      <AnimatePresence>
-        {editOpen && (
-          <motion.form
-            onSubmit={handleUpdateJob}
-            className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
-          >
-            <div className="bg-slate-900 p-8 rounded-3xl w-full max-w-lg space-y-4">
-              <h2 className="text-2xl font-black">Edit Job</h2>
-
-              {["title", "company", "location", "salary"].map((field) => (
-                <input
-                  key={field}
-                  className="w-full p-3 rounded-xl text-black"
-                  value={selectedJob[field]}
-                  onChange={(e) =>
-                    setSelectedJob({
-                      ...selectedJob,
-                      [field]: e.target.value,
-                    })
-                  }
-                />
-              ))}
-
-              <textarea
-                className="w-full p-3 rounded-xl text-black"
-                value={selectedJob.description}
-                onChange={(e) =>
-                  setSelectedJob({
-                    ...selectedJob,
-                    description: e.target.value,
-                  })
-                }
-              />
-
-              <div className="flex gap-3">
-                <button className="flex-1 bg-green-600 py-3 rounded-xl font-black">
-                  Update
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEditOpen(false)}
-                  className="flex-1 bg-gray-600 py-3 rounded-xl font-black"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </motion.form>
-        )}
-      </AnimatePresence>
 
       <Footer />
     </>

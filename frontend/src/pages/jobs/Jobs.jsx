@@ -17,50 +17,62 @@ export default function Jobs() {
 
   const navigate = useNavigate();
 
-  // 1️⃣ Fetch Companies for dropdown filter
+  // 1️⃣ Fetch Companies
   const fetchCompanies = async () => {
     try {
-      const res = await axiosInstance.get("/api/company"); // ✔ becomes /api/company
-      const list = res.data?.data?.rows || [];
+      const res = await axiosInstance.get("/company");
+      const list = res.data?.data || res.data || [];
       setCompanies(Array.isArray(list) ? list : []);
     } catch (err) {
       console.error("Company API Error:", err);
     }
   };
 
-  // 2️⃣ Fetch all Jobs
+  // 2️⃣ Fetch Jobs
   const fetchJobs = async () => {
     try {
-      const res = await axiosInstance.get("/api/jobs"); // ✔ becomes /api/jobs
-      const list = res.data?.data || [];
-      setJobs(Array.isArray(list) ? list : []);
+      const res = await axiosInstance.get("/jobs");
+      console.log("Jobs API response:", res.data);
+
+      // Backend returns raw array → handle both cases safely
+      const list = Array.isArray(res.data)
+        ? res.data
+        : res.data?.data || [];
+
+      setJobs(list);
     } catch (err) {
       console.error("Jobs API Error:", err);
       setError("Failed to load jobs. Please try again.");
     }
   };
 
-  // Load both APIs
+  // Load APIs
   useEffect(() => {
     Promise.all([fetchCompanies(), fetchJobs()])
       .catch(() => setError("Something went wrong"))
       .finally(() => setLoading(false));
   }, []);
 
-  // 3️⃣ Filter jobs by company + search + remote
+  // 3️⃣ Filters (FIXED company filter)
   const filteredJobs = useMemo(() => {
+    const selectedCompany = companies.find(
+      (c) => String(c.id) === String(selectedCompanyId)
+    );
+
     return jobs
       .filter((job) =>
-        selectedCompanyId ? job.company_id === Number(selectedCompanyId) : true
+        selectedCompany ? job.company === selectedCompany.name : true
       )
       .filter((job) =>
         (job.title || "").toLowerCase().includes(query.toLowerCase()) ||
         (job.company || "").toLowerCase().includes(query.toLowerCase())
       )
       .filter((job) =>
-        onlyRemote ? (job.location || "").toLowerCase().includes("remote") : true
+        onlyRemote
+          ? (job.location || "").toLowerCase().includes("remote")
+          : true
       );
-  }, [jobs, query, onlyRemote, selectedCompanyId]);
+  }, [jobs, query, onlyRemote, selectedCompanyId, companies]);
 
   // LOADING UI
   if (loading) {
@@ -114,7 +126,7 @@ export default function Jobs() {
             </p>
           </div>
 
-          {/* COMPANY DROPDOWN FILTER */}
+          {/* COMPANY DROPDOWN */}
           <div className="flex justify-center mb-6">
             <div className="relative w-full max-w-xl">
               <FiUsers className="absolute left-5 top-4 text-black text-xl" />
@@ -133,7 +145,7 @@ export default function Jobs() {
             </div>
           </div>
 
-          {/* SEARCH FILTER */}
+          {/* SEARCH */}
           <div className="flex justify-center mb-10">
             <div className="relative w-full max-w-xl">
               <FiSearch className="absolute left-5 top-4 text-black text-xl" />
@@ -147,7 +159,7 @@ export default function Jobs() {
             </div>
           </div>
 
-          {/* JOB LISTING */}
+          {/* JOB LIST */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             <AnimatePresence>
               {filteredJobs.length === 0 ? (
@@ -167,7 +179,7 @@ export default function Jobs() {
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <JobCard job={job} /> {/* ✔ full job object passed */}
+                    <JobCard job={job} />
                   </motion.div>
                 ))
               )}
