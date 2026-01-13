@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import axiosInstance from "../../api/axiosInstance";
+import { getCompanies } from "../../api/companyApi";
 import CompanyCard from "../../components/cards/CompanyCard";
-import Footer from "../../components/layout/Footer"; // ✅ ADDED
+import Footer from "../../components/layout/Footer";
 
 export default function CompanyProfile() {
   const [companies, setCompanies] = useState([]);
@@ -13,18 +13,30 @@ export default function CompanyProfile() {
     const loadCompanies = async () => {
       try {
         setLoading(true);
-        const res = await axiosInstance.get("/api/company");
 
-        // 🔍 FIX: extract correct array from response
-        const list = res.data?.companies || res.data?.data?.rows || [];
+        const res = await getCompanies();
+
+        /**
+         * Backend response possibilities handled safely
+         * res.data.data
+         * res.data.companies
+         * res.data.rows
+         */
+        const list =
+          res?.data?.data ||
+          res?.data?.companies ||
+          res?.data?.rows ||
+          [];
+
         setCompanies(Array.isArray(list) ? list : []);
       } catch (err) {
+        console.error("Company API Error:", err);
         setError("Failed to load companies");
-        console.error("API Error:", err);
       } finally {
         setLoading(false);
       }
     };
+
     loadCompanies();
   }, []);
 
@@ -46,9 +58,8 @@ export default function CompanyProfile() {
 
   return (
     <>
-      {/* Premium UI Section */}
       <section className="relative min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-purple-950 px-6 py-28">
-        {/* Glow effect */}
+        {/* Glow */}
         <motion.div
           animate={{ x: [0, 80, 0], y: [0, -60, 0] }}
           transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
@@ -68,22 +79,27 @@ export default function CompanyProfile() {
           </p>
         </div>
 
-        {/* Company Grid */}
-        <div className="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-10 place-items-center">
-          {companies.map((company) => (
-            <motion.div
-              key={company.id}
-              whileHover={{ y: -7, scale: 1.03 }}
-              className="w-full max-w-sm"
-            >
-              <CompanyCard company={company} />
-            </motion.div>
-          ))}
-        </div>
+        {/* Grid */}
+        {companies.length === 0 ? (
+          <p className="text-center text-white/70 text-xl">
+            No companies found
+          </p>
+        ) : (
+          <div className="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-10 place-items-center">
+            {companies.map((company) => (
+              <motion.div
+                key={company.id || company._id}
+                whileHover={{ y: -7, scale: 1.03 }}
+                className="w-full max-w-sm"
+              >
+                <CompanyCard company={company} />
+              </motion.div>
+            ))}
+          </div>
+        )}
       </section>
 
-      {/* Footer always visible */}
-      <Footer /> {/* ✅ FOOTER NOW ADDED */}
+      <Footer />
     </>
   );
 }

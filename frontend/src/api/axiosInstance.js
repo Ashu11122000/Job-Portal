@@ -6,12 +6,29 @@ const API_BASE_URL =
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true, // 🔥 IMPORTANT
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
+/**
+ * ✅ Attach JWT token to every request
+ */
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token"); // 🔥 MUST EXIST
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+/**
+ * ✅ Clean global error logger
+ */
 axiosInstance.interceptors.response.use(
   (res) => res,
   (err) => {
@@ -21,6 +38,12 @@ axiosInstance.interceptors.response.use(
       status: err.response?.status,
       message: err.response?.data || err.message,
     });
+
+    // Optional: auto logout on token expiry
+    if (err.response?.status === 401) {
+      localStorage.removeItem("token");
+    }
+
     return Promise.reject(err);
   }
 );

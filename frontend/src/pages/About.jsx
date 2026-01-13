@@ -1,902 +1,684 @@
 import { useEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
 import {
-  FiTarget,
-  FiTrendingUp,
+  motion,
+  useScroll,
+  useTransform,
+  useMotionValue,
+  animate,
+} from "framer-motion";
+import {
   FiShield,
-  FiAward,
-  FiLayers,
+  FiTrendingUp,
   FiUsers,
   FiCpu,
   FiGlobe,
   FiBriefcase,
-  FiCheckCircle,
+  FiLayers,
   FiHeart,
 } from "react-icons/fi";
 import Footer from "../components/layout/Footer";
 
+/* ================= ANIMATED COUNTER (SAFE) ================= */
+/* ================= ULTRA PREMIUM ANIMATED COUNTER ================= */
+function AnimatedCounter({ value, suffix = "" }) {
+  const count = useMotionValue(0);
+
+  // Rounded + formatted value
+  const rounded = useTransform(count, (v) =>
+    Math.round(v).toLocaleString()
+  );
+
+  // Glow pulse when animation completes
+  const glow = useMotionValue(0);
+  const glowShadow = useTransform(
+    glow,
+    [0, 1],
+    [
+      "0 0 0 rgba(99,102,241,0)",
+      "0 0 28px rgba(99,102,241,0.9)",
+    ]
+  );
+
+  useEffect(() => {
+    const main = animate(count, value, {
+      duration: 2.4,
+      ease: [0.16, 1, 0.3, 1], // premium easing
+    });
+
+    const pulse = animate(glow, 1, {
+      delay: 2.1,
+      duration: 0.6,
+      ease: "easeOut",
+    });
+
+    return () => {
+      main.stop();
+      pulse.stop();
+    };
+  }, [value]);
+
+  return (
+    <motion.span
+      initial={{ opacity: 0, scale: 0.92 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      style={{ textShadow: glowShadow }}
+      className="
+        inline-flex items-baseline gap-1
+        tabular-nums
+        font-black
+        bg-gradient-to-r from-indigo-300 via-sky-300 to-purple-300
+        bg-clip-text text-transparent
+        tracking-tight
+      "
+    >
+      {/* Animated Number */}
+      <motion.span>{rounded}</motion.span>
+
+      {/* Animated Suffix */}
+      {suffix && (
+        <motion.span
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.4 }}
+          className="text-sm md:text-base font-bold text-slate-300"
+        >
+          {suffix}
+        </motion.span>
+      )}
+    </motion.span>
+  );
+}
+
+
+/* ================= ULTRA PREMIUM SECTION ================= */
+function Section({ children, light = false }) {
+  return (
+    <section
+      className={`relative isolate py-36 overflow-hidden ${
+        light
+          ? "bg-white"
+          : "bg-gradient-to-b from-slate-50 via-white to-slate-50"
+      }`}
+    >
+      {/* Ambient Gradient Glow */}
+      <div
+        className={`
+          pointer-events-none absolute inset-0 -z-10
+          ${
+            light
+              ? "bg-[radial-gradient(circle_at_20%_10%,rgba(99,102,241,0.08),transparent_40%),radial-gradient(circle_at_80%_90%,rgba(147,51,234,0.08),transparent_45%)]"
+              : "bg-[radial-gradient(circle_at_20%_10%,rgba(99,102,241,0.12),transparent_45%),radial-gradient(circle_at_80%_90%,rgba(147,51,234,0.12),transparent_50%)]"
+          }
+        `}
+      />
+
+      {/* Soft Noise Overlay (Luxury Texture) */}
+      <div
+        className="
+          pointer-events-none absolute inset-0 -z-10
+          bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9Im5vbmUiIC8+PC9zdmc+')]
+          opacity-[0.015]
+        "
+      />
+
+      {/* Content Reveal */}
+      <motion.div
+        initial={{ opacity: 0, y: 60 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-120px" }}
+        transition={{
+          duration: 1,
+          ease: [0.16, 1, 0.3, 1], // premium easing
+        }}
+        className="relative z-10"
+      >
+        {children}
+      </motion.div>
+    </section>
+  );
+}
+
+
+/* ================= ABOUT PAGE ================= */
 export default function About() {
   const { scrollYProgress } = useScroll();
-  const yBg = useTransform(scrollYProgress, [0, 1], [0, -200]);
+  const yBg = useTransform(scrollYProgress, [0, 1], [0, -180]);
 
   useEffect(() => {
     document.title = "About Us | JobPortal";
-    const metaDesc = document.querySelector("meta[name='description']");
-    if (metaDesc) {
-      metaDesc.setAttribute(
-        "content",
-        "JobPortal is India’s next-generation AI-driven job platform connecting talent with verified recruiters."
-      );
-    }
   }, []);
 
   return (
     <div className="w-full overflow-hidden bg-white">
-      {/* ================= HERO ================= */}
-      <section className="relative min-h-screen flex items-center justify-center bg-[radial-gradient(circle_at_top,#0f172a,#1e1b4b,#020617)] text-white overflow-hidden">
-        {/* ✅ AURORA GLOW BACKGROUNDS */}
+      {/* Scroll Progress */}
+      <motion.div
+        style={{ scaleX: scrollYProgress }}
+        className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-indigo-500 via-sky-500 to-purple-500 z-50 origin-left"
+      />
+
+<section className="relative min-h-screen flex items-center justify-center isolate overflow-hidden">
+  {/* ====== Base Background ====== */}
+  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#020617,#0f172a,#020617)]" />
+
+  {/* ====== Aurora Glow Layers ====== */}
+  <motion.div
+    style={{ y: yBg }}
+    className="absolute -top-[32rem] -left-[32rem] w-[1100px] h-[1100px] bg-indigo-500/30 blur-[320px] rounded-full"
+  />
+  <motion.div
+    style={{ y: yBg }}
+    className="absolute -bottom-[30rem] -right-[30rem] w-[1000px] h-[1000px] bg-purple-500/30 blur-[340px] rounded-full"
+  />
+
+  {/* ====== Subtle Blue Highlight ====== */}
+  <motion.div
+    animate={{ opacity: [0.15, 0.35, 0.15] }}
+    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+    className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-sky-400/20 blur-[280px] rounded-full"
+  />
+
+  {/* ====== Luxury Noise Texture ====== */}
+  <div
+    className="absolute inset-0 opacity-[0.025] mix-blend-soft-light pointer-events-none"
+    style={{
+      backgroundImage:
+        "url('https://grainy-gradients.vercel.app/noise.svg')",
+    }}
+  />
+
+  {/* ====== Content ====== */}
+  <div className="relative z-10 text-center px-6 max-w-6xl">
+    {/* Premium Badge */}
+    <motion.span
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+      className="inline-flex items-center gap-2 mb-10 px-8 py-2 rounded-full
+      bg-white/5 border border-white/10 backdrop-blur-xl
+      text-sm font-medium tracking-wide text-indigo-200 shadow-lg"
+    >
+      ⚡ Trusted by professionals & companies worldwide
+    </motion.span>
+
+    {/* Headline */}
+    <motion.h1
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1 }}
+      className="text-6xl md:text-7xl font-black leading-[1.05]
+      bg-gradient-to-r from-indigo-300 via-sky-300 to-purple-300
+      bg-clip-text text-transparent"
+    >
+      Building the Future of
+      <br />
+      <span className="text-slate-100 drop-shadow-[0_0_30px_rgba(255,255,255,0.15)]">
+        Hiring & Careers
+      </span>
+    </motion.h1>
+
+    {/* Subtitle */}
+    <motion.p
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 }}
+      className="mt-10 max-w-4xl mx-auto text-slate-300 text-xl leading-relaxed"
+    >
+      JobPortal is an AI-driven recruitment ecosystem connecting verified
+      employers with skilled professionals through trust, intelligence,
+      and automation.
+    </motion.p>
+
+    {/* CTA Buttons */}
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.4 }}
+      className="mt-14 flex justify-center gap-6 flex-wrap"
+    >
+      <a
+        href="/jobs"
+        className="relative px-12 py-4 rounded-full font-semibold text-slate-100
+        bg-gradient-to-r from-indigo-600 to-purple-600
+        shadow-[0_20px_60px_rgba(99,102,241,0.6)]
+        hover:scale-[1.06] transition-all duration-300"
+      >
+        Explore Jobs
+      </a>
+
+      <a
+        href="/register"
+        className="px-12 py-4 rounded-full font-semibold
+        border border-slate-400/30 text-slate-200
+        backdrop-blur-xl hover:bg-white/5 transition"
+      >
+        Create Profile
+      </a>
+    </motion.div>
+
+    {/* Metrics */}
+    <div className="mt-30 mb-32 grid grid-cols-2 md:grid-cols-4 gap-10">
+      <Stat value={300000} suffix="+" label="Professionals" />
+      <Stat value={12000} suffix="+" label="Recruiters" />
+      <Stat value={96} suffix="%" label="Hiring Accuracy" />
+      <Stat value={4} suffix=".2" label="Days to Hire" />
+    </div>
+  </div>
+</section>
+
+{/* ================= HOW IT WORKS — ULTRA PREMIUM ================= */}
+<Section light>
+  {/* Ambient Background */}
+  <div className="absolute inset-0 -z-10">
+    <div className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-indigo-300/20 blur-[180px] rounded-full" />
+    <div className="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-purple-300/20 blur-[180px] rounded-full" />
+  </div>
+
+  <div className="max-w-7xl mx-auto px-6">
+
+    {/* Header */}
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.9 }}
+      className="text-center mb-28"
+    >
+      <span className="inline-flex items-center gap-2 mb-6 px-8 py-2 rounded-full bg-white shadow border text-sm font-bold text-indigo-700">
+        ⚙ Platform Workflow
+      </span>
+
+      <h2 className="text-6xl font-black text-slate-900 mb-6">
+        Intelligent Hiring,
+        <span className="block bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          Simplified
+        </span>
+      </h2>
+
+      <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+        A high-precision AI-powered hiring engine designed for speed,
+        transparency, and enterprise-grade trust.
+      </p>
+    </motion.div>
+
+    {/* Flow Line (Desktop) */}
+    <div className="relative hidden md:block mb-20">
+      <div className="absolute left-0 right-0 top-1/2 h-[2px] bg-gradient-to-r from-indigo-200 via-purple-200 to-indigo-200" />
+    </div>
+
+    {/* Cards */}
+    <div className="grid md:grid-cols-4 gap-16 relative">
+      {[
+        {
+          step: "01",
+          title: "Profile Creation",
+          desc: "Candidates create AI-optimized profiles mapped to dynamic skill graphs.",
+        },
+        {
+          step: "02",
+          title: "AI Matching",
+          desc: "Real-time job matching using intelligent ranking & skill inference.",
+        },
+        {
+          step: "03",
+          title: "Verified Hiring",
+          desc: "Recruiter KYC, fraud detection, and trust-based employer validation.",
+        },
+        {
+          step: "04",
+          title: "Fast Placement",
+          desc: "Automated scheduling, offer workflows, and onboarding intelligence.",
+        },
+      ].map((item, i) => (
         <motion.div
-          style={{ y: yBg }}
-          className="absolute -top-112 -left-112 w-[1100px] h-[1100px] bg-indigo-500/30 rounded-full blur-[280px]"
-        />
-        <motion.div
-          style={{ y: yBg }}
-          className="absolute -bottom-80 -right-80 w-[900px] h-[900px] bg-purple-500/30 rounded-full blur-[300px]"
-        />
-        <motion.div
-          animate={{ opacity: [0.4, 0.8, 0.4] }}
-          transition={{ duration: 8, repeat: Infinity }}
-          className="absolute top-1/2 left-1/2 w-[600px] h-[600px] bg-sky-400/20 rounded-full blur-[200px]"
-        />
-
-        {/* ✅ MAIN CONTENT */}
-        <div className="relative z-10 text-center px-6 max-w-6xl mx-auto">
-          {/* ✅ PREMIUM BADGE */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="inline-flex items-center gap-2 mb-8 px-8 py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 text-sm text-indigo-200"
-          >
-            ⚡ Trusted by 3,00,000+ Professionals & 12,000+ Companies
-          </motion.div>
-
-          {/* ✅ MAIN HEADLINE */}
-          <motion.h1
-            initial={{ opacity: 0, y: 60 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-            className="text-6xl md:text-7xl font-black mb-8 bg-linear-to-r from-indigo-300 via-sky-300 to-purple-300 bg-clip-text text-transparent leading-tight"
-          >
-            Powering the Future of
-            <br />
-            <span className="text-white">Smart Hiring & Careers</span>
-          </motion.h1>
-
-          {/* ✅ SUBTITLE */}
-          <motion.p
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="max-w-4xl mx-auto text-white/85 text-xl leading-relaxed"
-          >
-            JobPortal is building India’s most advanced AI-driven recruitment
-            ecosystem powered by intelligent automation, real-time skill
-            intelligence, verified employer networks, and enterprise-grade
-            hiring infrastructure.
-          </motion.p>
-
-          {/* ✅ CTA BUTTONS */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="mt-12 flex flex-wrap justify-center gap-6"
-          >
-            <a
-              href="/jobs"
-              className="bg-linear-to-r from-indigo-600 to-purple-600 text-white px-12 py-4 rounded-full font-semibold shadow-[0_20px_60px_rgba(99,102,241,0.6)] hover:scale-105 transition"
-            >
-              Explore Jobs
-            </a>
-
-            <a
-              href="/register"
-              className="border border-white/40 text-white px-12 py-4 rounded-full font-semibold backdrop-blur-xl hover:bg-white/10 transition"
-            >
-              Create Free Profile
-            </a>
-          </motion.div>
-
-          {/* ✅ LIVE BUSINESS METRICS */}
-          <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-10 max-w-5xl mx-auto">
-            {[
-              { label: "Active Professionals", value: "3,00,000+" },
-              { label: "Verified Recruiters", value: "12,000+" },
-              { label: "Daily AI Matches", value: "18,000+" },
-              { label: "Hiring Accuracy", value: "96.4%" },
-              { label: "Avg Time to Hire", value: "4.2 Days" },
-              { label: "Enterprise Clients", value: "850+" },
-              { label: "Annual Placements", value: "1,20,000+" },
-              { label: "User Satisfaction", value: "4.9 ★" },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                whileHover={{ scale: 1.08, y: -6 }}
-                className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 shadow text-center"
-              >
-                <h3 className="text-3xl md:text-4xl font-black text-white">
-                  {item.value}
-                </h3>
-                <p className="text-white/70 mt-1 text-sm tracking-wide">
-                  {item.label}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* ✅ FEATURE HIGHLIGHTS STRIP */}
-          <div className="mt-20 flex flex-wrap justify-center gap-8 text-white/80 text-sm">
-            <div className="flex items-center gap-2">
-              ✅ AI-Based Job Matching
-            </div>
-            <div className="flex items-center gap-2">
-              ✅ 100% Verified Companies
-            </div>
-            <div className="flex items-center gap-2">
-              ✅ Salary Intelligence Engine
-            </div>
-            <div className="flex items-center gap-2">
-              ✅ Career Acceleration Tools
-            </div>
-            <div className="flex items-center gap-2">
-              ✅ Enterprise-Grade Security
-            </div>
-          </div>
-        </div>
-      </section>
-      {/* ================= ULTRA PREMIUM MISSION / VISION ================= */}
-      <section className="relative py-40 overflow-hidden bg-linear-to-br from-slate-50 via-indigo-50 to-purple-50">
-        {/* ✅ Ambient Aurora Background */}
-        <motion.div
-          animate={{ x: [0, 140, 0], y: [0, -90, 0] }}
-          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-72 -left-72 w-[800px] h-[800px] bg-indigo-400/25 rounded-full blur-[220px]"
-        />
-        <motion.div
-          animate={{ x: [0, -120, 0], y: [0, 100, 0] }}
-          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -bottom-72 -right-72 w-[900px] h-[900px] bg-purple-400/25 rounded-full blur-[260px]"
-        />
-
-        {/* ✅ GLASS CONTENT WRAPPER — GUARANTEES VISIBILITY */}
-        <div className="relative z-20 max-w-7xl mx-auto px-6 bg-white/70 backdrop-blur-2xl rounded-[3rem] p-12 md:p-16 shadow-[0_40px_120px_rgba(0,0,0,0.25)]">
-          {/* ✅ Section Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1 }}
-            className="text-center mb-24"
-          >
-            <span className="inline-block mb-6 px-8 py-2 bg-white text-indigo-700 rounded-full text-sm font-bold shadow">
-              🎯 Our Purpose & Direction
-            </span>
-
-            <h2 className="text-5xl md:text-6xl font-black text-slate-900 mb-6">
-              Mission & Vision
-            </h2>
-
-            <p className="text-slate-700 text-xl max-w-3xl mx-auto leading-relaxed font-medium">
-              The principles that define our platform, shape our technology, and
-              drive our billion-scale ambition.
-            </p>
-          </motion.div>
-
-          {/* ✅ Premium Grid */}
-          <div className="grid md:grid-cols-2 gap-20 perspective-[1400px]">
-            {/* ✅ MISSION CARD */}
-            <motion.div
-              whileHover={{ y: -14, rotateY: 6 }}
-              transition={{ type: "spring", stiffness: 120 }}
-              className="relative bg-white text-slate-800 backdrop-blur-2xl border border-indigo-200 rounded-[2.5rem] p-16 shadow-[0_40px_120px_rgba(79,70,229,0.35)] overflow-hidden"
-            >
-              <span className="inline-block mb-4 px-6 py-2 bg-indigo-100 text-indigo-700 rounded-full text-xs font-bold">
-                Execution Strategy
-              </span>
-
-              <h3 className="text-4xl font-black mb-8 text-indigo-700">
-                Our Mission
-              </h3>
-
-              <ul className="space-y-4 text-slate-700 font-medium text-lg mb-6">
-                <li>✅ Remove hiring friction using AI automation</li>
-                <li>✅ Empower professionals with career intelligence</li>
-                <li>✅ Deliver high-confidence hiring for employers</li>
-                <li>✅ Build fraud-proof verified recruitment flows</li>
-              </ul>
-
-              <p className="text-slate-600 text-lg leading-relaxed">
-                We exist to make hiring faster, smarter, safer and fully
-                data-driven at enterprise scale.
-              </p>
-            </motion.div>
-
-            {/* ✅ VISION CARD */}
-            <motion.div
-              whileHover={{ y: -14, rotateY: -6 }}
-              transition={{ type: "spring", stiffness: 120 }}
-              className="relative bg-white text-slate-800 backdrop-blur-2xl border border-purple-200 rounded-[2.5rem] p-16 shadow-[0_40px_120px_rgba(147,51,234,0.35)] overflow-hidden"
-            >
-              <span className="inline-block mb-4 px-6 py-2 bg-purple-100 text-purple-700 rounded-full text-xs font-bold">
-                Long-Term Ambition
-              </span>
-
-              <h3 className="text-4xl font-black mb-8 text-purple-700">
-                Our Vision
-              </h3>
-
-              <ul className="space-y-4 text-slate-700 font-medium text-lg mb-6">
-                <li>🌍 Become the global employment operating system</li>
-                <li>🔗 Power cross-border hiring with trust infrastructure</li>
-                <li>
-                  🧠 Map skill-to-job paths using real-time AI intelligence
-                </li>
-                <li>🚀 Enable billion-scale employment globally</li>
-              </ul>
-
-              <p className="text-slate-600 text-lg leading-relaxed">
-                We are building the most trusted digital employment
-                infrastructure on the planet.
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* ================= GLOBAL IMPACT — ULTRA PREMIUM ================= */}
-      <section className="relative py-40 overflow-hidden bg-linear-to-br from-slate-100 via-indigo-50 to-purple-100">
-        {/* ✅ Dynamic Aurora Background */}
-        <motion.div
-          animate={{ x: [0, 140, 0], y: [0, -90, 0] }}
-          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-72 -left-72 w-[900px] h-[900px] bg-indigo-400/30 rounded-full blur-[250px]"
-        />
-        <motion.div
-          animate={{ x: [0, -140, 0], y: [0, 120, 0] }}
-          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -bottom-72 -right-72 w-[900px] h-[900px] bg-purple-400/30 rounded-full blur-[280px]"
-        />
-
-        {/* ✅ Section Content Wrapper */}
-        <div className="relative z-20 max-w-7xl mx-auto px-6">
-          {/* ✅ Ultra Premium Section Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1 }}
-            className="text-center mb-24"
-          >
-            <span className="inline-block mb-6 px-10 py-2 bg-white/80 backdrop-blur-xl text-indigo-700 rounded-full text-sm font-bold shadow">
-              🌍 Global Presence
-            </span>
-
-            <h2 className="text-5xl md:text-6xl font-black text-slate-900 mb-6">
-              Global Impact & Scale
-            </h2>
-
-            <p className="text-slate-700 text-xl max-w-3xl mx-auto leading-relaxed font-medium">
-              A planet-scale hiring intelligence network built on AI, trust, and
-              enterprise-grade infrastructure.
-            </p>
-          </motion.div>
-
-          {/* ✅ Ultra Premium Feature Grid */}
-          <div className="grid md:grid-cols-4 gap-16 perspective-[1400px]">
-            {[
-              {
-                icon: <FiGlobe />,
-                title: "Global Reach",
-                desc: "Operating in 14+ countries with real-time cross-border hiring compliance, payroll integration, and relocation pipelines.",
-                accent: "indigo",
-              },
-              {
-                icon: <FiCpu />,
-                title: "AI Infrastructure",
-                desc: "Processes over 1M+ skill-to-job matches daily using real-time machine learning pipelines.",
-                accent: "purple",
-              },
-              {
-                icon: <FiUsers />,
-                title: "High Trust Network",
-                desc: "Strict employer KYC with automated fraud detection and continuous compliance audits.",
-                accent: "indigo",
-              },
-              {
-                icon: <FiBriefcase />,
-                title: "Enterprise Hiring",
-                desc: "Serving Fortune 500 leaders, unicorn startups, PSU boards, and national workforce programs.",
-                accent: "purple",
-              },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.12 }}
-                whileHover={{ y: -16, rotateX: 8, rotateY: 6 }}
-                className={`relative group bg-white/80 backdrop-blur-2xl border ${
-                  item.accent === "indigo"
-                    ? "border-indigo-200 shadow-[0_30px_90px_rgba(79,70,229,0.35)]"
-                    : "border-purple-200 shadow-[0_30px_90px_rgba(147,51,234,0.35)]"
-                } rounded-[2.5rem] p-12 text-center transition transform-gpu overflow-hidden`}
-              >
-                {/* ✅ Neon Edge Glow */}
-                <div
-                  className={`absolute inset-0 rounded-[2.5rem] opacity-0 group-hover:opacity-100 blur-2xl transition ${
-                    item.accent === "indigo"
-                      ? "bg-indigo-400/40"
-                      : "bg-purple-400/40"
-                  }`}
-                />
-
-                {/* ✅ Floating Icon Plate */}
-                <div
-                  className={`relative z-10 w-20 h-20 mx-auto mb-8 rounded-2xl flex items-center justify-center text-3xl shadow-xl ${
-                    item.accent === "indigo"
-                      ? "bg-linear-to-br from-indigo-500 to-indigo-700 text-white"
-                      : "bg-linear-to-br from-purple-500 to-purple-700 text-white"
-                  }`}
-                >
-                  {item.icon}
-                </div>
-
-                <h3 className="relative z-10 text-2xl font-extrabold text-slate-900 mb-4">
-                  {item.title}
-                </h3>
-
-                <p className="relative z-10 text-slate-700 text-base leading-relaxed font-medium">
-                  {item.desc}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* ✅ Executive Trust Metrics */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
-            className="mt-28 grid md:grid-cols-4 gap-12 text-center"
-          >
-            {[
-              { value: "3M+", label: "Global Candidates" },
-              { value: "120K+", label: "Verified Employers" },
-              { value: "18 Countries", label: "Live Operations" },
-              { value: "96.8%", label: "Hiring Accuracy" },
-            ].map((stat, i) => (
-              <div
-                key={i}
-                className="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow border border-slate-200"
-              >
-                <h4 className="text-4xl font-black text-indigo-700">
-                  {stat.value}
-                </h4>
-                <p className="text-slate-700 font-semibold mt-2">
-                  {stat.label}
-                </p>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ================= CORE VALUES — ULTRA PREMIUM ================= */}
-      <section className="relative py-40 overflow-hidden bg-linear-to-br from-white via-indigo-50 to-purple-50">
-        {/* ✅ Ambient Motion Glow */}
-        <motion.div
-          animate={{ x: [0, 140, 0], y: [0, -120, 0] }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-72 -left-72 w-[900px] h-[900px] bg-indigo-400/25 rounded-full blur-[260px]"
-        />
-        <motion.div
-          animate={{ x: [0, -140, 0], y: [0, 120, 0] }}
-          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -bottom-72 -right-72 w-[900px] h-[900px] bg-purple-400/25 rounded-full blur-[300px]"
-        />
-
-        <div className="relative z-10 max-w-7xl mx-auto px-6">
-          {/* ✅ Premium Section Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1 }}
-            className="text-center mb-24"
-          >
-            <span className="inline-block mb-6 px-10 py-2 bg-white/80 backdrop-blur-xl text-indigo-700 rounded-full text-sm font-bold shadow">
-              🧭 What Drives Us
-            </span>
-
-            <h2 className="text-5xl md:text-6xl font-black text-slate-900 mb-6">
-              Our Core Values
-            </h2>
-
-            <p className="text-slate-700 text-xl max-w-3xl mx-auto leading-relaxed font-medium">
-              The foundational principles that power our technology, guide our
-              decisions, and protect millions of careers worldwide.
-            </p>
-          </motion.div>
-
-          {/* ✅ Ultra Premium Value Grid */}
-          <div className="grid md:grid-cols-3 gap-16 perspective-[1400px]">
-            {[
-              {
-                icon: <FiShield />,
-                title: "Trust & Security",
-                desc: "Enterprise-grade encryption, strict compliance controls, zero tolerance for fraud, and always-on monitoring to protect every user.",
-                accent: "indigo",
-              },
-              {
-                icon: <FiHeart />,
-                title: "Candidate First",
-                desc: "Every product decision begins with the job seeker — simplifying access, accelerating growth, and maximizing opportunity.",
-                accent: "purple",
-              },
-              {
-                icon: <FiTrendingUp />,
-                title: "Growth Driven",
-                desc: "Continuous upskilling, AI-powered intelligence, and real-time labor market analytics to future-proof careers.",
-                accent: "indigo",
-              },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.12 }}
-                whileHover={{ y: -16, rotateX: 8, rotateY: 6 }}
-                className={`relative group bg-white/85 backdrop-blur-2xl border ${
-                  item.accent === "indigo"
-                    ? "border-indigo-200 shadow-[0_30px_90px_rgba(79,70,229,0.35)]"
-                    : "border-purple-200 shadow-[0_30px_90px_rgba(147,51,234,0.35)]"
-                } rounded-[2.8rem] p-14 text-center transition transform-gpu overflow-hidden`}
-              >
-                {/* ✅ Neon Hover Glow */}
-                <div
-                  className={`absolute inset-0 rounded-[2.8rem] opacity-0 group-hover:opacity-100 blur-2xl transition ${
-                    item.accent === "indigo"
-                      ? "bg-indigo-400/40"
-                      : "bg-purple-400/40"
-                  }`}
-                />
-
-                {/* ✅ Floating Icon Plate */}
-                <div
-                  className={`relative z-10 w-20 h-20 mx-auto mb-8 rounded-2xl flex items-center justify-center text-3xl shadow-xl ${
-                    item.accent === "indigo"
-                      ? "bg-linear-to-br from-indigo-500 to-indigo-700 text-white"
-                      : "bg-linear-to-br from-purple-500 to-purple-700 text-white"
-                  }`}
-                >
-                  {item.icon}
-                </div>
-
-                <h3 className="relative z-10 text-2xl font-extrabold text-slate-900 mb-4">
-                  {item.title}
-                </h3>
-
-                <p className="relative z-10 text-slate-700 text-base leading-relaxed font-medium">
-                  {item.desc}
-                </p>
-
-                {/* ✅ Value Strength Indicator */}
-                <div className="relative z-10 mt-8 h-1 w-24 mx-auto rounded-full bg-linear-to-r from-indigo-500 to-purple-500 shadow-[0_0_20px_rgba(99,102,241,0.8)]" />
-              </motion.div>
-            ))}
-          </div>
-
-          {/* ✅ Executive Value Metrics */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
-            className="mt-28 grid md:grid-cols-3 gap-12 text-center"
-          >
-            {[
-              { value: "ISO 27001", label: "Security Certified" },
-              { value: "Zero Breach", label: "Since Inception" },
-              { value: "98.7%", label: "User Trust Index" },
-            ].map((stat, i) => (
-              <div
-                key={i}
-                className="bg-white/85 backdrop-blur-xl p-10 rounded-3xl shadow border border-slate-200"
-              >
-                <h4 className="text-4xl font-black text-indigo-700">
-                  {stat.value}
-                </h4>
-                <p className="text-slate-700 font-semibold mt-2">
-                  {stat.label}
-                </p>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-      {/* ================= ULTRA PREMIUM AWARDS & RECOGNITION ================= */}
-      <section className="relative py-40 overflow-hidden bg-linear-to-br from-indigo-50 via-white to-purple-50">
-        {/* ✅ Floating Aurora Background */}
-        <motion.div
-          animate={{ x: [0, 160, 0], y: [0, -120, 0] }}
-          transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-80 -left-80 w-[900px] h-[900px] bg-indigo-400/25 rounded-full blur-[280px]"
-        />
-        <motion.div
-          animate={{ x: [0, -160, 0], y: [0, 120, 0] }}
-          transition={{ duration: 28, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -bottom-80 -right-80 w-[900px] h-[900px] bg-purple-400/25 rounded-full blur-[300px]"
-        />
-
-        <div className="relative z-10 max-w-7xl mx-auto px-6">
-          {/* ✅ Executive Section Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1 }}
-            className="text-center mb-28"
-          >
-            <span className="inline-block mb-6 px-10 py-2 bg-white/80 backdrop-blur-xl text-indigo-700 rounded-full text-sm font-bold shadow">
-              🏆 Industry Recognition
-            </span>
-
-            <h2 className="text-5xl md:text-6xl font-black text-slate-900 mb-6">
-              Awards & Recognition
-            </h2>
-
-            <p className="text-slate-700 text-xl max-w-3xl mx-auto leading-relaxed font-medium">
-              Our commitment to excellence, security, and innovation has been
-              recognized by leading industry bodies and global organizations.
-            </p>
-          </motion.div>
-
-          {/* ✅ Ultra Premium Awards Grid */}
-          <div className="grid md:grid-cols-3 gap-20 perspective-[1600px]">
-            {[
-              {
-                title: "Top Startup of the Year – 2024",
-                badge: "Government of India",
-                glow: "indigo",
-              },
-              {
-                title: "ISO 27001 Certified Company",
-                badge: "Global Security Standard",
-                glow: "purple",
-              },
-              {
-                title: "Best HR-Tech Platform – Asia",
-                badge: "Asia Tech Awards",
-                glow: "indigo",
-              },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 60 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.12 }}
-                whileHover={{ y: -20, rotateX: 10, rotateY: 8, scale: 1.05 }}
-                className={`relative group bg-white/85 backdrop-blur-2xl border ${
-                  item.glow === "indigo"
-                    ? "border-indigo-200 shadow-[0_40px_120px_rgba(79,70,229,0.35)]"
-                    : "border-purple-200 shadow-[0_40px_120px_rgba(147,51,234,0.35)]"
-                } rounded-[3rem] p-16 text-center transition transform-gpu overflow-hidden`}
-              >
-                {/* ✅ Neon Award Glow */}
-                <div
-                  className={`absolute inset-0 rounded-[3rem] opacity-0 group-hover:opacity-100 blur-3xl transition ${
-                    item.glow === "indigo"
-                      ? "bg-indigo-400/40"
-                      : "bg-purple-400/40"
-                  }`}
-                />
-
-                {/* ✅ Floating Medal Icon */}
-                <div
-                  className={`relative z-10 w-24 h-24 mx-auto mb-10 rounded-2xl flex items-center justify-center text-4xl shadow-xl ${
-                    item.glow === "indigo"
-                      ? "bg-linear-to-br from-indigo-500 to-indigo-800 text-white"
-                      : "bg-linear-to-br from-purple-500 to-purple-800 text-white"
-                  }`}
-                >
-                  🏅
-                </div>
-
-                <h3 className="relative z-10 text-2xl font-extrabold text-slate-900 mb-4">
-                  {item.title}
-                </h3>
-
-                <p className="relative z-10 text-slate-600 text-sm font-semibold uppercase tracking-wide mb-10">
-                  {item.badge}
-                </p>
-
-                {/* ✅ Trust Meter */}
-                <div className="relative z-10 mt-6">
-                  <div className="h-1.5 w-full rounded-full bg-slate-200 overflow-hidden">
-                    <div className="h-full w-[95%] bg-linear-to-r from-indigo-500 to-purple-600 shadow-[0_0_18px_rgba(99,102,241,0.8)]" />
-                  </div>
-                  <p className="text-xs text-slate-500 mt-3 font-semibold tracking-wider">
-                    Industry Trust Score: 95%
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* ✅ Global Validation Strip */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
-            className="mt-32 grid md:grid-cols-4 gap-12 text-center"
-          >
-            {[
-              { value: "14+", label: "Countries Recognized" },
-              { value: "30+", label: "Industry Awards" },
-              { value: "99.8%", label: "Compliance Accuracy" },
-              { value: "ISO / SOC / GDPR", label: "Security Standards" },
-            ].map((stat, i) => (
-              <div
-                key={i}
-                className="bg-white/85 backdrop-blur-xl p-10 rounded-3xl shadow border border-slate-200"
-              >
-                <h4 className="text-4xl font-black text-indigo-700">
-                  {stat.value}
-                </h4>
-                <p className="text-slate-700 font-semibold mt-2">
-                  {stat.label}
-                </p>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ================= ROADMAP ================= */}
-      <section className="py-32 bg-white">
-        <SectionTitle title="Company Roadmap" />
-        <div className="max-w-5xl mx-auto px-6">
-          {[
-            "2021 – Idea & Core Research",
-            "2022 – Platform Launch",
-            "2023 – 3L Job Seekers Achieved",
-            "2024 – Global Hiring Enablement",
-            "2025 – AI Hiring Brain v2 (Upcoming)",
-          ].map((step, i) => (
-            <motion.div
-              key={i}
-              whileInView={{ opacity: 1, x: 0 }}
-              initial={{ opacity: 0, x: -60 }}
-              className="flex items-center gap-8 mb-14"
-            >
-              <div className="w-14 h-14 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-xl">
-                <FiLayers />
-              </div>
-              <p className="text-xl text-slate-700 font-medium">{step}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ================= ULTRA PREMIUM TEAM ================= */}
-      <section className="relative py-40 overflow-hidden bg-linear-to-br from-slate-50 via-indigo-50 to-purple-50">
-        {/* ✅ Ambient Glow */}
-        <motion.div
-          animate={{ x: [0, 140, 0], y: [0, -90, 0] }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-72 -left-72 w-[900px] h-[900px] bg-indigo-400/25 rounded-full blur-[240px]"
-        />
-        <motion.div
-          animate={{ x: [0, -140, 0], y: [0, 120, 0] }}
-          transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -bottom-72 -right-72 w-[900px] h-[900px] bg-purple-400/25 rounded-full blur-[260px]"
-        />
-
-        <div className="relative z-10 max-w-7xl mx-auto px-6">
-          {/* ✅ Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1 }}
-            className="text-center mb-24"
-          >
-            <span className="inline-block mb-6 px-8 py-2 bg-white/70 backdrop-blur-xl text-indigo-700 rounded-full text-sm font-bold shadow">
-              👑 Executive Leadership
-            </span>
-
-            <h2 className="text-5xl md:text-6xl font-black bg-linear-to-r from-indigo-600 via-sky-600 to-purple-600 bg-clip-text text-transparent mb-6">
-              Leadership Team
-            </h2>
-
-            <p className="text-slate-600 text-xl max-w-3xl mx-auto leading-relaxed">
-              Visionaries shaping the future of AI-powered hiring, global
-              employment infrastructure and trusted talent ecosystems.
-            </p>
-          </motion.div>
-
-          {/* ✅ Leadership Grid */}
-          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-16 perspective-[1400px]">
-            {[
-              {
-                name: "Aarav Mehta",
-                role: "Chief Executive Officer",
-                tag: "Strategy & Vision",
-                img: "https://i.pravatar.cc/150?img=21",
-              },
-              {
-                name: "Priya Kapoor",
-                role: "Chief Product Officer",
-                tag: "AI Systems",
-                img: "https://i.pravatar.cc/150?img=32",
-              },
-              {
-                name: "Rohan Verma",
-                role: "Chief Technology Officer",
-                tag: "Platform Engineering",
-                img: "https://i.pravatar.cc/150?img=45",
-              },
-              {
-                name: "Neha Malhotra",
-                role: "VP – Talent Intelligence",
-                tag: "Hiring Algorithms",
-                img: "https://i.pravatar.cc/150?img=56",
-              },
-            ].map((leader, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15 }}
-                whileHover={{
-                  rotateX: -10,
-                  rotateY: 10,
-                  y: -18,
-                  scale: 1.08,
-                }}
-                className="relative group transform-gpu"
-              >
-                {/* ✅ Neon Border */}
-                <div className="absolute inset-0 rounded-3xl bg-linear-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-100 blur-xl transition duration-500" />
-
-                {/* ✅ Glass Leadership Card */}
-                <div className="relative bg-white/85 backdrop-blur-2xl border border-white/50 rounded-3xl shadow-[0_30px_90px_rgba(79,70,229,0.3)] p-10 text-center">
-                  {/* ✅ Avatar with Glow */}
-                  <div className="relative mx-auto mb-8 w-28 h-28">
-                    <div className="absolute inset-0 rounded-full bg-indigo-500 blur-lg opacity-40" />
-                    <img
-                      src={leader.img}
-                      alt={leader.name}
-                      className="relative w-28 h-28 rounded-full object-cover border-4 border-white shadow-xl"
-                    />
-                  </div>
-
-                  {/* ✅ Name */}
-                  <h4 className="text-xl font-black text-slate-900 mb-1">
-                    {leader.name}
-                  </h4>
-
-                  {/* ✅ Role */}
-                  <p className="text-indigo-700 font-semibold mb-4">
-                    {leader.role}
-                  </p>
-
-                  {/* ✅ Expertise Tag */}
-                  <span className="inline-block px-4 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 mb-6 shadow">
-                    {leader.tag}
-                  </span>
-
-                  {/* ✅ Authority Statement */}
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    Driving innovation across enterprise hiring systems, AI
-                    trust infrastructure, and global workforce transformation.
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ================= CAREER CTA ================= */}
-      <section className="py-36 bg-linear-to-r from-indigo-700 to-purple-700 text-white text-center">
-        <h2 className="text-5xl font-black mb-6">
-          Join Us & Build the Hiring Infrastructure of Tomorrow
-        </h2>
-
-        <p className="text-white/80 mb-12 max-w-3xl mx-auto text-lg">
-          We are always hiring engineers, AI researchers, recruiters and growth
-          hackers to scale this mission globally.
-        </p>
-
-        <a
-          href="/careers"
-          className="inline-block bg-white text-indigo-700 px-14 py-4 rounded-full font-bold shadow-lg hover:scale-110 transition"
+          key={i}
+          initial={{ opacity: 0, y: 60 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: i * 0.1 }}
+          whileHover={{ y: -14, scale: 1.03 }}
+          className="relative group"
         >
-          View Open Roles
-        </a>
-      </section>
+          {/* Glow */}
+          <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-br from-indigo-400/30 to-purple-400/30 blur-2xl opacity-0 group-hover:opacity-100 transition" />
 
+          {/* Card */}
+          <div className="relative bg-white/90 backdrop-blur-2xl rounded-[2.5rem] p-12 border shadow-[0_30px_90px_rgba(0,0,0,0.15)]">
+
+            {/* Step Number */}
+            <div className="mb-8 flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white text-xl font-black shadow-lg">
+              {item.step}
+            </div>
+
+            <h3 className="text-2xl font-extrabold text-slate-900 mb-4">
+              {item.title}
+            </h3>
+
+            <p className="text-slate-600 leading-relaxed">
+              {item.desc}
+            </p>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  </div>
+</Section>
+
+      {/* ================= MISSION & VISION ================= */}
+{/* ================= MISSION & VISION — ULTRA PREMIUM ================= */}
+<Section>
+  {/* Background Accent */}
+  <div className="absolute inset-0 -z-10">
+    <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-indigo-400/20 blur-[180px] rounded-full" />
+    <div className="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-purple-400/20 blur-[180px] rounded-full" />
+  </div>
+
+  <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-28 items-start">
+
+    {/* LEFT — Editorial Anchor */}
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.9 }}
+      className="md:sticky md:top-40"
+    >
+      <span className="inline-flex items-center gap-2 mb-6 px-6 py-2 rounded-full bg-indigo-50 text-indigo-700 text-sm font-semibold tracking-wide shadow">
+        🎯 Our Foundation
+      </span>
+
+      <h2 className="text-6xl font-black leading-tight text-slate-900">
+        Mission <span className="text-indigo-600">&</span>
+        <br />
+        Vision
+      </h2>
+
+      <p className="mt-8 text-xl text-slate-600 leading-relaxed max-w-lg">
+        The strategic principles that shape our technology, guide our decisions,
+        and define our long-term global ambition.
+      </p>
+
+      {/* Divider */}
+      <div className="mt-12 h-[3px] w-24 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" />
+    </motion.div>
+
+    {/* RIGHT — Premium Cards */}
+    <div className="space-y-24">
+
+      {/* MISSION */}
+      <motion.div
+        initial={{ opacity: 0, y: 60 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.9, delay: 0.1 }}
+        whileHover={{ y: -10 }}
+        className="relative group"
+      >
+        {/* Glow */}
+        <div className="absolute inset-0 rounded-[2.5rem] bg-indigo-400/30 blur-2xl opacity-0 group-hover:opacity-100 transition" />
+
+        <div className="relative bg-white/90 backdrop-blur-2xl border border-indigo-100 rounded-[2.5rem] p-16 shadow-[0_40px_120px_rgba(79,70,229,0.25)]">
+          <span className="inline-block mb-6 px-6 py-2 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold tracking-wider">
+            EXECUTION STRATEGY
+          </span>
+
+          <h3 className="text-4xl font-black mb-6 text-indigo-700">
+            Our Mission
+          </h3>
+
+          <p className="text-slate-700 text-lg leading-relaxed">
+            Remove hiring friction using AI automation, empower professionals
+            with real-time career intelligence, and enable high-confidence,
+            fraud-proof hiring for employers at scale.
+          </p>
+        </div>
+      </motion.div>
+
+      {/* VISION */}
+      <motion.div
+        initial={{ opacity: 0, y: 60 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.9, delay: 0.2 }}
+        whileHover={{ y: -10 }}
+        className="relative group"
+      >
+        {/* Glow */}
+        <div className="absolute inset-0 rounded-[2.5rem] bg-purple-400/30 blur-2xl opacity-0 group-hover:opacity-100 transition" />
+
+        <div className="relative bg-white/90 backdrop-blur-2xl border border-purple-100 rounded-[2.5rem] p-16 shadow-[0_40px_120px_rgba(147,51,234,0.25)]">
+          <span className="inline-block mb-6 px-6 py-2 rounded-full bg-purple-100 text-purple-700 text-xs font-bold tracking-wider">
+            LONG-TERM AMBITION
+          </span>
+
+          <h3 className="text-4xl font-black mb-6 text-purple-700">
+            Our Vision
+          </h3>
+
+          <p className="text-slate-700 text-lg leading-relaxed">
+            Become the world’s most trusted digital employment infrastructure —
+            powering billion-scale hiring through AI intelligence, trust
+            networks, and enterprise-grade workforce systems.
+          </p>
+        </div>
+      </motion.div>
+
+    </div>
+  </div>
+</Section>
+
+{/* ================= WHY COMPANIES TRUST US — ULTRA PREMIUM ================= */}
+<Section>
+  {/* Ambient Background */}
+  <div className="absolute inset-0 -z-10">
+    <div className="absolute -top-40 -left-40 w-[520px] h-[520px] bg-indigo-400/20 blur-[200px] rounded-full" />
+    <div className="absolute -bottom-40 -right-40 w-[520px] h-[520px] bg-purple-400/20 blur-[200px] rounded-full" />
+  </div>
+
+  <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-28 items-center">
+
+    {/* LEFT — EXECUTIVE MESSAGE */}
+    <motion.div
+      initial={{ opacity: 0, x: -40 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.9, ease: "easeOut" }}
+    >
+      <span className="inline-flex items-center gap-2 mb-6 px-6 py-2 rounded-full bg-indigo-50 text-indigo-700 text-sm font-bold shadow">
+        🔐 Trust & Security
+      </span>
+
+      <h2 className="text-6xl font-black text-slate-900 leading-tight mb-8">
+        Why Companies <br />
+        <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          Trust JobPortal
+        </span>
+      </h2>
+
+      <p className="text-xl text-slate-600 leading-relaxed max-w-xl">
+        Trust is engineered into every layer — from verified employers and
+        AI-driven fraud prevention to enterprise-grade security, compliance,
+        and transparent hiring intelligence.
+      </p>
+
+      {/* Authority Divider */}
+      <div className="mt-12 h-[3px] w-24 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" />
+    </motion.div>
+
+    {/* RIGHT — TRUST STACK */}
+    <div className="grid gap-12">
+      {[
+        {
+          title: "100% Verified Employers",
+          desc: "Strict KYC, document validation, and continuous employer monitoring.",
+        },
+        {
+          title: "AI-Based Fraud Detection",
+          desc: "Real-time anomaly detection powered by behavioral intelligence.",
+        },
+        {
+          title: "Enterprise-Grade Security",
+          desc: "End-to-end encryption, role-based access, and compliance controls.",
+        },
+        {
+          title: "Transparent Hiring Analytics",
+          desc: "Clear insights into hiring pipelines, decisions, and outcomes.",
+        },
+      ].map((item, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, x: 40 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: i * 0.1 }}
+          whileHover={{ y: -6 }}
+          className="relative group"
+        >
+          {/* Glow */}
+          <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-indigo-400/30 to-purple-400/30 blur-xl opacity-0 group-hover:opacity-100 transition" />
+
+          {/* Card */}
+          <div className="relative flex items-start gap-6 bg-white/90 backdrop-blur-2xl p-10 rounded-3xl border shadow-[0_20px_60px_rgba(0,0,0,0.12)]">
+            
+            {/* Icon */}
+            <div className="w-14 h-14 shrink-0 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center text-xl font-black shadow-lg">
+              ✓
+            </div>
+
+            {/* Content */}
+            <div>
+              <h3 className="text-xl font-extrabold text-slate-900 mb-2">
+                {item.title}
+              </h3>
+              <p className="text-slate-600 leading-relaxed">
+                {item.desc}
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+
+  </div>
+</Section>
+
+
+{/* ================= PLATFORM SCALE ================= */}
+<Section light>
+  <div className="max-w-7xl mx-auto px-6 text-center">
+    <h2 className="text-6xl font-black mb-24 text-slate-900">
+      Platform Scale & Impact
+    </h2>
+
+    <div className="grid md:grid-cols-4 gap-16">
+      {[
+        { value: "3M+", label: "Candidates" },
+        { value: "120K+", label: "Recruiters" },
+        { value: "18+", label: "Countries" },
+        { value: "96.8%", label: "Hiring Accuracy" },
+      ].map((stat, i) => (
+        <motion.div
+          key={i}
+          whileHover={{ scale: 1.08 }}
+          className="bg-white p-14 rounded-3xl shadow-xl border"
+        >
+          <h3 className="text-4xl font-black text-indigo-600 mb-4">
+            {stat.value}
+          </h3>
+          <p className="text-slate-600 font-semibold">{stat.label}</p>
+        </motion.div>
+      ))}
+    </div>
+  </div>
+</Section>
+
+{/* ================= FUTURE ROADMAP ================= */}
+<Section>
+  <div className="max-w-6xl mx-auto px-6">
+    <h2 className="text-6xl font-black text-center mb-24 text-slate-900">
+      What We’re Building Next
+    </h2>
+
+    <div className="space-y-16">
+      {[
+        "AI Skill Intelligence Graph v2",
+        "Global Payroll & Compliance Engine",
+        "Cross-Border Remote Hiring",
+        "Predictive Career Pathing",
+      ].map((item, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, x: -40 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          className="flex items-center gap-8"
+        >
+          <div className="w-14 h-14 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex items-center justify-center text-xl font-bold">
+            {i + 1}
+          </div>
+          <p className="text-2xl text-slate-700 font-medium">{item}</p>
+        </motion.div>
+      ))}
+    </div>
+  </div>
+</Section>
+
+      {/* ✅ FOOTER — ONLY ONCE */}
       <Footer />
     </div>
   );
 }
 
-/* ✅ REUSABLE UI COMPONENTS */
+/* ================= SMALL COMPONENTS ================= */
 
-function SectionTitle({ title }) {
+function Stat({ value, suffix, label }) {
   return (
-    <h2 className="text-5xl font-black mb-20 text-center text-slate-900">
-      {title}
-    </h2>
+    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow text-center">
+      <h3 className="text-4xl font-black">
+        <AnimatedCounter value={value} suffix={suffix} />
+      </h3>
+      <p className="text-slate-300 mt-1 text-sm">{label}</p>
+    </div>
   );
 }
 
-function PremiumCard({ title, children }) {
+function Card({ title, children }) {
   return (
-    <motion.div
-      whileHover={{ y: -12 }}
-      className="bg-white p-14 rounded-3xl shadow-[0_30px_90px_rgba(79,70,229,0.25)] border border-indigo-100"
-    >
-      <h2 className="text-4xl font-black mb-6 text-slate-900">{title}</h2>
-      <p className="text-slate-600 text-lg leading-relaxed">{children}</p>
-    </motion.div>
+    <div className="bg-white p-14 rounded-3xl shadow-xl border">
+      <h3 className="text-4xl font-black mb-6 text-slate-900">
+        {title}
+      </h3>
+      <p className="text-slate-600 text-lg leading-relaxed">
+        {children}
+      </p>
+    </div>
   );
 }
 
-function FeatureCard({ icon, title, desc }) {
+function Value({ icon, title }) {
   return (
     <motion.div
-      whileHover={{ y: -14 }}
-      className="bg-white p-12 rounded-3xl shadow-xl border border-indigo-100 text-center"
+      whileHover={{ y: -10 }}
+      className="bg-white p-14 rounded-3xl shadow-xl border text-center"
     >
       <div className="text-5xl text-indigo-600 mb-6 flex justify-center">
         {icon}
       </div>
-      <h3 className="text-2xl font-bold mb-3 text-slate-900">{title}</h3>
-      <p className="text-slate-600 leading-relaxed">{desc}</p>
+      <h3 className="text-2xl font-bold text-slate-800">{title}</h3>
     </motion.div>
   );
 }
 
-function ValueCard({ icon, title, desc }) {
+function Impact({ icon, title }) {
   return (
     <motion.div
-      whileHover={{ scale: 1.06 }}
-      className="bg-white p-12 rounded-3xl shadow border"
+      whileHover={{ y: -8 }}
+      className="bg-white/80 backdrop-blur-xl p-10 rounded-3xl shadow border text-center"
     >
-      <div className="text-4xl text-indigo-600 mb-6">{icon}</div>
-      <h3 className="font-bold text-xl mb-3">{title}</h3>
-      <p className="text-slate-600">{desc}</p>
-    </motion.div>
-  );
-}
-
-function AwardCard({ title }) {
-  return (
-    <motion.div
-      whileHover={{ scale: 1.08 }}
-      className="bg-white p-14 rounded-3xl shadow-xl text-center"
-    >
-      <FiAward className="text-5xl text-indigo-600 mx-auto mb-8" />
-      <h3 className="font-extrabold text-xl text-slate-900">{title}</h3>
+      <div className="text-4xl text-indigo-600 mb-4 flex justify-center">
+        {icon}
+      </div>
+      <h4 className="text-xl font-bold text-slate-800">{title}</h4>
     </motion.div>
   );
 }

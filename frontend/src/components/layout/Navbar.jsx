@@ -100,10 +100,7 @@ export default function Navbar() {
           <div className="flex items-center gap-8 text-[15px] font-medium">
             <NavItem to="/">Home</NavItem>
             <NavItem to="/jobs">Jobs</NavItem>
-            <NavItem to="/companies">Companies</NavItem>
             <NavItem to="/career-tools">Career Tools</NavItem>
-            <NavItem to="/blog">Blog</NavItem>
-            <NavItem to="/careers">Careers</NavItem>
             <NavItem to="/about">About</NavItem>
             <NavItem to="/contact">Contact</NavItem>
           </div>
@@ -191,9 +188,7 @@ function MobileDrawer({ open, setOpen, isLoggedIn, logout }) {
       <div className="p-8 mt-24 space-y-6 text-lg font-medium">
         <NavLink to="/" onClick={() => setOpen(false)}>HOME</NavLink>
         <NavLink to="/jobs" onClick={() => setOpen(false)}>JOBS</NavLink>
-        <NavLink to="/companies" onClick={() => setOpen(false)}>COMPANIES</NavLink>
         <NavLink to="/career-tools" onClick={() => setOpen(false)}>CAREER TOOLS</NavLink>
-        <NavLink to="/blog" onClick={() => setOpen(false)}>BLOG</NavLink>
         <NavLink to="/careers" onClick={() => setOpen(false)}>CAREERS</NavLink>
         <NavLink to="/about" onClick={() => setOpen(false)}>ABOUT</NavLink>
         <NavLink to="/contact" onClick={() => setOpen(false)}>CONTACT</NavLink>

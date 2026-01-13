@@ -60,157 +60,336 @@ export default function CareerTools() {
 
   return (
     <div className="w-full bg-linear-to-br from-indigo-50 via-white to-purple-50 min-h-screen pt-32 overflow-hidden">
-      {/* ✅ HERO */}
-      <section className="text-center max-w-6xl mx-auto px-6 mb-36">
-        <motion.span
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="inline-block mb-6 px-7 py-2 bg-indigo-100 text-indigo-700 rounded-full text-sm font-bold shadow"
+      {/* ================= PREMIUM HERO ================= */}
+<section className="relative text-center max-w-7xl mx-auto px-6 mb-44 overflow-hidden">
+  {/* Ambient background glow */}
+  <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-tr from-indigo-400/30 via-purple-400/20 to-pink-400/20 blur-[140px] pointer-events-none" />
+
+  <motion.span
+    initial={{ opacity: 0, y: 30 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.6 }}
+    className="inline-flex items-center gap-2 mb-8 px-8 py-3
+      bg-white/70 backdrop-blur-xl border border-indigo-200/50
+      text-indigo-700 rounded-full text-sm font-semibold shadow-lg"
+  >
+    <span className="animate-pulse">🚀</span>
+    Career Acceleration Ecosystem
+  </motion.span>
+
+  <motion.h1
+    initial={{ opacity: 0, y: 50 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.7, delay: 0.1 }}
+    className="text-[3.5rem] md:text-[4.5rem] lg:text-[5.5rem]
+      font-black leading-[1.05] mb-10
+      bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600
+      bg-clip-text text-transparent"
+  >
+    Smart Career Tools
+    <br />
+    <span className="text-slate-900">for Top 1% Talent</span>
+  </motion.h1>
+
+  <motion.p
+    initial={{ opacity: 0, y: 30 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.25 }}
+    className="text-slate-600 text-xl md:text-2xl max-w-4xl mx-auto leading-relaxed mb-8"
+  >
+    A next-generation career intelligence platform designed to help you
+    <span className="font-semibold text-slate-800">
+      {" "}build faster, negotiate smarter, and win better roles
+    </span>{" "}
+    using AI-driven insights.
+  </motion.p>
+
+  <motion.p
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.35 }}
+    className="text-slate-500 text-lg max-w-3xl mx-auto"
+  >
+    From resume engineering to salary forecasting and interview mastery —
+    everything you need to land elite opportunities.
+  </motion.p>
+</section>
+
+{/* ================= PREMIUM TOOLS GRID ================= */}
+<section className="relative max-w-7xl mx-auto px-6 pb-44">
+  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-20">
+    {tools.map((tool, i) => (
+      <motion.div
+        key={i}
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        whileHover={{ y: -18 }}
+        transition={{ type: "spring", stiffness: 160, damping: 18 }}
+        className="group relative rounded-[28px] p-[1px]
+          bg-gradient-to-br from-indigo-500/40 via-purple-500/30 to-pink-500/40"
+      >
+        {/* Glass Card */}
+        <div
+          className="relative h-full rounded-[27px]
+          bg-white/85 backdrop-blur-2xl
+          border border-slate-200/60
+          shadow-[0_20px_60px_-15px_rgba(0,0,0,0.25)]
+          p-10 overflow-hidden"
         >
-          🚀 Career Acceleration Ecosystem
-        </motion.span>
+          {/* Spotlight hover */}
+          <div
+            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500
+            bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-transparent"
+          />
 
-        <motion.h1
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-6xl font-black bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-8"
-        >
-          Smart Career Tools
-        </motion.h1>
+          {/* Icon */}
+          <div className="relative z-10 text-indigo-600 text-5xl mb-8 drop-shadow-sm">
+            {tool.icon}
+          </div>
 
-        <p className="text-slate-600 text-xl max-w-4xl mx-auto leading-relaxed mb-6">
-          A next-generation career development platform that helps you design,
-          build, optimize, and accelerate your professional journey using
-          AI-driven tools.
-        </p>
+          <h3 className="relative z-10 text-2xl font-bold mb-4 text-slate-900">
+            {tool.title}
+          </h3>
 
-        <p className="text-slate-500 text-lg max-w-3xl mx-auto">
-          From resume building to salary forecasting and interview mastery — we
-          provide everything you need to land high-paying roles in top
-          companies.
-        </p>
-      </section>
-
-      {/* ✅ TOOLS GRID */}
-      <section className="max-w-7xl mx-auto px-6 pb-40">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-16">
-          {tools.map((tool, i) => (
-            <motion.div
-              key={i}
-              whileHover={{ y: -16, scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 200 }}
-              className="relative bg-white/95 backdrop-blur-xl border border-slate-200 rounded-3xl shadow-xl p-10 overflow-hidden"
-            >
-              <div className="absolute inset-0 rounded-3xl bg-linear-to-r from-indigo-500 to-purple-500 opacity-0 hover:opacity-20 blur-xl transition" />
-
-              <div className="text-indigo-600 text-4xl mb-6">{tool.icon}</div>
-
-              <h3 className="text-2xl font-bold mb-4 text-slate-900">
-                {tool.title}
-              </h3>
-
-              <p className="text-slate-600 mb-6 leading-relaxed">{tool.desc}</p>
-
-              <ul className="text-sm text-slate-500 space-y-2 mb-8 list-disc list-inside">
-                <li>Industry-tested workflows</li>
-                <li>Recruiter acceptance optimized</li>
-                <li>Data-driven recommendations</li>
-              </ul>
-
-              {/* ✅ WORKING BUTTON */}
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(tool.path);
-                }}
-                className="relative z-20 bg-linear-to-r from-indigo-600 to-purple-600 text-white px-7 py-2.5 rounded-full font-semibold shadow hover:scale-105 active:scale-95 transition"
-              >
-                Launch Tool
-              </button>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ✅ HOW IT WORKS */}
-      <section className="bg-white py-32 border-t">
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <h2 className="text-5xl font-black mb-6 text-slate-800">
-            How These Tools Transform Your Career
-          </h2>
-
-          <p className="text-slate-600 text-lg max-w-4xl mx-auto mb-16">
-            Our platform follows a complete professional lifecycle — starting
-            from resume creation to performance optimization and salary growth.
+          <p className="relative z-10 text-slate-600 mb-8 leading-relaxed">
+            {tool.desc}
           </p>
 
-          <div className="grid md:grid-cols-4 gap-12">
-            {[
-              {
-                icon: <FiLayers />,
-                title: "Build",
-                desc: "Create a strong foundation with AI-powered resumes and profiles.",
-              },
-              {
-                icon: <FiTarget />,
-                title: "Plan",
-                desc: "Design your learning roadmap with guided career milestones.",
-              },
-              {
-                icon: <FiUserCheck />,
-                title: "Prepare",
-                desc: "Master interviews and HR rounds with confidence.",
-              },
-              {
-                icon: <FiTrendingUp />,
-                title: "Grow",
-                desc: "Track salary growth and promotion opportunities.",
-              },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                whileHover={{ scale: 1.08 }}
-                className="bg-slate-50 p-12 rounded-3xl shadow text-center"
-              >
-                <div className="text-4xl text-indigo-600 mb-6">{item.icon}</div>
-                <h3 className="font-bold text-xl mb-3">{item.title}</h3>
-                <p className="text-slate-600 text-sm leading-relaxed">
-                  {item.desc}
-                </p>
-              </motion.div>
-            ))}
+          {/* Trust signals */}
+          <ul className="relative z-10 text-sm text-slate-500 space-y-2 mb-10">
+            <li>✔ Industry-validated workflows</li>
+            <li>✔ Recruiter-grade optimization</li>
+            <li>✔ AI-powered insights</li>
+          </ul>
+
+          {/* CTA */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(tool.path);
+            }}
+            className="relative z-20 inline-flex items-center gap-2
+              bg-gradient-to-r from-indigo-600 to-purple-600
+              text-white px-8 py-3 rounded-full font-semibold
+              shadow-lg shadow-indigo-500/30
+              hover:scale-105 active:scale-95 transition"
+          >
+            Launch Tool
+            <span className="opacity-70">→</span>
+          </button>
+        </div>
+      </motion.div>
+    ))}
+  </div>
+</section>
+
+{/* ================= HOW IT WORKS ================= */}
+<section className="relative py-40 border-t overflow-hidden">
+  {/* Ambient background */}
+  <div className="absolute inset-0 bg-gradient-to-b from-white via-indigo-50/40 to-white" />
+  <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-tr from-indigo-400/20 via-purple-400/20 to-pink-400/20 blur-[140px]" />
+
+  <div className="relative max-w-7xl mx-auto px-6 text-center">
+    {/* Badge */}
+    <motion.span
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className="inline-flex items-center gap-2 mb-8 px-7 py-2.5
+        bg-white/80 backdrop-blur-xl border border-indigo-200/50
+        rounded-full text-sm font-semibold text-indigo-700 shadow"
+    >
+      ⚙️ How It Works
+    </motion.span>
+
+    {/* Heading */}
+    <motion.h2
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className="text-[3rem] md:text-[3.8rem] font-black mb-6
+        bg-gradient-to-br from-slate-900 via-indigo-800 to-purple-700
+        bg-clip-text text-transparent"
+    >
+      A Proven Career Transformation System
+    </motion.h2>
+
+    {/* Subtext */}
+    <motion.p
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: 0.15 }}
+      className="text-slate-600 text-xl max-w-4xl mx-auto mb-24"
+    >
+      Our tools follow a structured professional lifecycle — helping you
+      <span className="font-semibold text-slate-800">
+        {" "}build clarity, execute confidently, and compound long-term growth.
+      </span>
+    </motion.p>
+
+    {/* Steps */}
+    <div className="grid md:grid-cols-4 gap-16">
+      {[
+        {
+          icon: <FiLayers />,
+          step: "01",
+          title: "Build",
+          desc: "Engineer a high-impact foundation with AI-powered resumes and profiles.",
+        },
+        {
+          icon: <FiTarget />,
+          step: "02",
+          title: "Plan",
+          desc: "Design a clear learning and career roadmap with measurable milestones.",
+        },
+        {
+          icon: <FiUserCheck />,
+          step: "03",
+          title: "Prepare",
+          desc: "Master interviews and HR conversations with structured preparation.",
+        },
+        {
+          icon: <FiTrendingUp />,
+          step: "04",
+          title: "Grow",
+          desc: "Track promotions, salary growth, and long-term career momentum.",
+        },
+      ].map((item, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: i * 0.12 }}
+          whileHover={{ y: -14 }}
+          className="group relative rounded-[28px] p-[1px]
+            bg-gradient-to-br from-indigo-500/40 via-purple-500/30 to-pink-500/40"
+        >
+          <div
+            className="relative h-full rounded-[27px]
+              bg-white/85 backdrop-blur-2xl
+              border border-slate-200/60
+              shadow-[0_25px_70px_-20px_rgba(0,0,0,0.25)]
+              p-12 text-center overflow-hidden"
+          >
+            {/* Hover glow */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition
+              bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-transparent" />
+
+            {/* Step number */}
+            <div className="absolute top-6 right-6 text-5xl font-black text-slate-200">
+              {item.step}
+            </div>
+
+            {/* Icon */}
+            <div className="relative z-10 text-4xl text-indigo-600 mb-6">
+              {item.icon}
+            </div>
+
+            <h3 className="relative z-10 font-bold text-2xl mb-4 text-slate-900">
+              {item.title}
+            </h3>
+
+            <p className="relative z-10 text-slate-600 text-sm leading-relaxed">
+              {item.desc}
+            </p>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  </div>
+</section>
+
+
+{/* ================= TRUST & SOCIAL PROOF ================= */}
+<section className="relative py-40 overflow-hidden">
+  {/* Ambient background */}
+  <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-purple-50" />
+  <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-gradient-to-tr from-indigo-400/20 via-purple-400/20 to-pink-400/20 blur-[140px]" />
+
+  <div className="relative max-w-7xl mx-auto px-6 text-center">
+    {/* Badge */}
+    <span
+      className="inline-flex items-center gap-2 mb-8 px-7 py-2.5
+      bg-white/80 backdrop-blur-xl border border-indigo-200/50
+      rounded-full text-sm font-semibold text-indigo-700 shadow"
+    >
+      🤝 Trusted Worldwide
+    </span>
+
+    {/* Heading */}
+    <h2
+      className="text-[3rem] md:text-[3.8rem] font-black mb-20
+      bg-gradient-to-br from-slate-900 via-indigo-800 to-purple-700
+      bg-clip-text text-transparent"
+    >
+      Trusted by Ambitious Professionals
+    </h2>
+
+    {/* Stats */}
+    <div className="grid md:grid-cols-4 gap-16">
+      {[
+        {
+          value: "200K+",
+          label: "Resumes Generated",
+          gradient: "from-indigo-600 to-purple-600",
+        },
+        {
+          value: "150K+",
+          label: "Interviews Cracked",
+          gradient: "from-purple-600 to-pink-600",
+        },
+        {
+          value: "80K+",
+          label: "Career Switches",
+          gradient: "from-indigo-600 to-blue-600",
+        },
+        {
+          value: "4.9★",
+          label: "User Trust Rating",
+          gradient: "from-amber-500 to-orange-500",
+        },
+      ].map((stat, i) => (
+        <div
+          key={i}
+          className="group relative rounded-[28px] p-[1px]
+          bg-gradient-to-br from-indigo-500/40 via-purple-500/30 to-pink-500/40"
+        >
+          <div
+            className="relative h-full rounded-[27px]
+            bg-white/85 backdrop-blur-2xl
+            border border-slate-200/60
+            shadow-[0_25px_70px_-20px_rgba(0,0,0,0.25)]
+            p-14 transition
+            group-hover:-translate-y-3"
+          >
+            {/* Glow */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition
+              bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-transparent" />
+
+            {/* Value */}
+            <h3
+              className={`relative z-10 text-5xl font-black mb-4
+              bg-gradient-to-r ${stat.gradient}
+              bg-clip-text text-transparent`}
+            >
+              {stat.value}
+            </h3>
+
+            {/* Label */}
+            <p className="relative z-10 text-slate-600 text-sm tracking-wide uppercase">
+              {stat.label}
+            </p>
           </div>
         </div>
-      </section>
+      ))}
+    </div>
+  </div>
+</section>
 
-      {/* ✅ TRUST & SOCIAL PROOF */}
-      <section className="py-32 bg-linear-to-br from-indigo-50 to-purple-50">
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <h2 className="text-5xl font-black mb-20 text-slate-800">
-            Trusted By Millions of Professionals
-          </h2>
-
-          <div className="grid md:grid-cols-4 gap-14">
-            <div>
-              <h3 className="text-5xl font-black text-indigo-700">2,00,000+</h3>
-              <p className="text-slate-600">Resumes Generated</p>
-            </div>
-            <div>
-              <h3 className="text-5xl font-black text-purple-700">1,50,000+</h3>
-              <p className="text-slate-600">Interviews Cracked</p>
-            </div>
-            <div>
-              <h3 className="text-5xl font-black text-indigo-700">80,000+</h3>
-              <p className="text-slate-600">Career Switches</p>
-            </div>
-            <div>
-              <h3 className="text-5xl font-black text-purple-700">4.9★</h3>
-              <p className="text-slate-600">User Trust Rating</p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ✅ FOOTER */}
       <Footer />

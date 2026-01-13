@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 
 /* -------------------- ENV CONFIG -------------------- */
-// Load dotenv only locally
+// Load dotenv only in local/dev
 if (process.env.NODE_ENV !== "production") {
   const dotenv = await import("dotenv");
   dotenv.config();
@@ -18,13 +18,15 @@ import resumeRoutes from "./routes/resumeRoutes.js";
 import mockInterviewRoutes from "./routes/mockInterviewRoutes.js";
 import settingsRoutes from "./routes/settingsRoutes.js";
 import logsRoutes from "./routes/logsRoutes.js";
+import roadmapRoutes from "./routes/roadmapRoutes.js"; // ✅ NEW
 
 import logger from "./utils/logger.js";
 
 const app = express();
 
-/* -------------------- MIDDLEWARES -------------------- */
+/* -------------------- GLOBAL MIDDLEWARES -------------------- */
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 /* -------------------- CORS (PRODUCTION SAFE) -------------------- */
 const allowedOrigins = [
@@ -43,6 +45,7 @@ app.use(
         return callback(null, true);
       }
 
+      logger.warn(`🚫 CORS blocked: ${origin}`);
       return callback(new Error(`CORS blocked: ${origin}`));
     },
     credentials: true,
@@ -62,24 +65,40 @@ app.use("/api/company", companyRoutes);
 app.use("/api/company/logo", companyLogoRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/mock-interview", mockInterviewRoutes);
+
+// ✅ Career Roadmap APIs
+app.use("/api/roadmap", roadmapRoutes);
+
+// Admin
 app.use("/api/admin/settings", settingsRoutes);
 app.use("/api/admin/logs", logsRoutes);
 
 logger.info("✅ All routes loaded");
 
-/* -------------------- HEALTH CHECK -------------------- */
+/* -------------------- HEALTH CHECK (Railway) -------------------- */
 app.get("/health", (req, res) => {
-  res.status(200).json({ status: "OK", uptime: process.uptime() });
+  res.status(200).json({
+    status: "OK",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
 });
 
-/* -------------------- ERROR HANDLER -------------------- */
-app.use((err, req, res, next) => {
-  console.error("🔥 SERVER ERROR →", err.message);
-  logger.error(err.message);
-
-  res.status(500).json({
+/* -------------------- 404 HANDLER -------------------- */
+app.use((req, res) => {
+  res.status(404).json({
     success: false,
-    message: err.message || "Internal server error",
+    message: "API route not found",
+  });
+});
+
+/* -------------------- GLOBAL ERROR HANDLER -------------------- */
+app.use((err, req, res, next) => {
+  logger.error(`🔥 SERVER ERROR → ${err.message}`);
+
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
   });
 });
 
@@ -87,5 +106,5 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  logger.info(`🚀 Server running on port ${PORT}`);
 });

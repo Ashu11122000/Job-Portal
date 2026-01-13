@@ -1,38 +1,41 @@
+import { FiMapPin, FiDollarSign } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 export default function JobCard({ job }) {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition">
-      <h3 className="text-lg font-bold text-slate-900 mb-2">{job.title}</h3>
+    <div className="bg-white border border-black/10 rounded-3xl p-6 shadow-xl text-black">
+      
+      {/* JOB TITLE */}
+      <h2 className="text-xl font-black mb-2">
+        {job.title}
+      </h2>
 
-      <p className="text-slate-600 mb-1">
-        {job.company?.name || "Company Not Available"}
+      {/* COMPANY NAME ✅ */}
+      <p className="text-sm font-bold text-black/80 mb-2">
+        {job.company || "Company Not Available"}
       </p>
 
-      <p className="text-sm text-slate-500 mb-4">
+      {/* LOCATION */}
+      <p className="text-sm text-black/60 mb-1 flex items-center gap-1">
+        <FiMapPin />
         {job.location || "Location not specified"}
       </p>
 
-      <p className="text-indigo-600 font-semibold mb-4">
-        ₹{job.salaryRange?.min?.toLocaleString()} - ₹
-        {job.salaryRange?.max?.toLocaleString()}
+      {/* TOTAL SALARY (AS ENTERED IN API) ✅ */}
+      <p className="text-sm text-indigo-600 font-bold mb-4 flex items-center gap-1">
+        <FiDollarSign />
+        ₹ {job.salary || "Not Disclosed"}
       </p>
 
-      <div className="flex justify-between items-center">
-        <span className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full">
-          {job.jobType}
-        </span>
-
-        {/* ✅ WORKING VIEW JOB BUTTON */}
-        <button
-          onClick={() => navigate(`/jobs/${job._id || job.id}`)}
-          className="text-sm text-white bg-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-700"
-        >
-          View Job
-        </button>
-      </div>
+      {/* ACTION */}
+      <button
+        onClick={() => navigate(`/jobs/${job.id}`)}
+        className="bg-black text-white px-5 py-2 rounded-lg font-semibold hover:opacity-90"
+      >
+        View Job
+      </button>
     </div>
   );
 }

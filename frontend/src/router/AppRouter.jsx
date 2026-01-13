@@ -15,8 +15,20 @@ import PublicLayout from "../layouts/PublicLayout";
 import Home from "../pages/Home";
 import About from "../pages/About";
 import Jobs from "../pages/jobs/Jobs";
+//import CompanyProfile from "../pages/company/CompanyProfile";
 import Contact from "../pages/Contact";
 import NotFound from "../pages/NotFound";
+import JobDetail from "../pages/jobs/JobDetails";
+import CareerTools from './../pages/CareerTools';
+
+/* ===== CAREER TOOLS PAGES ===== */
+import CareerRoadmap from "./../pages/tools/CareerRoadmap";
+import ResumeBuilder from './../pages/tools/ResumeBuilder';
+import CoverLetterTool from './../pages/tools/CoverLetterTool';
+import MockInterviewTool from './../pages/tools/MockInterviewCall';
+import CertificationTracker from './../pages/tools/CertificationTracker';
+import SalaryEstimator from './../pages/tools/SalaryEstimator';
+
 
 export default function AppRouter() {
   const { user } = useAuth();
@@ -73,8 +85,19 @@ export default function AppRouter() {
         <Route path="/" element={<PublicLayout />}>
           <Route path="home" element={<Home />} />
           <Route path="jobs" element={<Jobs />} />
+          <Route path="jobs/:id" element={<JobDetail />} />
+          { /*== <Route path="/companies" element={<CompanyProfile />} /> ==*/}
           <Route path="about" element={<About />} />
           <Route path="contact" element={<Contact />} />
+          <Route path="career-tools" element={<CareerTools />} />
+
+          {/* ===== INDIVIDUAL TOOLS (FIXES 404) ===== */}
+  <Route path="tools/resume-builder" element={<ResumeBuilder />} />
+  <Route path="tools/career-roadmap" element={<CareerRoadmap />} />
+  <Route path="tools/salary-estimator" element={<SalaryEstimator />} />
+  <Route path="tools/certification-tracker" element={<CertificationTracker />} />
+  <Route path="tools/cover-letter" element={<CoverLetterTool/>} />
+  <Route path="tools/mock-interview" element={<MockInterviewTool />} />
         </Route>
 
         {/* ================= 404 ================= */}
