@@ -25,7 +25,6 @@ import CareerTools from './../pages/CareerTools';
 import CareerRoadmap from "./../pages/tools/CareerRoadmap";
 import ResumeBuilder from './../pages/tools/ResumeBuilder';
 import CoverLetterTool from './../pages/tools/CoverLetterTool';
-import SalaryEstimator from './../pages/tools/SalaryEstimator';
 
 
 export default function AppRouter() {
@@ -92,7 +91,6 @@ export default function AppRouter() {
           {/* ===== INDIVIDUAL TOOLS (FIXES 404) ===== */}
   <Route path="tools/resume-builder" element={<ResumeBuilder />} />
   <Route path="tools/career-roadmap" element={<CareerRoadmap />} />
-  <Route path="tools/salary-estimator" element={<SalaryEstimator />} />
   <Route path="tools/cover-letter" element={<CoverLetterTool/>} />
         </Route>
 
