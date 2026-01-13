@@ -1,6 +1,6 @@
 import pool from "../../config/db.js";
 
-export default async function listCoverLetters(req, res) {
+export default async function listCoverLetter(req, res) {
   const [rows] = await pool.execute(
     "SELECT id, role, company, ats_score, created_at FROM cover_letters ORDER BY created_at DESC"
   );
