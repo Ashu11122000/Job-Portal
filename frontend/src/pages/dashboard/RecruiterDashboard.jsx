@@ -1,16 +1,24 @@
 import { useEffect, useState } from "react";
 import { getAllJobs, updateJob, deleteJob, createJob } from "../../api/jobApi";
 import { getMyApplications } from "../../api/applicationApi";
-import axios from "axios"; // ✅ RAILWAY FIX (added)
+import { getCompanies } from "../../api/companyApi"; // ✅ CORRECT API
+import axios from "axios";
 import { useAuthContext } from "../../context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 import {
-  FiTrash2, FiPlusCircle, FiMapPin, FiBriefcase,
-  FiSearch, FiEye, FiUserCheck, FiHome,
-  FiRefreshCw, FiCheckCircle,
-  FiClipboard, FiDollarSign, FiActivity, FiEdit
+  FiTrash2,
+  FiPlusCircle,
+  FiMapPin,
+  FiBriefcase,
+  FiSearch,
+  FiEye,
+  FiRefreshCw,
+  FiCheckCircle,
+  FiClipboard,
+  FiDollarSign,
+  FiEdit,
 } from "react-icons/fi";
 
 /* ===================== TOAST ===================== */
@@ -55,9 +63,16 @@ function StatusBadge({ status }) {
 }
 
 /* ===================== JOB FORM ===================== */
-function JobForm({ job, onSubmit, onCancel }) {
+function JobForm({ job, onSubmit, onCancel, companies }) {
   const [form, setForm] = useState(
-    job || { title: "", company: "", location: "", salary: "", description: "" }
+    job || {
+      title: "",
+      company: "",
+      company_id: "",
+      location: "",
+      salary: "",
+      description: "",
+    }
   );
 
   const handleChange = (e) =>
@@ -91,6 +106,21 @@ function JobForm({ job, onSubmit, onCancel }) {
         />
       ))}
 
+      <select
+        name="company_id"
+        value={form.company_id}
+        onChange={handleChange}
+        required
+        className="p-3 rounded-xl bg-black/60 border border-white/10 text-white"
+      >
+        <option value="">Select Company</option>
+        {companies.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.name}
+          </option>
+        ))}
+      </select>
+
       <textarea
         name="description"
         value={form.description}
@@ -118,56 +148,74 @@ function JobForm({ job, onSubmit, onCancel }) {
 
 /* ===================== RECRUITER DASHBOARD ===================== */
 export default function RecruiterDashboard() {
-  const auth = useAuthContext();
-  const user = auth?.user || {};
-
-  /* =========================================================
-     ✅ RAILWAY BASE URL FIX (DOES NOT REMOVE ANY CODE)
-     ========================================================= */
-  useEffect(() => {
-    axios.defaults.baseURL =
-      import.meta.env.VITE_API_BASE_URL ||
-      "https://job-portal-production-2c0d.up.railway.app/api";
-  }, []);
-  /* ========================================================= */
+  const { user } = useAuthContext();
 
   const [jobs, setJobs] = useState([]);
   const [applications, setApplications] = useState([]);
+  const [companies, setCompanies] = useState([]);
   const [toast, setToast] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showJobForm, setShowJobForm] = useState(false);
   const [editJob, setEditJob] = useState(null);
 
   useEffect(() => {
-    if (user.id) {
-      fetchRecruiterJobs();
-      fetchApplications();
+    axios.defaults.baseURL =
+      import.meta.env.VITE_API_BASE_URL ||
+      "https://job-portal-production-2c0d.up.railway.app/api";
+  }, []);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchAll();
     }
-  }, [user.id]);
+  }, [user?.id]);
 
-  const fetchRecruiterJobs = async () => {
-    const res = await getAllJobs();
-    const all = res.data?.data || [];
-    setJobs(all.filter((j) => j.recruiter_id === user.id));
-  };
+  const fetchAll = async () => {
+    try {
+      const [jobsRes, appsRes, companiesRes] = await Promise.all([
+        getAllJobs(),
+        getMyApplications(user.id),
+        getCompanies(),
+      ]);
 
-  const fetchApplications = async () => {
-    const res = await getMyApplications(user.id);
-    setApplications(res.data?.data || []);
+      const allJobs = jobsRes.data?.data || [];
+      setJobs(allJobs.filter((j) => j.recruiter_id === user.id));
+      setApplications(appsRes.data?.data || []);
+      setCompanies(companiesRes.data?.data || []);
+    } catch (err) {
+      console.error(err);
+      setToast({ message: "Failed to load dashboard data", type: "error" });
+    }
   };
 
   const submitJob = async (data, id) => {
-    if (id) await updateJob(id, data);
-    else await createJob({ ...data, recruiter_id: user.id });
-    setShowJobForm(false);
-    setEditJob(null);
-    fetchRecruiterJobs();
+    try {
+      const payload = {
+        ...data,
+        company_id: Number(data.company_id),
+        recruiter_id: user.id,
+        salary: isNaN(data.salary) ? data.salary : Number(data.salary),
+      };
+
+      if (id) await updateJob(id, payload);
+      else await createJob(payload);
+
+      setToast({ message: "Job saved successfully", type: "success" });
+      setShowJobForm(false);
+      setEditJob(null);
+      fetchAll();
+    } catch (err) {
+      setToast({
+        message: err.response?.data?.message || "Failed to save job",
+        type: "error",
+      });
+    }
   };
 
   const removeJob = async (id) => {
     if (!window.confirm("Delete this job?")) return;
     await deleteJob(id);
-    setJobs((j) => j.filter((x) => x.id !== id));
+    fetchAll();
   };
 
   const visibleJobs = jobs.filter(
@@ -190,20 +238,26 @@ export default function RecruiterDashboard() {
 
       <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-purple-950 p-8 mt-[70px] text-white">
 
-        {/* TOP ACTION BAR */}
+        {/* HEADER */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-4xl font-black">Recruiter Dashboard</h1>
           <div className="flex gap-3">
-            <button onClick={() => setShowJobForm(true)} className="bg-indigo-600/40 p-3 rounded-xl">
+            <button
+              onClick={() => setShowJobForm(true)}
+              className="bg-indigo-600/40 p-3 rounded-xl"
+            >
               <FiPlusCircle />
             </button>
-            <button onClick={fetchRecruiterJobs} className="bg-white/10 p-3 rounded-xl">
+            <button
+              onClick={fetchAll}
+              className="bg-white/10 p-3 rounded-xl"
+            >
               <FiRefreshCw />
             </button>
           </div>
         </div>
 
-        {/* SEARCH BAR */}
+        {/* SEARCH */}
         <div className="relative max-w-lg mx-auto mb-8">
           <FiSearch className="absolute top-4 left-5 text-white/50" />
           <input
@@ -214,18 +268,27 @@ export default function RecruiterDashboard() {
           />
         </div>
 
-        {/* KPI CARDS */}
+        {/* KPI */}
         <div className="grid grid-cols-4 gap-4 max-w-5xl mx-auto mb-12">
           <SummaryCard title="Jobs" value={jobs.length} icon={<FiBriefcase />} />
           <SummaryCard title="Views" value={totalViews} icon={<FiEye />} />
-          <SummaryCard title="Avg Salary" value={`₹${avgSalary}L`} icon={<FiDollarSign />} />
-          <SummaryCard title="Applications" value={applications.length} icon={<FiClipboard />} />
+          <SummaryCard
+            title="Avg Salary"
+            value={`₹${avgSalary}L`}
+            icon={<FiDollarSign />}
+          />
+          <SummaryCard
+            title="Applications"
+            value={applications.length}
+            icon={<FiClipboard />}
+          />
         </div>
 
         {/* JOB FORM */}
         {showJobForm && (
           <JobForm
             job={editJob}
+            companies={companies}
             onSubmit={submitJob}
             onCancel={() => {
               setShowJobForm(false);
@@ -234,7 +297,7 @@ export default function RecruiterDashboard() {
           />
         )}
 
-        {/* MY JOBS */}
+        {/* JOBS */}
         <h2 className="text-3xl font-black mb-6">My Jobs</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
           {visibleJobs.map((job) => (
@@ -250,7 +313,12 @@ export default function RecruiterDashboard() {
               </p>
 
               <div className="flex justify-end gap-3 mt-4">
-                <button onClick={() => { setEditJob(job); setShowJobForm(true); }}>
+                <button
+                  onClick={() => {
+                    setEditJob(job);
+                    setShowJobForm(true);
+                  }}
+                >
                   <FiEdit />
                 </button>
                 <button onClick={() => removeJob(job.id)}>
@@ -261,11 +329,14 @@ export default function RecruiterDashboard() {
           ))}
         </div>
 
-        {/* MANAGE APPLICATIONS */}
-        <h2 className="text-3xl font-black mb-6">Manage Applications</h2>
+        {/* APPLICATIONS */}
+        <h2 className="text-3xl font-black mb-6">Applications</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {applications.map((app) => (
-            <motion.div key={app.id} className="bg-black/40 border border-white/10 rounded-3xl p-6">
+            <motion.div
+              key={app.id}
+              className="bg-black/40 border border-white/10 rounded-3xl p-6"
+            >
               <h3 className="font-black">{app.candidate_name}</h3>
               <p className="text-sm opacity-70">{app.job_title}</p>
               <StatusBadge status={app.status} />

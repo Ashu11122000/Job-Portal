@@ -11,7 +11,7 @@ import {
   FiClipboard,
   FiRefreshCw,
   FiUserCheck,
-  FiEdit
+  FiEdit,
 } from "react-icons/fi";
 import { getAllJobs } from "../../api/jobApi";
 import { useAuthContext } from "../../context/AuthContext.jsx";
@@ -82,7 +82,11 @@ export default function AdminDashboard() {
 
   const fetchJobs = async () => {
     const res = await getAllJobs();
-    setJobs(res?.data?.data || []);
+    const normalized = (res?.data?.data || []).map((job) => ({
+      ...job,
+      id: job.id || job._id, // safe normalization
+    }));
+    setJobs(normalized);
   };
 
   /* ===================== ADD JOB ===================== */
@@ -104,7 +108,9 @@ export default function AdminDashboard() {
 
   const handleUpdateJob = (e) => {
     e.preventDefault();
-    setJobs(jobs.map((j) => (j.id === selectedJob.id ? selectedJob : j)));
+    setJobs(
+      jobs.map((j) => (j.id === selectedJob.id ? selectedJob : j))
+    );
     setEditOpen(false);
   };
 
@@ -114,7 +120,6 @@ export default function AdminDashboard() {
 
       <div className="pt-[90px] bg-slate-900 min-h-screen">
         <section className="bg-gradient-to-br from-slate-900 to-purple-900 p-8 pt-32 text-white">
-
           {/* HEADER */}
           <div className="mb-10 flex justify-between items-center">
             <h1 className="text-5xl font-black flex items-center gap-3">
@@ -196,13 +201,13 @@ export default function AdminDashboard() {
                 <div className="flex gap-3 mt-4">
                   <button
                     onClick={() => handleEditJob(job)}
-                    className="flex-1 bg-yellow-500 py-2 rounded-xl font-bold"
+                    className="flex-1 bg-yellow-500 py-2 rounded-xl font-bold flex items-center justify-center gap-2"
                   >
                     <FiEdit /> Edit
                   </button>
                   <button
                     onClick={() => handleDeleteJob(job.id)}
-                    className="flex-1 bg-red-600 py-2 rounded-xl font-bold"
+                    className="flex-1 bg-red-600 py-2 rounded-xl font-bold flex items-center justify-center gap-2"
                   >
                     <FiTrash2 /> Delete
                   </button>
@@ -211,8 +216,155 @@ export default function AdminDashboard() {
             ))}
           </div>
 
-          <LatestApplicants applications={applications} />
+          {/* ===================== EDIT JOB MODAL ===================== */}
+          <AnimatePresence>
+  {editOpen && selectedJob && (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center
+      bg-gradient-to-br from-black/80 via-slate-900/80 to-black/80
+      backdrop-blur-xl"
+    >
+      <motion.form
+        initial={{ scale: 0.92, y: 40 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.92, y: 40 }}
+        transition={{ type: "spring", stiffness: 180, damping: 18 }}
+        onSubmit={handleUpdateJob}
+        className="relative w-full max-w-2xl
+        rounded-3xl border border-white/10
+        bg-gradient-to-br from-slate-900 to-slate-950
+        p-8 shadow-[0_30px_80px_rgba(0,0,0,0.6)]
+        text-white"
+      >
+        {/* HEADER */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-black tracking-tight">
+            Edit Job Details
+          </h2>
+          <p className="mt-2 text-sm text-white/60">
+            Update role information carefully — these changes will reflect
+            immediately for candidates.
+          </p>
+        </div>
 
+        {/* BASIC INFO */}
+        <div className="grid md:grid-cols-2 gap-4 mb-6">
+          {["title", "company"].map((field) => (
+            <div key={field}>
+              <label className="block text-xs font-bold uppercase text-white/60 mb-1">
+                {field}
+              </label>
+              <input
+                className="w-full rounded-xl bg-white/90 px-4 py-3
+                text-slate-900 font-semibold
+                focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                value={selectedJob[field] || ""}
+                onChange={(e) =>
+                  setSelectedJob({
+                    ...selectedJob,
+                    [field]: e.target.value,
+                  })
+                }
+                placeholder={`Enter ${field}`}
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* LOCATION & SALARY */}
+        <div className="grid md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label className="block text-xs font-bold uppercase text-white/60 mb-1">
+              Location
+            </label>
+            <input
+              className="w-full rounded-xl bg-white/90 px-4 py-3
+              text-slate-900 font-semibold
+              focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              value={selectedJob.location || ""}
+              onChange={(e) =>
+                setSelectedJob({
+                  ...selectedJob,
+                  location: e.target.value,
+                })
+              }
+              placeholder="e.g. Remote / Bangalore"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase text-white/60 mb-1">
+              Salary (LPA)
+            </label>
+            <input
+              type="number"
+              className="w-full rounded-xl bg-white/90 px-4 py-3
+              text-slate-900 font-semibold
+              focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              value={selectedJob.salary || ""}
+              onChange={(e) =>
+                setSelectedJob({
+                  ...selectedJob,
+                  salary: e.target.value,
+                })
+              }
+              placeholder="e.g. 6"
+            />
+            <p className="mt-1 text-[11px] text-white/50">
+              Annual package in Lakhs (₹)
+            </p>
+          </div>
+        </div>
+
+        {/* DESCRIPTION */}
+        <div className="mb-8">
+          <label className="block text-xs font-bold uppercase text-white/60 mb-1">
+            Job Description
+          </label>
+          <textarea
+            rows={4}
+            className="w-full rounded-xl bg-white/90 px-4 py-3
+            text-slate-900 font-medium
+            focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            value={selectedJob.description || ""}
+            onChange={(e) =>
+              setSelectedJob({
+                ...selectedJob,
+                description: e.target.value,
+              })
+            }
+            placeholder="Describe responsibilities, requirements, and expectations"
+          />
+        </div>
+
+        {/* ACTIONS */}
+        <div className="flex gap-4">
+          <button
+            type="submit"
+            className="flex-1 rounded-xl py-3 font-black
+            bg-gradient-to-r from-emerald-500 to-green-600
+            hover:brightness-110 transition"
+          >
+            Save Changes
+          </button>
+          <button
+            type="button"
+            onClick={() => setEditOpen(false)}
+            className="flex-1 rounded-xl py-3 font-black
+            bg-white/10 hover:bg-white/20 transition"
+          >
+            Cancel
+          </button>
+        </div>
+      </motion.form>
+    </motion.div>
+  )}
+</AnimatePresence>
+
+          <LatestApplicants applications={applications} />
         </section>
       </div>
 

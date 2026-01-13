@@ -34,21 +34,18 @@ export default function Register() {
   setError("");
   setLoading(true);
 
-  console.log("➡ Sending Register Request with Data:", form);
-
   try {
     const res = await registerApi(form);
 
-    console.log("✅ Register API Response:", res.data);
-
     if (res?.data?.user && res?.data?.token) {
       registerUser(res.data.user, res.data.token);
-      navigate("/dashboard");
+
+      // ✅ FIXED: let AppRouter decide dashboard
+      navigate("/", { replace: true });
     } else {
       setError("Invalid registration response from server");
     }
   } catch (err) {
-    console.error("❌ Register API Error:", err.response?.data || err.message);
     setError(
       err.response?.data?.message ||
         "Registration failed, please check details."

@@ -2,25 +2,42 @@ import pool from "../config/db.js";
 
 // Existing kept
 export const insertCompany = async (companyData) => {
-  const sql = `INSERT INTO companies (name, location, industry, employees, website, description, logo)
-               VALUES (?, ?, ?, ?, ?, ?, ?)`;
+  const sql = `
+    INSERT INTO companies 
+    (name, location, industry, employees, website, description, logo, created_by)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `;
 
-  const { name, location, industry, employees, website, description, logo } = companyData;
-
-  const [result] = await pool.query(sql, [
+  const {
     name,
     location,
     industry,
     employees,
     website,
     description,
-    logo || ""
+    logo,
+    created_by,
+  } = companyData;
+
+  const [result] = await pool.query(sql, [
+    name,
+    location,
+    industry || null,
+    employees || null,
+    website || null,
+    description || null,
+    logo || "",
+    created_by || null,
   ]);
 
-  // NEWLY ADDED: Fetch the inserted row and return it
-  const [rows] = await pool.query(`SELECT * FROM companies WHERE id = ?`, [result.insertId]);
+  const [rows] = await pool.query(
+    `SELECT * FROM companies WHERE id = ?`,
+    [result.insertId]
+  );
+
   return rows[0];
 };
+
 
 // Existing kept
 export const fetchCompanies = async () => {

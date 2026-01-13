@@ -1,5 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { submitContactForm } from "../api/contactApi";
 import { FiMail, FiPhone, FiMapPin, FiClock } from "react-icons/fi";
 import Footer from "../components/layout/Footer";
 
@@ -16,443 +17,348 @@ export default function Contact() {
     }
   }, []);
 
+  /* ================= CONTACT FORM STATE ================= */
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  /* ================= API INTEGRATION (UPDATED) ================= */
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (loading) return;
+
+    setLoading(true);
+    setSuccess("");
+    setError("");
+
+    try {
+      const response = await submitContactForm({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        subject: formData.subject.trim(),
+        message: formData.message.trim(),
+      });
+
+      setSuccess(
+        response?.message ||
+          "Your message has been successfully sent. Our team will reach out within 24 business hours."
+      );
+
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+      });
+    } catch (err) {
+      setError(
+        err.message ||
+          "Something went wrong while sending your message. Please try again later."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="w-full overflow-hidden bg-white">
-      {/* ================= HERO SECTION ================= */}
- {/* ================= HERO SECTION — ENTERPRISE ULTRA PREMIUM ================= */}
-<section className="relative min-h-[90vh] flex items-center justify-center isolate overflow-hidden bg-[radial-gradient(circle_at_top,#020617,#0b1224,#000)]">
-
-  {/* ================= AURORA MOTION ================= */}
-  <motion.div
-    animate={{ x: [0, 160, 0], y: [0, -120, 0] }}
-    transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
-    className="absolute -top-96 -left-96 w-[1000px] h-[1000px] bg-indigo-500/35 blur-[280px] rounded-full"
-  />
-
-  <motion.div
-    animate={{ x: [0, -180, 0], y: [0, 140, 0] }}
-    transition={{ duration: 28, repeat: Infinity, ease: "easeInOut" }}
-    className="absolute -bottom-96 -right-96 w-[1000px] h-[1000px] bg-purple-500/35 blur-[320px] rounded-full"
-  />
-
-  {/* Noise overlay */}
-  <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.035] pointer-events-none" />
-
-  {/* ================= CONTENT ================= */}
-  <motion.div
-    initial={{ opacity: 0, y: 70 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 1.1, ease: "easeOut" }}
-    className="relative z-10 text-center px-6 max-w-6xl pt-28"
-  >
-    {/* Badge */}
-    <span className="inline-flex items-center gap-2 mb-10 px-9 py-2.5
-      rounded-full bg-white/10 backdrop-blur-xl
-      border border-white/20 text-sm font-semibold
-      tracking-wide text-indigo-200 shadow">
-      📞 Contact & Support
-    </span>
-
-    {/* Headline */}
-    <h1 className="text-[3.5rem] md:text-[4.5rem] lg:text-[5.2rem]
-      font-black leading-[1.05] mb-10">
-      <span className="block bg-gradient-to-r from-indigo-300 via-sky-300 to-purple-300 bg-clip-text text-transparent">
-        Let’s Talk About What’s Next
-      </span>
-    </h1>
-
-    {/* Explanation */}
-    <p className="max-w-4xl mx-auto text-lg md:text-xl text-slate-300 leading-relaxed">
-      Whether you’re navigating your
-      <span className="text-indigo-300 font-semibold"> career journey</span>,
-      scaling
-      <span className="text-purple-300 font-semibold"> hiring operations</span>,
-      exploring
-      <span className="text-sky-300 font-semibold"> partnerships</span>,
-      or need
-      <span className="text-indigo-300 font-semibold"> enterprise-grade support</span>,
-      our team is ready to help — quickly, clearly, and professionally.
-    </p>
-
-    {/* Trust Signals */}
-    <div className="mt-14 flex flex-wrap justify-center gap-x-10 gap-y-4 text-sm text-slate-300">
-      <span className="flex items-center gap-2">
-        <span className="text-indigo-400">✔</span> 24-Hour Response SLA
-      </span>
-      <span className="flex items-center gap-2">
-        <span className="text-purple-400">✔</span> Dedicated Human Support
-      </span>
-      <span className="flex items-center gap-2">
-        <span className="text-sky-400">✔</span> Trusted by Job Seekers & Employers
-      </span>
-    </div>
-
-    {/* CTA */}
-    <div className="mt-16 flex flex-wrap justify-center gap-8">
-      <a
-        href="#contact-form"
-        className="px-16 py-4 rounded-full
-        bg-gradient-to-r from-indigo-600 to-purple-600
-        text-white font-semibold text-lg
-        shadow-[0_25px_70px_rgba(99,102,241,0.65)]
-        hover:scale-105 active:scale-95 transition"
-      >
-        🚀 Contact Our Team
-      </a>
-    </div>
-
-    {/* Divider */}
-    <div className="mt-24 flex justify-center">
-      <div className="h-[3px] w-36 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full shadow-[0_0_40px_rgba(99,102,241,0.9)]" />
-    </div>
-  </motion.div>
-</section>
-
-
-{/* ================= CONTACT INFO — ENTERPRISE ULTRA PREMIUM ================= */}
-<section className="relative py-40 bg-gradient-to-b from-slate-50 via-white to-slate-50 overflow-hidden">
-
-  {/* ================= AMBIENT BACKGROUND ================= */}
-  <div className="absolute inset-0 -z-10">
-    <div className="absolute -top-52 -left-52 w-[560px] h-[560px] bg-indigo-300/25 blur-[200px] rounded-full" />
-    <div className="absolute -bottom-52 -right-52 w-[560px] h-[560px] bg-purple-300/25 blur-[200px] rounded-full" />
-  </div>
-
-  <div className="max-w-7xl mx-auto px-6">
-
-    {/* ================= SECTION HEADER ================= */}
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 1 }}
-      className="text-center mb-28"
-    >
-      <span className="inline-flex items-center gap-2 mb-8 px-9 py-2.5
-        rounded-full bg-indigo-50 text-indigo-700 text-sm font-bold shadow">
-        📍 Contact Information
-      </span>
-
-      <h2 className="text-[3.6rem] font-black text-slate-900 mb-6 leading-tight">
-        Real People.{" "}
-        <span className="text-indigo-600">Real Support.</span>
-      </h2>
-
-      <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-        Whether you’re seeking career guidance, employer solutions,
-        strategic partnerships, or enterprise assistance —
-        our team is available with fast, professional support.
-      </p>
-
-      {/* Trust Signals */}
-      <div className="mt-10 flex flex-wrap justify-center gap-x-10 gap-y-3 text-sm text-slate-600">
-        <span className="flex items-center gap-2">
-          <span className="text-indigo-600">✔</span> 24-Hour Response Time
-        </span>
-        <span className="flex items-center gap-2">
-          <span className="text-purple-600">✔</span> Dedicated Human Support
-        </span>
-        <span className="flex items-center gap-2">
-          <span className="text-emerald-600">✔</span> Secure & Confidential
-        </span>
-      </div>
-    </motion.div>
-
-    {/* ================= CONTACT CARDS ================= */}
-    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-14">
-      {[
-        {
-          icon: <FiMail />,
-          title: "Email Support",
-          value: "support@jobportal.com",
-          hint: "General queries, platform help, guidance",
-        },
-        {
-          icon: <FiPhone />,
-          title: "Phone Assistance",
-          value: "+91 98765 43210",
-          hint: "Urgent support & enterprise discussions",
-        },
-        {
-          icon: <FiMapPin />,
-          title: "Head Office",
-          value: "Bangalore, India",
-          hint: "Primary operations & leadership team",
-        },
-        {
-          icon: <FiClock />,
-          title: "Availability",
-          value: "Mon – Sat · 10AM – 7PM",
-          hint: "IST business hours",
-        },
-      ].map((item, i) => (
+      {/* ================= HERO — ULTRA PREMIUM ================= */}
+      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,#020617,#020617,#000)]">
         <motion.div
-          key={i}
-          initial={{ opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.9, delay: i * 0.12 }}
-          whileHover={{ y: -14 }}
-          className="relative group"
-        >
-          {/* Glow */}
-          <div className="absolute inset-0 rounded-3xl
-            bg-gradient-to-br from-indigo-400/35 to-purple-400/35
-            blur-2xl opacity-0 group-hover:opacity-100 transition" />
+          animate={{ x: [0, 160, 0], y: [0, -120, 0] }}
+          transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-96 -left-96 w-[900px] h-[900px] bg-indigo-500/30 blur-[260px] rounded-full"
+        />
+        <motion.div
+          animate={{ x: [0, -180, 0], y: [0, 140, 0] }}
+          transition={{ duration: 30, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -bottom-96 -right-96 w-[900px] h-[900px] bg-purple-500/30 blur-[300px] rounded-full"
+        />
 
-          {/* Card */}
-          <div className="relative bg-white/90 backdrop-blur-2xl
-            rounded-3xl p-12 border
-            shadow-[0_25px_70px_rgba(0,0,0,0.15)]
-            text-center">
+        <div className="relative z-10 max-w-6xl text-center px-6 pt-28">
+          <span className="inline-flex items-center gap-2 mb-8 px-8 py-2.5 rounded-full bg-indigo-500/10 border border-indigo-400/30 text-indigo-300 text-sm font-semibold tracking-wide">
+            📞 Contact & Support
+          </span>
 
-            {/* Icon */}
-            <div className="w-18 h-18 mx-auto mb-7 rounded-2xl
-              bg-gradient-to-br from-indigo-600 to-purple-600
-              text-white flex items-center justify-center text-3xl
-              shadow-lg">
-              {item.icon}
-            </div>
+          <h1 className="text-[3.2rem] md:text-[4.4rem] lg:text-[5rem] font-black leading-[1.05] mb-8">
+            <span className="bg-gradient-to-r from-indigo-300 via-sky-300 to-purple-300 bg-clip-text text-transparent">
+              Let’s Start a Meaningful Conversation
+            </span>
+          </h1>
 
-            <h3 className="font-extrabold text-xl mb-2 text-slate-900">
-              {item.title}
-            </h3>
+          <p className="max-w-4xl mx-auto text-lg md:text-xl text-slate-300 leading-relaxed">
+            Whether you’re planning your next
+            <span className="text-indigo-300 font-semibold"> career move</span>,
+            building a
+            <span className="text-sky-300 font-semibold"> hiring strategy</span>,
+            or exploring
+            <span className="text-purple-300 font-semibold"> long-term partnerships</span>,
+            our team provides thoughtful, human-led support — not automated replies.
+          </p>
 
-            <p className="text-slate-800 text-base font-semibold mb-2">
-              {item.value}
-            </p>
-
-            <p className="text-xs text-slate-500 leading-relaxed">
-              {item.hint}
-            </p>
+          <div className="mt-10 flex flex-wrap justify-center gap-8 text-sm text-slate-400">
+            <span>✔ Response within 24 hours</span>
+            <span>✔ Dedicated human support</span>
+            <span>✔ Secure & confidential</span>
           </div>
-        </motion.div>
-      ))}
-    </div>
 
-    {/* ================= DIVIDER ================= */}
-    <div className="mt-36 flex justify-center">
-      <div className="h-[3px] w-36 bg-gradient-to-r from-indigo-500 to-purple-500
-        rounded-full shadow-[0_0_40px_rgba(99,102,241,0.7)]" />
-    </div>
-  </div>
-</section>
+          <div className="mt-14">
+            <a
+              href="#contact-form"
+              className="inline-flex items-center gap-3 px-16 py-4 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-slate-100 font-semibold text-lg shadow-[0_25px_70px_rgba(99,102,241,0.55)] hover:scale-105 transition"
+            >
+              🚀 Contact Our Team
+            </a>
+          </div>
+        </div>
+      </section>
 
-{/* ================= WHY PEOPLE CONTACT US — ENTERPRISE ================= */}
-<section className="relative py-36 px-6 bg-white/80 overflow-hidden">
-  <div className="max-w-6xl mx-auto">
+      {/* ================= WHO CONTACTS US ================= */}
+<section className="relative py-40 bg-white overflow-hidden">
+  {/* Ambient background */}
+  <div className="absolute -top-48 -left-48 w-[520px] h-[520px]
+    bg-indigo-200/30 blur-[200px] rounded-full" />
+  <div className="absolute -bottom-48 -right-48 w-[520px] h-[520px]
+    bg-purple-200/30 blur-[200px] rounded-full" />
+
+  <div className="relative max-w-7xl mx-auto px-6">
 
     {/* ================= HEADER ================= */}
     <div className="text-center mb-24">
-      <span className="inline-flex items-center gap-2 mb-8 px-8 py-2.5
-        bg-indigo-50 border border-indigo-200/60
-        rounded-full text-indigo-700 text-sm font-semibold shadow">
-        🤝 How We Help
+      <span className="inline-flex items-center gap-2 px-9 py-2.5 rounded-full
+        bg-indigo-100/80 text-indigo-700
+        text-sm font-semibold tracking-wide shadow-sm mb-8">
+        👥 Our Community
       </span>
 
-      <h2 className="text-[3.4rem] font-black mb-6
-        bg-gradient-to-br from-slate-900 via-indigo-700 to-purple-700
-        bg-clip-text text-transparent">
-        Why People Trust Us
+      <h2 className="text-[3.4rem] font-black text-slate-900 mb-6 leading-tight">
+        Who Typically Reaches Out to Us
       </h2>
 
-      <p className="text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
-        We work closely with individuals and organizations at every stage of the
-        hiring lifecycle — delivering clarity, speed, and measurable outcomes
-        across career growth, talent acquisition, and platform partnerships.
+      <p className="text-slate-600 text-lg max-w-3xl mx-auto leading-relaxed">
+        We support professionals and organizations across every stage of the
+        hiring ecosystem — from early-career exploration to enterprise-scale
+        talent strategy and long-term partnerships.
       </p>
-
-      {/* Trust Signals */}
-      <div className="mt-10 flex flex-wrap justify-center gap-x-10 gap-y-3 text-sm text-slate-600">
-        <span className="flex items-center gap-2">
-          <span className="text-indigo-600">✔</span> Dedicated Human Support
-        </span>
-        <span className="flex items-center gap-2">
-          <span className="text-purple-600">✔</span> Enterprise-Ready Solutions
-        </span>
-        <span className="flex items-center gap-2">
-          <span className="text-emerald-600">✔</span> Secure & Confidential
-        </span>
-      </div>
     </div>
 
-    {/* ================= AUDIENCE CARDS ================= */}
+    {/* ================= CARDS ================= */}
     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-12">
       {[
         {
           title: "Job Seekers",
           desc:
-            "Personalized career guidance, resume optimization, application support, and platform assistance — designed to improve shortlisting and interview outcomes.",
+            "Individuals at any career stage seeking clarity, stronger resumes, better shortlisting outcomes, interview preparation, and platform support to navigate opportunities with confidence.",
+          highlight: "Career growth & clarity",
         },
         {
           title: "Recruiters & HR Teams",
           desc:
-            "End-to-end hiring solutions including employer branding, candidate sourcing, screening workflows, and ATS-aligned hiring processes.",
+            "Talent acquisition teams looking to streamline hiring workflows, strengthen employer branding, access quality candidates, and optimize recruitment processes.",
+          highlight: "Hiring efficiency",
         },
         {
           title: "Business & Platform Partners",
           desc:
-            "Strategic partnerships, API integrations, data collaboration, and co-branded initiatives to expand reach and capability.",
+            "Organizations exploring strategic collaborations, API integrations, data partnerships, or co-branded initiatives to expand reach and capabilities.",
+          highlight: "Strategic partnerships",
         },
         {
           title: "Enterprise Clients",
           desc:
-            "Custom talent solutions, large-scale hiring support, internal tools, and enterprise-grade integrations built for volume and compliance.",
+            "Large organizations requiring scalable hiring support, custom solutions, compliance-ready processes, and dedicated enterprise-grade assistance.",
+          highlight: "Enterprise solutions",
         },
       ].map((item) => (
         <div
           key={item.title}
           className="group relative rounded-3xl p-[1px]
-            bg-gradient-to-br from-indigo-400/40 via-purple-400/30 to-pink-400/40"
+            bg-gradient-to-br from-indigo-400/30 via-purple-400/25 to-pink-400/30"
         >
           <div
             className="h-full rounded-3xl p-8
-            bg-white/90 backdrop-blur-xl
-            border border-slate-200/60
-            shadow-[0_20px_60px_rgba(0,0,0,0.12)]
-            transition group-hover:-translate-y-2"
+              bg-white/90 backdrop-blur-xl
+              border border-slate-200
+              shadow-[0_18px_50px_rgba(0,0,0,0.12)]
+              transition group-hover:-translate-y-2"
           >
-            <h4 className="font-extrabold text-lg text-slate-900 mb-4">
+            <h4 className="font-extrabold text-xl text-slate-900 mb-3">
               {item.title}
             </h4>
 
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p className="text-slate-600 text-sm leading-relaxed mb-5">
               {item.desc}
             </p>
+
+            <span className="inline-block text-xs font-semibold
+              text-indigo-700 bg-indigo-100
+              px-4 py-1.5 rounded-full">
+              {item.highlight}
+            </span>
           </div>
         </div>
       ))}
     </div>
 
+    {/* ================= FOOT NOTE ================= */}
+    <p className="mt-20 text-center text-sm text-slate-500 max-w-3xl mx-auto">
+      No matter who you are or where you are in your journey, every inquiry is
+      reviewed by a real team member and handled with clarity, care, and
+      accountability.
+    </p>
+
   </div>
 </section>
 
-{/* ================= SUPPORT COMMITMENT ================= */}
-{/* ================= SUPPORT PROMISE — ENTERPRISE GRADE ================= */}
-<section className="relative py-36 px-6 bg-gradient-to-br from-indigo-50 to-purple-50 overflow-hidden">
-  <div className="max-w-5xl mx-auto text-center">
 
-    {/* Badge */}
-    <span className="inline-flex items-center gap-2 mb-8 px-8 py-2.5
-      bg-white/80 border border-indigo-200/60
-      rounded-full text-indigo-700 text-sm font-semibold shadow">
-      🛡️ Our Commitment to You
-    </span>
+{/* ================= WHAT HAPPENS NEXT ================= */}
+<section className="relative py-40 bg-gradient-to-br from-slate-50 via-indigo-50/60 to-slate-50 overflow-hidden">
+  {/* Ambient background */}
+  <div className="absolute -top-48 -left-48 w-[520px] h-[520px]
+    bg-indigo-200/30 blur-[220px] rounded-full" />
+  <div className="absolute -bottom-48 -right-48 w-[520px] h-[520px]
+    bg-purple-200/30 blur-[220px] rounded-full" />
 
-    {/* Heading */}
-    <h2 className="text-[3.2rem] font-black mb-6
-      bg-gradient-to-br from-slate-900 via-indigo-700 to-purple-700
-      bg-clip-text text-transparent">
-      Our Support Promise
-    </h2>
+  <div className="relative max-w-6xl mx-auto px-6">
 
-    {/* Description */}
-    <p className="text-lg text-slate-600 mb-14 max-w-3xl mx-auto leading-relaxed">
-      We believe great platforms are built on <span className="font-semibold text-slate-800">trust, accountability,</span>
-      and <span className="font-semibold text-slate-800">real human support</span>.
-      Every message you send is reviewed by an experienced team member — never automated,
-      never ignored, and always handled with care.
-    </p>
+    {/* ================= HEADER ================= */}
+    <div className="text-center mb-24">
+      <span className="inline-flex items-center gap-2 px-9 py-2.5 rounded-full
+        bg-indigo-100/80 text-indigo-700
+        text-sm font-semibold tracking-wide shadow-sm mb-8">
+        🔍 Our Process
+      </span>
 
-    {/* Promise Cards */}
-    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
+      <h2 className="text-[3.2rem] font-black text-slate-900 mb-6 leading-tight">
+        What Happens After You Submit
+      </h2>
+
+      <p className="text-slate-600 text-lg max-w-3xl mx-auto leading-relaxed">
+        Every message follows a transparent, human-reviewed process designed to
+        deliver clarity, speed, and the right response — without automated replies
+        or unnecessary delays.
+      </p>
+    </div>
+
+    {/* ================= STEPS ================= */}
+    <div className="grid md:grid-cols-4 gap-12">
       {[
         {
-          title: "24-Hour Response SLA",
-          desc: "Guaranteed replies within one business day — often much faster.",
+          title: "Initial Review",
+          desc:
+            "Your message is carefully reviewed by a real team member to understand context, urgency, and intent — never by automated systems.",
         },
         {
-          title: "Dedicated Support Team",
-          desc: "Your queries are handled by trained specialists, not bots.",
+          title: "Smart Routing",
+          desc:
+            "We route your inquiry to the most relevant specialist or team, ensuring accurate and meaningful responses.",
         },
         {
-          title: "Enterprise-Grade Assistance",
-          desc: "Scalable support for individuals, recruiters, and organizations.",
+          title: "Internal Assessment",
+          desc:
+            "Requirements are evaluated internally to determine next steps, timelines, and the best possible solution.",
         },
         {
-          title: "Radical Transparency",
-          desc: "Clear answers, honest timelines, and zero vague responses.",
+          title: "Clear Response",
+          desc:
+            "You receive a clear, actionable reply — typically within 24 business hours — outlining next steps or answers.",
         },
-      ].map((item) => (
+      ].map((step, i) => (
         <div
-          key={item.title}
+          key={i}
           className="group relative rounded-3xl p-[1px]
-            bg-gradient-to-br from-indigo-400/40 via-purple-400/30 to-pink-400/40"
+            bg-gradient-to-br from-indigo-400/30 via-purple-400/25 to-pink-400/30"
         >
           <div
-            className="h-full rounded-3xl bg-white/90 backdrop-blur-xl
-            border border-slate-200/60 p-8
-            shadow-[0_18px_50px_rgba(0,0,0,0.12)]
-            transition group-hover:-translate-y-1"
+            className="h-full rounded-3xl p-8
+              bg-white/90 backdrop-blur-xl
+              border border-slate-200
+              shadow-[0_18px_50px_rgba(0,0,0,0.12)]
+              transition group-hover:-translate-y-2"
           >
-            <h4 className="font-extrabold text-slate-900 mb-3">
-              {item.title}
+            {/* Step number */}
+            <div className="text-indigo-600 text-4xl font-black mb-4">
+              {i + 1}
+            </div>
+
+            <h4 className="font-extrabold text-lg text-slate-900 mb-3">
+              {step.title}
             </h4>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              {item.desc}
+
+            <p className="text-slate-600 text-sm leading-relaxed">
+              {step.desc}
             </p>
           </div>
         </div>
       ))}
     </div>
 
-    {/* Footer Note */}
-    <p className="mt-14 text-sm text-slate-500">
-      Trusted by job seekers, recruiters, and enterprise partners across hiring ecosystems.
+    {/* ================= FOOT NOTE ================= */}
+    <p className="mt-20 text-center text-sm text-slate-500 max-w-3xl mx-auto">
+      Our process is built for reliability and trust — every inquiry is handled
+      with accountability, confidentiality, and respect for your time.
     </p>
 
   </div>
 </section>
 
-      {/* ================= ULTRA PREMIUM CONTACT FORM ================= */}
-     {/* ================= CONTACT & FORM — ENTERPRISE ULTRA PREMIUM ================= */}
-<section id="contact-form" className="relative py-36 bg-linear-to-br from-indigo-50 via-white to-purple-50 overflow-hidden">
+      {/* ================= CONTACT FORM ================= */}
+<section
+  id="contact-form"
+  className="relative py-40 bg-gradient-to-br from-slate-50 via-indigo-50/40 to-purple-50 overflow-hidden"
+>
+  {/* Ambient accents */}
+  <div className="absolute -top-48 -left-48 w-[520px] h-[520px] bg-indigo-300/25 blur-[200px] rounded-full" />
+  <div className="absolute -bottom-48 -right-48 w-[520px] h-[520px] bg-purple-300/25 blur-[200px] rounded-full" />
 
-  {/* Ambient glow */}
-  <div className="absolute inset-0 -z-10">
-    <div className="absolute -top-48 -left-48 w-[520px] h-[520px] bg-indigo-300/25 blur-[200px] rounded-full" />
-    <div className="absolute -bottom-48 -right-48 w-[520px] h-[520px] bg-purple-300/25 blur-[200px] rounded-full" />
-  </div>
-
-  <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-24 items-center">
+  <div className="relative max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-28 items-start">
 
     {/* ================= LEFT CONTENT ================= */}
     <div>
       {/* Badge */}
       <span className="inline-flex items-center gap-2 mb-6 px-8 py-2.5
-        bg-indigo-100 text-indigo-700 text-sm font-semibold
-        rounded-full shadow-sm">
-        📩 Get In Touch
+        rounded-full bg-indigo-100/80 text-indigo-700
+        text-sm font-semibold tracking-wide shadow-sm">
+        📩 Get in Touch
       </span>
 
       {/* Heading */}
-      <h2 className="text-[3.4rem] font-black text-slate-900 mb-6 leading-tight">
-        Let’s Talk About Your
+      <h2 className="text-[3.2rem] font-black text-slate-900 leading-tight mb-6">
+        Tell Us What You’re
         <span className="block bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-          Career or Business Growth
+          Looking to Achieve
         </span>
       </h2>
 
       {/* Description */}
-      <p className="text-slate-700 text-lg mb-10 max-w-xl leading-relaxed">
-        Whether you’re advancing your career, hiring top talent,
-        exploring partnerships, or need platform support —
-        our team provides clear, timely, and human-driven assistance.
+      <p className="text-slate-700 text-lg leading-relaxed max-w-xl mb-10">
+        Whether you’re planning your next career move, scaling a hiring initiative,
+        exploring long-term partnerships, or need platform assistance — our team
+        listens first and responds with clarity.
       </p>
 
-      {/* Value Grid */}
-      <div className="grid sm:grid-cols-2 gap-6 text-slate-800 font-medium">
+      {/* Value points */}
+      <div className="grid sm:grid-cols-2 gap-6 text-slate-800 font-medium mb-10">
         {[
-          "Career Guidance & Resume Optimization",
-          "Employer Hiring & Talent Branding",
-          "Business & Technology Partnerships",
-          "Platform, Account & Enterprise Support",
+          "Career guidance & resume optimization",
+          "Recruitment & employer solutions",
+          "Business, API & platform partnerships",
+          "Account, billing & enterprise support",
         ].map((item) => (
           <div
             key={item}
-            className="group rounded-2xl p-5 bg-white/90
-              border border-slate-200
-              shadow-sm hover:shadow-md transition"
+            className="rounded-2xl p-5 bg-white/80 backdrop-blur
+              border border-slate-200 shadow-sm"
           >
             <span className="text-indigo-600 mr-2">✔</span>
             {item}
@@ -460,185 +366,201 @@ export default function Contact() {
         ))}
       </div>
 
-      {/* Trust Note */}
-      <p className="mt-8 text-sm text-slate-500 max-w-lg">
-        Every inquiry is reviewed by a real team member —
-        no automated replies, no ignored messages.
-      </p>
+      {/* Process clarity */}
+      <div className="mt-6 space-y-3 text-sm text-slate-600">
+        <p>
+          <span className="font-semibold text-slate-800">What happens next?</span>
+        </p>
+        <p>• Your message is reviewed by a real team member</p>
+        <p>• We route it to the right specialist internally</p>
+        <p>• You receive a clear response within 24 business hours</p>
+      </div>
     </div>
 
     {/* ================= FORM CARD ================= */}
     <motion.form
+      onSubmit={handleSubmit}
       whileHover={{ scale: 1.01 }}
-      className="relative bg-white p-14 rounded-[2.75rem]
+      className="relative bg-white/90 backdrop-blur-xl
+        p-14 rounded-[2.75rem]
         shadow-[0_30px_80px_rgba(0,0,0,0.18)]
         border border-slate-200"
     >
-      {/* Glow Border */}
-      <div className="absolute inset-0 -z-10 rounded-[2.75rem]
-        bg-linear-to-r from-indigo-500 to-purple-500
-        blur-2xl opacity-20" />
-
-      {/* Form Header */}
-      <h3 className="text-3xl font-extrabold mb-4 text-slate-900 text-center">
-        Send Us a Message
-      </h3>
-
-      <p className="text-center text-slate-600 text-sm mb-10">
-        Tell us what you need — we’ll take it from there.
-      </p>
+      {/* Success / Error */}
+      {success && (
+        <p className="mb-6 text-emerald-700 bg-emerald-50 border border-emerald-200
+          rounded-xl py-3 px-4 font-semibold text-center">
+          {success}
+        </p>
+      )}
+      {error && (
+        <p className="mb-6 text-rose-700 bg-rose-50 border border-rose-200
+          rounded-xl py-3 px-4 font-semibold text-center">
+          {error}
+        </p>
+      )}
 
       {/* Inputs */}
       <div className="grid sm:grid-cols-2 gap-6 mb-6">
         <input
           type="text"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
           placeholder="Full Name"
-          className="w-full border border-slate-300 bg-white
-            rounded-xl px-5 py-3.5 text-slate-900
+          required
+          className="w-full border border-slate-300 rounded-xl
+            px-5 py-3.5 text-slate-900
             focus:ring-2 focus:ring-indigo-500 outline-none"
         />
         <input
           type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
           placeholder="Email Address"
-          className="w-full border border-slate-300 bg-white
-            rounded-xl px-5 py-3.5 text-slate-900
+          required
+          className="w-full border border-slate-300 rounded-xl
+            px-5 py-3.5 text-slate-900
             focus:ring-2 focus:ring-indigo-500 outline-none"
         />
       </div>
 
       <input
         type="text"
-        placeholder="Subject"
-        className="w-full border border-slate-300 bg-white
-          rounded-xl px-5 py-3.5 mb-6 text-slate-900
+        name="subject"
+        value={formData.subject}
+        onChange={handleChange}
+        placeholder="Subject (optional)"
+        className="w-full border border-slate-300 rounded-xl
+          px-5 py-3.5 mb-6 text-slate-900
           focus:ring-2 focus:ring-indigo-500 outline-none"
       />
 
       <textarea
         rows="5"
-        placeholder="Describe your request or question..."
-        className="w-full border border-slate-300 bg-white
-          rounded-xl px-5 py-4 mb-10 text-slate-900
+        name="message"
+        value={formData.message}
+        onChange={handleChange}
+        required
+        placeholder="Describe your requirement, goal, or question..."
+        className="w-full border border-slate-300 rounded-xl
+          px-5 py-4 mb-10 text-slate-900
           focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
       />
 
       {/* Submit */}
       <button
         type="submit"
-        className="group relative overflow-hidden w-full
-          bg-linear-to-r from-indigo-600 to-purple-600
-          text-white py-4 rounded-xl
-          font-bold text-lg
-          shadow-[0_25px_60px_rgba(99,102,241,0.55)]
-          hover:scale-[1.03] transition"
+        disabled={loading}
+        className="w-full bg-gradient-to-r from-indigo-600 to-purple-600
+          text-slate-100 py-4 rounded-xl font-bold text-lg
+          shadow-[0_20px_50px_rgba(99,102,241,0.45)]
+          hover:scale-[1.02] transition
+          disabled:opacity-60"
       >
-        <span className="relative z-10 flex items-center justify-center gap-2">
-          🚀 Send Message
-        </span>
-        <span className="absolute inset-0 bg-linear-to-r
-          from-purple-600 to-indigo-600
-          opacity-0 group-hover:opacity-30 transition" />
+        {loading ? "Sending…" : "🚀 Send Message"}
       </button>
 
       {/* SLA */}
       <p className="text-center text-slate-600 text-sm mt-8">
         Average response time:
-        <span className="font-semibold text-slate-800"> within 24 hours</span>
+        <span className="font-semibold text-slate-800"> within 24 business hours</span>
       </p>
     </motion.form>
-
   </div>
 </section>
 
-      {/* ================= MAP SECTION ================= */}
-      <section className="py-28 bg-white">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold mb-10 text-slate-900">
-            Visit Our Office
-          </h2>
+{/* ================= WHY TRUST US ================= */}
+<section className="relative py-40 bg-white overflow-hidden">
+  {/* Ambient background */}
+  <div className="absolute -top-48 -left-48 w-[520px] h-[520px]
+    bg-emerald-200/25 blur-[220px] rounded-full" />
+  <div className="absolute -bottom-48 -right-48 w-[520px] h-[520px]
+    bg-indigo-200/25 blur-[220px] rounded-full" />
 
-          <div className="rounded-3xl overflow-hidden shadow-2xl border">
-            <iframe
-              title="Office Location"
-              className="w-full h-[420px]"
-              loading="lazy"
-              src="https://www.google.com/maps?q=Bangalore,India&output=embed"
-            ></iframe>
-          </div>
-        </div>
-      </section>
+  <div className="relative max-w-6xl mx-auto px-6 text-center">
 
-      {/* ================= FINAL CONTACT CTA ================= */}
-{/* ================= FINAL CTA — ENTERPRISE ULTRA PREMIUM ================= */}
-<section className="relative py-40 px-6 overflow-hidden
-  bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white">
-
-  {/* Ambient Glow */}
-  <div className="absolute inset-0 -z-10">
-    <div className="absolute -top-40 -left-40 w-[520px] h-[520px]
-      bg-white/20 blur-[180px] rounded-full" />
-    <div className="absolute -bottom-40 -right-40 w-[520px] h-[520px]
-      bg-white/20 blur-[180px] rounded-full" />
-  </div>
-
-  <div className="max-w-4xl mx-auto text-center relative z-10">
-
-    {/* Badge */}
-    <span className="inline-flex items-center gap-2 mb-8 px-8 py-2.5
-      rounded-full bg-white/15 backdrop-blur-xl
-      border border-white/25 text-sm font-semibold shadow">
-      🚀 Let’s Get Started
+    {/* ================= HEADER ================= */}
+    <span className="inline-flex items-center gap-2 px-9 py-2.5 rounded-full
+      bg-emerald-100/80 text-emerald-700
+      text-sm font-semibold tracking-wide shadow-sm mb-8">
+      🛡️ Trust & Reliability
     </span>
 
-    {/* Headline */}
-    <h2 className="text-[3.6rem] md:text-[4.2rem] font-black mb-6 leading-tight">
-      Let’s Build Something
-      <span className="block bg-gradient-to-r from-white via-indigo-100 to-purple-100 bg-clip-text text-transparent">
-        Meaningful Together
-      </span>
+    <h2 className="text-[3.2rem] font-black text-slate-900 mb-6 leading-tight">
+      Why People Trust JobPortal
     </h2>
 
-    {/* Description */}
-    <p className="text-lg md:text-xl text-indigo-100 mb-14 leading-relaxed max-w-3xl mx-auto">
-      Whether you’re advancing your career, hiring high-impact talent,
-      or exploring strategic partnerships — our team is ready to collaborate
-      with clarity, speed, and purpose.
+    <p className="text-slate-600 text-lg max-w-3xl mx-auto leading-relaxed mb-24">
+      Trust isn’t built through promises — it’s built through consistency,
+      accountability, and how you’re treated when you ask for help.
+      That’s what we focus on every day.
     </p>
 
-    {/* CTA Buttons */}
-    <div className="flex flex-wrap justify-center gap-8">
-      <a
-        href="#contact-form"
-        className="inline-flex items-center gap-3
-          bg-white text-indigo-700 px-16 py-4 rounded-full
-          font-bold text-lg
-          shadow-[0_25px_70px_rgba(255,255,255,0.45)]
-          hover:scale-105 active:scale-95 transition"
-      >
-        🚀 Contact Our Team
-      </a>
+    {/* ================= TRUST PILLARS ================= */}
+    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-12">
+      {[
+        {
+          title: "Human-Led Support",
+          desc:
+            "Every inquiry is handled by trained professionals — never automated bots — ensuring thoughtful, contextual responses.",
+          accent: "emerald",
+        },
+        {
+          title: "Clear & Transparent Communication",
+          desc:
+            "We provide honest answers, realistic timelines, and clear next steps — no vague replies or hidden processes.",
+          accent: "indigo",
+        },
+        {
+          title: "Secure & Confidential",
+          desc:
+            "Your information is handled with strict confidentiality and protected using industry-standard security practices.",
+          accent: "purple",
+        },
+        {
+          title: "Enterprise-Ready Systems",
+          desc:
+            "Built to support individuals, teams, and large organizations with scalable, reliable, and compliant systems.",
+          accent: "sky",
+        },
+      ].map((item) => (
+        <div
+          key={item.title}
+          className="group relative rounded-3xl p-[1px]
+            bg-gradient-to-br from-emerald-400/25 via-indigo-400/20 to-purple-400/25"
+        >
+          <div
+            className="h-full rounded-3xl p-8
+              bg-white/90 backdrop-blur-xl
+              border border-slate-200
+              shadow-[0_18px_50px_rgba(0,0,0,0.12)]
+              transition group-hover:-translate-y-2"
+          >
+            <h4 className="font-extrabold text-lg text-slate-900 mb-3">
+              {item.title}
+            </h4>
 
-      <a
-        href="/careers"
-        className="inline-flex items-center gap-3
-          border border-white/40 px-16 py-4 rounded-full
-          font-semibold text-lg
-          backdrop-blur-xl hover:bg-white/10 transition"
-      >
-        Explore Careers
-      </a>
+            <p className="text-slate-600 text-sm leading-relaxed">
+              {item.desc}
+            </p>
+          </div>
+        </div>
+      ))}
     </div>
 
-    {/* Trust Footer */}
-    <p className="mt-12 text-sm text-indigo-100">
-      ✔ Human-led support &nbsp;•&nbsp; ✔ Enterprise-ready &nbsp;•&nbsp; ✔ Response within 24 hours
+    {/* ================= FOOT NOTE ================= */}
+    <p className="mt-24 text-sm text-slate-500 max-w-3xl mx-auto">
+      Our commitment is simple: treat every message with care, protect your
+      information, and deliver responses you can rely on — every time.
     </p>
 
   </div>
 </section>
 
 
-      {/* ================= FOOTER ================= */}
+
       <Footer />
     </div>
   );
