@@ -28,7 +28,7 @@ const app = express();
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-/* -------------------- CORS (RAILWAY SAFE) -------------------- */
+/* -------------------- CORS (FIXED & STABLE) -------------------- */
 const allowedOrigins = [
   "http://localhost:5173",
   "https://job-portal-frontend.vercel.app",
@@ -37,30 +37,32 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow Postman, server-to-server, Railway probes
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      // ❗ DO NOT block silently — respond safely
-      logger.warn(`🚫 CORS blocked: ${origin}`);
-      return callback(null, true); // allow but logged
-    },
+    origin: allowedOrigins,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    optionsSuccessStatus: 204,
   })
 );
 
-// ✅ Handle preflight requests explicitly
-app.options("*", cors());
+/* 🔥 HARD FIX: Preflight handler */
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    res.header("Access-Control-Allow-Origin", req.headers.origin);
+    res.header(
+      "Access-Control-Allow-Methods",
+      "GET,POST,PUT,DELETE,OPTIONS"
+    );
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization"
+    );
+    res.header("Access-Control-Allow-Credentials", "true");
+    return res.sendStatus(204);
+  }
+  next();
+});
 
-
-logger.info("✅ Middlewares initialized");
+logger.info("✅ CORS & middlewares initialized");
 
 /* -------------------- API ROUTES -------------------- */
 app.use("/api/auth", authRoutes);
@@ -73,8 +75,6 @@ app.use("/api/mock-interview", mockInterviewRoutes);
 app.use("/api/roadmap", roadmapRoutes);
 app.use("/api/admin/settings", settingsRoutes);
 app.use("/api/admin/logs", logsRoutes);
-
-logger.info("✅ All routes loaded");
 
 /* -------------------- HEALTH CHECK -------------------- */
 app.get("/health", (req, res) => {
