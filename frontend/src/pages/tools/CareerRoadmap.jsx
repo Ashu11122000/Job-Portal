@@ -1,1178 +1,1071 @@
 // src/pages/tools/CareerRoadmap.jsx
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 import {
-  FiTarget,
-  FiTrendingUp,
-  FiBookOpen,
-  FiFlag,
-  FiUsers,
   FiAward,
-  FiArrowRight,
+  FiTrendingUp,
   FiCheckCircle,
+  FiRefreshCw,
+  FiBookOpen,
 } from "react-icons/fi";
 import Footer from "../../components/layout/Footer";
 
 /* ---------------------------------------
-   SAMPLE ROADMAP DATA
+   ROADMAP API
 --------------------------------------- */
-const sampleRoadmap = [
-  {
-    phase: "Phase 1 — Foundation (0–3 months)",
-    items: [
-      "Master DSA basics & problem-solving",
-      "Strengthen HTML, CSS, JS fundamentals",
-      "Build 2–3 polished frontend mini projects",
-    ],
-  },
-  {
-    phase: "Phase 2 — Stack & Projects (3–6 months)",
-    items: [
-      "Deep dive into React ecosystem",
-      "Learn backend (Node or Spring Boot)",
-      "Build and deploy 1 full-stack project",
-    ],
-  },
-  {
-    phase: "Phase 3 — Systems & Scale (6–12 months)",
-    items: [
-      "Learn system design fundamentals",
-      "Contribute to open-source",
-      "Start applying to high-growth companies",
-    ],
-  },
-];
-
-/* ---------------------------------------
-   SKILLS PER ROLE
---------------------------------------- */
-const skillsByRole = {
-  "Full Stack Developer": [
-    { name: "React", icon: <FiUsers /> },
-    { name: "Spring Boot / Node", icon: <FiAward /> },
-    { name: "REST API Design", icon: <FiAward /> },
-    { name: "SQL & NoSQL", icon: <FiAward /> },
-  ],
-  "Frontend Developer": [
-    { name: "React", icon: <FiUsers /> },
-    { name: "TypeScript", icon: <FiAward /> },
-    { name: "Tailwind CSS", icon: <FiAward /> },
-    { name: "Accessibility", icon: <FiAward /> },
-  ],
-};
-
-/* ---------------------------------------
-   PROJECT CARDS
---------------------------------------- */
-const sampleProjects = [
-  {
-    id: 1,
-    title: "Job Portal — Full Stack Case Study",
-    tags: ["React", "Spring Boot", "MySQL", "Docker"],
-    blurb:
-      "End-to-end platform with authentication, job search, and recruiter dashboards.",
-    image:
-      "https://images.unsplash.com/photo-1547658719-da2b51169166?w=1400&q=80",
-  },
-  {
-    id: 2,
-    title: "Team Dashboard (Realtime)",
-    tags: ["React", "WebSocket", "Realtime", "Charts"],
-    blurb:
-      "Realtime task management with drag-drop, activity feed, and team analytics.",
-    image:
-      "https://images.unsplash.com/photo-1556157382-97eda2d62296?w=1400&q=80",
-  },
-  {
-    id: 3,
-    title: "Cloud Cost Analyzer",
-    tags: ["AWS", "Lambda", "Python"],
-    blurb:
-      "Automated cloud cost analyzer predicting spend patterns using ML-driven insights.",
-    image:
-      "https://images.unsplash.com/photo-1526378725892-6b8f8a2d5b98?w=1400&q=80",
-  },
-];
-
-/* ---------------------------------------
-   SALARY PROJECTIONS
---------------------------------------- */
-const salaryProjectionSamples = [
-  { role: "Frontend Developer", base: 6, high: 15, growthPct: 32 },
-  { role: "Backend Developer", base: 8, high: 22, growthPct: 28 },
-  { role: "Full Stack Developer", base: 10, high: 26, growthPct: 35 },
-];
-
-/* ---------------------------------------
-   SPARKLINE FOR SALARY CARD
---------------------------------------- */
-function MoneySpark() {
-  return (
-    <svg width="220" height="70" className="overflow-visible">
-      <defs>
-        {/* Neon premium gradient */}
-        <linearGradient id="salary-line" x1="0" x2="1">
-          <stop offset="0%" stopColor="#a78bfa" /> {/* Soft Purple */}
-          <stop offset="50%" stopColor="#818cf8" /> {/* Indigo */}
-          <stop offset="100%" stopColor="#6366f1" /> {/* Deep Indigo */}
-        </linearGradient>
-
-        {/* Soft shadow beneath line */}
-        <filter id="line-shadow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow
-            dx="0"
-            dy="6"
-            stdDeviation="6"
-            floodColor="#6366f1"
-            floodOpacity="0.25"
-          />
-        </filter>
-
-        {/* Glow effect */}
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="6" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-
-        {/* Vertical fade mask for realism */}
-        <linearGradient id="fade-mask" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="white" stopOpacity="1" />
-          <stop offset="100%" stopColor="white" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-
-      {/* Subtle baseline */}
-      <line
-        x1="0"
-        y1="50"
-        x2="220"
-        y2="50"
-        stroke="#e5e7eb"
-        strokeWidth="2"
-        opacity="0.4"
-      />
-
-      {/* Glow under the curve */}
-      <polyline
-        points="0,40 40,42 80,35 120,38 160,28 200,25"
-        fill="none"
-        stroke="url(#salary-line)"
-        strokeWidth="8"
-        strokeLinecap="round"
-        opacity="0.15"
-        filter="url(#glow)"
-      />
-
-      {/* Main chart line with shadow */}
-      <polyline
-        points="0,40 40,42 80,35 120,38 160,28 200,25"
-        fill="none"
-        stroke="url(#salary-line)"
-        strokeWidth="4"
-        strokeLinecap="round"
-        filter="url(#line-shadow)"
-      />
-
-      {/* A small highlight dot at the end (premium detail) */}
-      <circle
-        cx="200"
-        cy="25"
-        r="4.5"
-        fill="white"
-        stroke="#6366f1"
-        strokeWidth="3"
-        filter="url(#glow)"
-      />
-    </svg>
-  );
-}
-
-/* ---------------------------------------
-   HERO SECTION
---------------------------------------- */
-function Hero() {
-  return (
-    <section className="relative w-full pt-40 pb-32 overflow-hidden">
-      {/* ==== CINEMATIC AURORA BACKGROUND ==== */}
-      {/* Layer 1 - Wide Glow */}
-      <motion.div
-        animate={{ x: [0, 120, 0], y: [0, -80, 0] }}
-        transition={{ repeat: Infinity, duration: 28, ease: "easeInOut" }}
-        className="absolute -top-[420px] -left-[420px] w-[900px] h-[900px]
-                   bg-gradient-to-br from-purple-400/30 to-indigo-400/20 
-                   blur-[220px] rounded-full"
-      />
-
-      {/* Layer 2 - Opposite Glow */}
-      <motion.div
-        animate={{ x: [0, -120, 0], y: [0, 80, 0] }}
-        transition={{ repeat: Infinity, duration: 32, ease: "easeInOut" }}
-        className="absolute -bottom-[420px] -right-[420px] w-[900px] h-[900px]
-                   bg-gradient-to-br from-indigo-400/30 to-purple-400/20 
-                   blur-[240px] rounded-full"
-      />
-
-      {/* Floating particles */}
-      <motion.div
-        animate={{ opacity: [0.4, 0.8, 0.4], y: [-20, 20, -20] }}
-        transition={{ repeat: Infinity, duration: 10 }}
-        className="absolute top-1/3 left-1/4 w-4 h-4 bg-white/40 blur-md rounded-full"
-      />
-      <motion.div
-        animate={{ opacity: [0.3, 0.6, 0.3], y: [10, -10, 10] }}
-        transition={{ repeat: Infinity, duration: 12 }}
-        className="absolute top-2/3 right-1/3 w-5 h-5 bg-purple-300/40 blur-md rounded-full"
-      />
-
-      {/* ==== CONTENT WRAPPER ==== */}
-      <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
-        {/* Premium Badge */}
-        <motion.span
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="
-            inline-flex items-center gap-2 px-8 py-3 
-            bg-white/20 backdrop-blur-2xl 
-            text-black font-semibold 
-            rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.25)]
-            border border-white/30
-          "
-        >
-          <span className="text-lg">🎯</span> Guided Career Navigation
-        </motion.span>
-
-        {/* Title with cinematic spotlight */}
-        <motion.h1
-          initial={{ opacity: 0, y: 25 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="
-            mt-8 text-5xl md:text-6xl font-extrabold 
-            bg-gradient-to-r from-indigo-700 via-blue-600 to-purple-600 
-            bg-clip-text text-transparent
-            drop-shadow-[0_8px_25px_rgba(0,0,0,0.2)]
-            tracking-tight
-          "
-        >
-          Career Roadmap Planner
-        </motion.h1>
-
-        {/* Glow spotlight behind text */}
-        <div
-          className="
-          absolute left-1/2 top-[210px] -translate-x-1/2 
-          w-[420px] h-[420px] 
-          bg-gradient-to-t from-indigo-300/20 to-transparent 
-          blur-[180px]
-        "
-        />
-
-        {/* Subtitle */}
-        <motion.p
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.2 }}
-          className="
-            mt-6 max-w-2xl mx-auto 
-            text-slate-700 text-lg leading-relaxed 
-            drop-shadow-[0_2px_8px_rgba(0,0,0,0.15)]
-          "
-        >
-          A milestone-based, AI-guided roadmap designed to take you from your
-          current role to your dream tech career — with clarity, structure, and
-          confidence.
-        </motion.p>
-
-        {/* CTA Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.35 }}
-          className="mt-10"
-        >
-          <a
-            href="#roadmap"
-            className="
-              inline-block px-10 py-4 rounded-full 
-              bg-gradient-to-r from-indigo-600 to-purple-600 
-              text-white font-semibold 
-              shadow-[0_12px_40px_rgba(99,102,241,0.35)]
-              hover:shadow-[0_18px_55px_rgba(99,102,241,0.55)]
-              hover:scale-[1.04]
-              transition-all duration-300
-            "
-          >
-            Start Your Roadmap
-          </a>
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------------------------------------
-   INPUT PANEL
---------------------------------------- */
-function InputPanel({
-  currentRole,
-  setCurrentRole,
-  targetRole,
-  setTargetRole,
-}) {
-  return (
-    <div
-      className="
-        relative
-        bg-white/95 backdrop-blur-2xl
-        border border-slate-200
-        rounded-3xl
-        p-10
-        shadow-[0_28px_80px_rgba(0,0,0,0.08)]
-        hover:shadow-[0_32px_90px_rgba(0,0,0,0.12)]
-        transition-all
-      "
-    >
-      {/* Decorative soft glow behind container */}
-      <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-indigo-100/40 to-purple-100/40 blur-2xl -z-10"></div>
-
-      {/* Heading */}
-      <h3 className="text-2xl font-extrabold mb-4 flex items-center gap-3 text-slate-900">
-        <FiTarget className="text-indigo-600 text-2xl" /> Customize Your Roadmap
-      </h3>
-
-      {/* Subtle underline for premium look */}
-      <div className="h-[3px] w-28 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full mb-8 opacity-80 shadow-[0_0_12px_rgba(99,102,241,0.4)]"></div>
-
-      {/* ==== Current Role ==== */}
-      <label className="font-semibold text-sm text-slate-800">
-        Current Role
-      </label>
-
-      <div
-        className="
-          mt-2 mb-6
-          bg-white
-          border border-slate-300
-          rounded-2xl
-          shadow-[0_4px_15px_rgba(0,0,0,0.04)]
-          hover:shadow-[0_6px_20px_rgba(0,0,0,0.06)]
-          transition-all
-        "
-      >
-        <select
-          className="
-            w-full p-3 
-            bg-transparent
-            rounded-2xl
-            focus:outline-none 
-            text-slate-900 font-medium
-          "
-          value={currentRole}
-          onChange={(e) => setCurrentRole(e.target.value)}
-        >
-          <option>Fresher / Student</option>
-          <option>Frontend Developer</option>
-          <option>Backend Developer</option>
-          <option>Full Stack Developer</option>
-        </select>
-      </div>
-
-      {/* ==== Target Role ==== */}
-      <label className="font-semibold text-sm text-slate-800">
-        Target Role
-      </label>
-
-      <div
-        className="
-          mt-2
-          bg-white
-          border border-slate-300
-          rounded-2xl
-          shadow-[0_4px_15px_rgba(0,0,0,0.04)]
-          hover:shadow-[0_6px_20px_rgba(0,0,0,0.06)]
-          transition-all
-        "
-      >
-        <select
-          className="
-            w-full p-3 
-            bg-transparent
-            rounded-2xl
-            focus:outline-none
-            text-slate-900 font-medium
-          "
-          value={targetRole}
-          onChange={(e) => setTargetRole(e.target.value)}
-        >
-          <option>Full Stack Developer</option>
-          <option>Senior Frontend Engineer</option>
-          <option>Java Backend Engineer</option>
-          <option>Cloud / DevOps Engineer</option>
-        </select>
-      </div>
-
-      {/* Small info note */}
-      <p className="mt-6 text-sm text-slate-600 flex items-center gap-2">
-        <FiBookOpen className="text-indigo-500" />
-        Roadmap suggestions are automatically tailored based on your input.
-      </p>
-    </div>
-  );
-}
+import {
+  generateRoadmap,
+  getSkills,
+  getProjects,
+  getSalary,
+} from "../../api/roadmapApi";
 
 /* ---------------------------------------
    ROADMAP TIMELINE
 --------------------------------------- */
 function RoadmapTimeline({ roadmap }) {
+  const [openIndex, setOpenIndex] = useState(null);
+
   return (
-    <div className="relative space-y-14">
-      {/* Timeline Vertical Line */}
-      <div className="absolute left-5 top-0 h-full w-[4px] bg-gradient-to-b from-indigo-400 via-purple-400 to-transparent rounded-full opacity-60" />
+    <section className="mt-28 relative">
+      {/* Header */}
+      <div className="mb-16">
+        <h2 className="text-4xl font-extrabold tracking-tight text-slate-900">
+          Career Roadmap
+        </h2>
+        <p className="mt-3 max-w-3xl text-slate-600">
+          A structured, phase-by-phase execution plan showing what to learn,
+          why it matters, and how it moves you closer to your target role.
+        </p>
+      </div>
 
-      {roadmap.map((phase, idx) => (
-        <motion.div
-          key={idx}
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: idx * 0.15 }}
-          viewport={{ once: true }}
-          className="
-            relative ml-12
-            bg-white/90 backdrop-blur-2xl 
-            border border-slate-200/60 
-            rounded-3xl p-10 
-            shadow-[0_25px_80px_rgba(0,0,0,0.06)]
-            hover:shadow-[0_30px_90px_rgba(0,0,0,0.1)]
-            transition-all transform-gpu
-            hover:-translate-y-1
-          "
-        >
-          {/* Timeline Bullet */}
-          <div className="absolute -left-7 top-8">
-            <motion.div
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ repeat: Infinity, duration: 2 }}
+      {/* Timeline */}
+      <div className="relative pl-14 space-y-10">
+        {/* Vertical Line */}
+        <div className="absolute left-5 top-0 h-full w-[3px] bg-gradient-to-b from-indigo-400 via-purple-400 to-indigo-200 rounded-full opacity-50" />
+
+        {roadmap.map((phase, idx) => {
+          const isOpen = openIndex === idx;
+
+          // Derived metadata (no backend changes needed)
+          const estimatedWeeks = Math.max(2, phase.items.length);
+          const effort =
+            phase.items.length <= 3
+              ? "Light"
+              : phase.items.length <= 5
+              ? "Moderate"
+              : "Intensive";
+
+          return (
+            <div
+              key={idx}
+              onClick={() => setOpenIndex(isOpen ? null : idx)}
               className="
-                w-6 h-6 
-                rounded-full 
-                bg-gradient-to-br from-indigo-600 to-purple-600
-                shadow-[0_0_15px_rgba(99,102,241,0.7)]
+                relative cursor-pointer
+                rounded-3xl p-9
+                bg-white/90 backdrop-blur-xl
+                border border-slate-200
+                shadow-[0_20px_60px_rgba(0,0,0,0.08)]
+                transition-all duration-300
+                hover:-translate-y-1
+                hover:shadow-[0_30px_90px_rgba(0,0,0,0.14)]
               "
-            />
-          </div>
+            >
+              {/* Timeline Dot */}
+              <div className="absolute -left-[52px] top-9">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 shadow-[0_0_0_7px_rgba(99,102,241,0.18)]" />
+              </div>
 
-          {/* Phase Title */}
-          <div className="mb-6">
-            <h4 className="text-2xl font-extrabold text-slate-900 flex items-center gap-3">
-              <FiFlag className="text-indigo-600 text-2xl" />
-              {phase.phase}
-            </h4>
+              {/* Header */}
+              <div className="flex justify-between items-start gap-6">
+                <div>
+                  <span className="inline-block text-xs font-bold uppercase tracking-wide text-indigo-600">
+                    Phase {idx + 1}
+                  </span>
 
-            {/* underline accent */}
-            <div className="h-[3px] w-24 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full mt-2 opacity-80 shadow-[0_0_10px_rgba(99,102,241,0.4)]" />
-          </div>
+                  <h3 className="mt-1 text-2xl font-extrabold text-slate-900 leading-snug">
+                    {phase.phase}
+                  </h3>
 
-          {/* Bullet List */}
-          <ul className="space-y-3 text-slate-700 text-[15px] leading-relaxed">
-            {phase.items.map((item, i) => (
-              <li
-                key={i}
-                className="
-                  flex items-start gap-3 
-                  hover:translate-x-1 transition-all
-                "
+                  {/* Meta Row */}
+                  <div className="mt-3 flex flex-wrap gap-3 text-xs">
+                    <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 font-semibold">
+                      ⏱ {estimatedWeeks}–{estimatedWeeks + 1} weeks
+                    </span>
+
+                    <span className="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 font-semibold">
+                      📚 {phase.items.length} learning goals
+                    </span>
+
+                    <span
+                      className={`px-3 py-1 rounded-full font-semibold
+                        ${
+                          effort === "Light"
+                            ? "bg-emerald-100 text-emerald-700"
+                            : effort === "Moderate"
+                            ? "bg-amber-100 text-amber-700"
+                            : "bg-rose-100 text-rose-700"
+                        }`}
+                    >
+                      🔥 {effort} effort
+                    </span>
+                  </div>
+                </div>
+
+                {/* Expand Indicator */}
+                <span
+                  className={`mt-1 text-sm font-semibold transition-colors ${
+                    isOpen ? "text-indigo-600" : "text-slate-400"
+                  }`}
+                >
+                  {isOpen ? "Hide details" : "View details"}
+                </span>
+              </div>
+
+              {/* Divider */}
+              <div className="mt-7 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+
+              {/* Expandable Content */}
+              <div
+                className={`overflow-hidden transition-all duration-300 ${
+                  isOpen
+                    ? "max-h-[700px] opacity-100 mt-7"
+                    : "max-h-0 opacity-0"
+                }`}
               >
-                <span className="text-indigo-600 text-lg mt-0.5">•</span>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
+                {/* Learning Items */}
+                <ul className="space-y-4">
+                  {phase.items.map((item, i) => (
+                    <li
+                      key={i}
+                      className="flex items-start gap-4 text-slate-700"
+                    >
+                      <span className="mt-2 w-2.5 h-2.5 rounded-full bg-indigo-500 flex-shrink-0" />
+                      <span className="leading-relaxed">{item}</span>
+                    </li>
+                  ))}
+                </ul>
 
-          {/* Soft bottom glow */}
-          <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-b from-transparent to-indigo-50/40 rounded-b-3xl pointer-events-none" />
-        </motion.div>
-      ))}
-    </div>
+                {/* Outcome Box */}
+                <div className="mt-8 bg-slate-50 border border-slate-200 rounded-2xl p-5">
+                  <p className="text-sm font-semibold text-slate-800 mb-1">
+                    🎯 Expected Outcome
+                  </p>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    After completing this phase, you should be confident with
+                    the listed concepts and able to apply them in real-world
+                    scenarios or projects relevant to your target role.
+                  </p>
+                </div>
+
+                {/* Tip */}
+                <div className="mt-4 text-xs text-slate-500">
+                  Tip: Focus on mastery, not speed. Consistent daily progress
+                  beats cramming.
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
 /* ---------------------------------------
    SKILLS SECTION
 --------------------------------------- */
-function SkillsSection({ role }) {
-  const skills = skillsByRole[role] || skillsByRole["Full Stack Developer"];
+function SkillsSection({ skills, completed, setCompleted }) {
+  function toggle(skill) {
+    setCompleted((prev) =>
+      prev.includes(skill)
+        ? prev.filter((s) => s !== skill)
+        : [...prev, skill]
+    );
+  }
 
-  // Additional metadata for skill cards
-  const skillDetails = {
+  const progress =
+    skills.length > 0
+      ? Math.round((completed.length / skills.length) * 100)
+      : 0;
+
+  // Lightweight intelligence (can later come from backend)
+  const meta = {
     React: {
-      desc: "Core UI library for building component-driven interfaces.",
-      category: "Frontend",
-      difficulty: "Intermediate",
-    },
-    "Spring Boot / Node": {
-      desc: "Backend framework for REST APIs, microservices & business logic.",
-      category: "Backend",
-      difficulty: "Intermediate",
-    },
-    "REST API Design": {
-      desc: "Structuring scalable & secure APIs for modern apps.",
-      category: "Architecture",
-      difficulty: "Easy",
-    },
-    "SQL & NoSQL": {
-      desc: "Databases for storing, querying & managing application data.",
-      category: "Databases",
-      difficulty: "Intermediate",
+      category: "Core Skill",
+      time: "3–4 weeks",
+      impact: "Used in 80%+ frontend roles",
     },
     TypeScript: {
-      desc: "Strong typing for clean, error-free JavaScript at scale.",
-      category: "Frontend",
-      difficulty: "Intermediate",
+      category: "Core Skill",
+      time: "2–3 weeks",
+      impact: "Reduces bugs & improves scalability",
     },
     "Tailwind CSS": {
-      desc: "Utility-first CSS framework for rapid modern UI styling.",
-      category: "Design",
-      difficulty: "Easy",
+      category: "UI Skill",
+      time: "1–2 weeks",
+      impact: "Speeds up UI development",
     },
     Accessibility: {
-      desc: "Building inclusive interfaces for all users.",
-      category: "Frontend",
-      difficulty: "Easy",
+      category: "Advanced Skill",
+      time: "1 week",
+      impact: "Required for enterprise-grade apps",
     },
   };
 
   return (
-    <section className="relative mt-28">
-      {/* Background Aurora */}
-      <motion.div
-        animate={{ opacity: [0.4, 0.7, 0.4], scale: [1, 1.05, 1] }}
-        transition={{ duration: 8, repeat: Infinity }}
-        className="absolute -top-20 left-0 w-[480px] h-[480px] bg-indigo-300/25 blur-[150px] rounded-full"
-      />
-      <motion.div
-        animate={{ opacity: [0.3, 0.6, 0.3], scale: [1.05, 1, 1.05] }}
-        transition={{ duration: 9, repeat: Infinity }}
-        className="absolute -bottom-20 right-0 w-[480px] h-[480px] bg-purple-300/25 blur-[170px] rounded-full"
-      />
-
-      <div
-        className="
-          relative z-10
-          bg-white/90 backdrop-blur-2xl 
-          border border-slate-200/70 
-          rounded-3xl p-12 
-          shadow-[0_35px_90px_rgba(0,0,0,0.08)]
-        "
-      >
-        {/* Header */}
-        <h2 className="text-3xl font-extrabold flex items-center gap-3 mb-4 text-slate-900">
-          <FiAward className="text-indigo-600 text-3xl" />
-          Recommended Skills
+    <section className="mt-28 relative">
+      {/* Header */}
+      <div className="mb-12">
+        <h2 className="text-4xl font-extrabold tracking-tight text-slate-900">
+          Skill Mastery Tracker
         </h2>
+        <p className="mt-3 max-w-3xl text-slate-600">
+          Track your learning progress, understand the impact of each skill,
+          and focus on what matters most for your target role.
+        </p>
+      </div>
 
-        {/* Underline */}
-        <div className="h-[4px] w-40 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full mb-10 shadow-[0_0_12px_rgba(99,102,241,0.5)]"></div>
+      {/* Progress Overview */}
+      <div className="mb-14 bg-white/90 backdrop-blur-xl border border-slate-200 rounded-3xl p-8 shadow-[0_25px_70px_rgba(0,0,0,0.08)]">
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <p className="text-sm font-semibold text-slate-700">
+              Overall Skill Completion
+            </p>
+            <p className="text-xs text-slate-500">
+              Based on skills you’ve marked as completed
+            </p>
+          </div>
+          <div className="text-3xl font-extrabold text-indigo-600">
+            {progress}%
+          </div>
+        </div>
 
-        {/* Skills Grid */}
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-12">
-          {skills.map((skill, i) => {
-            const info = skillDetails[skill.name] || {};
-
-            return (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 25 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.12, duration: 0.6 }}
-                whileHover={{
-                  y: -10,
-                  scale: 1.04,
-                  rotateX: 4,
-                  rotateY: -4,
-                }}
-                className="
-                  relative bg-white rounded-2xl p-7
-                  border border-slate-200
-                  shadow-[0_12px_30px_rgba(0,0,0,0.06)]
-                  hover:shadow-[0_22px_60px_rgba(0,0,0,0.12)]
-                  transition-all transform-gpu cursor-pointer
-                "
-              >
-                {/* Glow halo */}
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-200/40 to-purple-200/40 blur-xl rounded-2xl opacity-0 group-hover:opacity-100 transition-all" />
-
-                {/* Icon */}
-                <motion.div
-                  animate={{ rotate: [0, 3, -3, 0] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                  className="
-                    relative z-10 w-16 h-16 mx-auto 
-                    rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600
-                    flex items-center justify-center text-white text-3xl
-                    shadow-[0_12px_25px_rgba(99,102,241,0.35)]
-                  "
-                >
-                  {skill.icon}
-                </motion.div>
-
-                {/* Skill Name */}
-                <div className="mt-5 font-bold text-slate-900 text-center text-lg z-10 relative">
-                  {skill.name}
-                </div>
-
-                {/* Category */}
-                <div className="text-xs text-indigo-600 text-center font-semibold mt-1">
-                  {info.category || "Core Skill"}
-                </div>
-
-                {/* Description */}
-                <p className="text-[13px] text-slate-600 mt-3 leading-relaxed text-center px-1">
-                  {info.desc || "Essential skill for modern development roles."}
-                </p>
-
-                {/* Difficulty + Level Progress */}
-                <div className="mt-4">
-                  <div className="flex justify-between text-xs text-slate-500 font-semibold mb-1">
-                    <span>{info.difficulty || "Intermediate"}</span>
-                    <span>75%</span>
-                  </div>
-
-                  <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                    <div className="h-full w-3/4 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full" />
-                  </div>
-                </div>
-
-                {/* Badge */}
-                <span
-                  className="
-                    mt-4 inline-block mx-auto px-4 py-1
-                    bg-indigo-50 text-indigo-700 rounded-full
-                    text-xs font-semibold shadow-sm 
-                    z-10 relative text-center w-full
-                  "
-                >
-                  Why Important: Helps you grow faster 🚀
-                </span>
-              </motion.div>
-            );
-          })}
+        <div className="h-3 bg-slate-200 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 transition-all duration-500"
+            style={{ width: `${progress}%` }}
+          />
         </div>
       </div>
-    </section>
-  );
-}
 
-/* ---------------------------------------
-   PROJECTS SECTION
---------------------------------------- */
-function ProjectsSection() {
-  return (
-    <section className="relative mt-28">
-      {/* Floating Aurora Background */}
-      <motion.div
-        animate={{ opacity: [0.4, 0.7, 0.4], scale: [1, 1.07, 1] }}
-        transition={{ duration: 10, repeat: Infinity }}
-        className="absolute -top-32 right-0 w-[500px] h-[500px] bg-purple-300/30 blur-[160px] rounded-full"
-      />
-      <motion.div
-        animate={{ opacity: [0.3, 0.6, 0.3], scale: [1.05, 1, 1.05] }}
-        transition={{ duration: 12, repeat: Infinity }}
-        className="absolute -bottom-32 left-0 w-[500px] h-[500px] bg-indigo-300/30 blur-[180px] rounded-full"
-      />
+      {/* Skills Grid */}
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
+        {skills.map((skill, idx) => {
+          const done = completed.includes(skill);
+          const info = meta[skill] || {
+            category: "Important Skill",
+            time: "2–3 weeks",
+            impact: "Improves role readiness",
+          };
 
-      <div
-        className="
-          relative z-10
-          bg-white/90 backdrop-blur-2xl 
-          border border-slate-200/70 
-          rounded-3xl p-12 
-          shadow-[0_35px_100px_rgba(0,0,0,0.08)]
-        "
-      >
-        {/* Header */}
-        <h2 className="text-3xl font-extrabold flex items-center gap-3 text-slate-900 mb-3">
-          <FiUsers className="text-indigo-600 text-3xl" />
-          Suggested Projects
-        </h2>
-
-        {/* Underline */}
-        <div className="h-[4px] w-32 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full mb-12 shadow-[0_0_15px_rgba(99,102,241,0.6)]"></div>
-
-        {/* Project Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-12">
-          {sampleProjects.map((p, index) => (
-            <motion.div
-              key={p.id}
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.12, duration: 0.6 }}
-              whileHover={{
-                y: -12,
-                scale: 1.03,
-                rotateX: 4,
-                rotateY: -4,
-              }}
-              className="
-                relative
-                bg-white rounded-3xl overflow-hidden 
-                border border-slate-200/70 
-                shadow-[0_20px_50px_rgba(0,0,0,0.08)]
-                hover:shadow-[0_32px_75px_rgba(0,0,0,0.14)]
-                transition-all transform-gpu cursor-pointer
-              "
-            >
-              {/* Top Image */}
-              <div className="relative overflow-hidden group">
-                <img
-                  src={p.image}
-                  className="h-48 w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-
-                {/* Image Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent opacity-50" />
-              </div>
-
-              <div className="p-7 relative z-10">
-                {/* Project Title */}
-                <h3 className="font-bold text-xl text-slate-900">{p.title}</h3>
-
-                {/* Short Description */}
-                <p className="text-slate-600 text-sm mt-3 leading-relaxed">
-                  {p.blurb}
-                </p>
-
-                {/* Added Information Section */}
-                <div className="mt-5 space-y-3 text-sm text-slate-700">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-indigo-600">
-                      Difficulty
-                    </span>
-                    <span className="text-slate-700">
-                      {index % 3 === 0
-                        ? "Intermediate"
-                        : index % 3 === 1
-                        ? "Advanced"
-                        : "Beginner"}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-indigo-600">
-                      Estimated Time
-                    </span>
-                    <span>
-                      {index % 3 === 0
-                        ? "4–6 weeks"
-                        : index % 3 === 1
-                        ? "6–8 weeks"
-                        : "3–4 weeks"}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-indigo-600">
-                      Output
-                    </span>
-                    <span>Portfolio-ready project</span>
-                  </div>
-                </div>
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2 mt-5">
-                  {p.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                {/* CTA Buttons */}
-                <div className="mt-6 flex justify-between items-center">
-                  <a
-                    href="#"
-                    className="
-                      inline-flex items-center gap-2 
-                      text-indigo-600 font-semibold hover:underline
-                    "
-                  >
-                    View Case <FiArrowRight />
-                  </a>
-
-                  <button
-                    className="
-                      px-4 py-2 rounded-full text-white 
-                      bg-gradient-to-r from-indigo-600 to-purple-600
-                      text-xs font-semibold shadow-md
-                      hover:scale-105 transition
-                    "
-                  >
-                    Start Project
-                  </button>
-                </div>
-              </div>
-
-              {/* Soft Bottom Glow */}
-              <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-b from-transparent to-indigo-50/30"></div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------------------------------------
-   SALARY SECTION
---------------------------------------- */
-function SalarySection() {
-  return (
-    <section className="relative mt-28">
-      {/* Aurora Background Lighting */}
-      <motion.div
-        animate={{ opacity: [0.5, 0.8, 0.5], scale: [1, 1.1, 1] }}
-        transition={{ duration: 12, repeat: Infinity }}
-        className="absolute -top-28 right-0 w-[520px] h-[520px] bg-indigo-300/30 blur-[160px] rounded-full"
-      />
-      <motion.div
-        animate={{ opacity: [0.4, 0.7, 0.4], scale: [1.08, 1, 1.08] }}
-        transition={{ duration: 12, repeat: Infinity }}
-        className="absolute -bottom-28 left-0 w-[520px] h-[520px] bg-purple-300/30 blur-[180px] rounded-full"
-      />
-
-      {/* Main Card */}
-      <div
-        className="
-          relative z-10
-          bg-white/90 backdrop-blur-2xl 
-          border border-slate-200/70 
-          rounded-3xl p-12 
-          shadow-[0_35px_100px_rgba(0,0,0,0.08)]
-        "
-      >
-        {/* Header */}
-        <h2 className="text-3xl font-extrabold flex items-center gap-3 mb-4 text-slate-900">
-          <FiTrendingUp className="text-indigo-600 text-3xl" />
-          Salary Insights
-        </h2>
-
-        {/* Header underline */}
-        <div className="h-[4px] w-40 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full mb-12 shadow-[0_0_15px_rgba(99,102,241,0.6)]"></div>
-
-        {/* Salary Cards */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-12">
-          {salaryProjectionSamples.map((s, index) => (
-            <motion.div
-              key={s.role}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{
-                y: -14,
-                scale: 1.04,
-                rotateX: 4,
-                rotateY: -4,
-              }}
-              className="
-                relative bg-white 
+          return (
+            <div
+              key={skill}
+              onClick={() => toggle(skill)}
+              className={`
+                relative cursor-pointer group
                 rounded-3xl p-7
-                border border-slate-200/70
-                shadow-[0_20px_60px_rgba(0,0,0,0.08)]
-                hover:shadow-[0_30px_80px_rgba(0,0,0,0.12)]
-                transition-all transform-gpu cursor-pointer
-              "
+                border transition-all duration-300
+                ${
+                  done
+                    ? "bg-emerald-50/80 border-emerald-400 shadow-[0_30px_70px_rgba(16,185,129,0.35)]"
+                    : "bg-white/90 border-slate-200 shadow-[0_25px_60px_rgba(0,0,0,0.08)]"
+                }
+                hover:-translate-y-2
+                hover:shadow-[0_40px_90px_rgba(0,0,0,0.14)]
+              `}
             >
-              {/* Glow halo */}
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-200/40 to-purple-200/40 blur-xl rounded-3xl opacity-0 group-hover:opacity-100 transition-all" />
+              {/* Glow */}
+              <div
+                className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition
+                  ${
+                    done
+                      ? "bg-emerald-200/40 blur-2xl"
+                      : "bg-indigo-200/40 blur-2xl"
+                  }`}
+              />
 
-              {/* Title Row */}
-              <div className="flex justify-between items-start mb-3">
-                <div className="font-bold text-slate-900 text-lg">{s.role}</div>
+              {/* Content */}
+              <div className="relative z-10">
+                {/* Icon + Priority */}
+                <div className="flex justify-between items-start mb-5">
+                  <div
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg
+                      ${
+                        done
+                          ? "bg-emerald-500"
+                          : "bg-indigo-500"
+                      }`}
+                  >
+                    <FiAward className="text-2xl text-slate-100" />
+                  </div>
 
-                <div className="text-indigo-600 font-extrabold text-lg">
-                  ₹{s.base}–{s.high} LPA
-                </div>
-              </div>
-
-              {/* Experience Levels */}
-              <div className="flex justify-between text-xs text-slate-500 mb-4">
-                <span>Entry: ₹{s.base - 2 > 0 ? s.base - 2 : s.base} LPA</span>
-                <span>Mid: ₹{Math.round((s.base + s.high) / 2)} LPA</span>
-                <span>Senior: ₹{s.high + 4} LPA</span>
-              </div>
-
-              {/* Premium Sparkline Chart */}
-              <MoneySpark />
-
-              {/* Growth Badge */}
-              <div className="mt-4 inline-flex items-center gap-2 px-4 py-1 rounded-full bg-emerald-100 text-emerald-700 text-sm font-bold shadow">
-                <FiTrendingUp className="animate-pulse" />
-                {s.growthPct}% YoY Growth
-              </div>
-
-              {/* Market Demand Score */}
-              <div className="mt-5">
-                <div className="flex justify-between text-sm text-slate-500 font-semibold mb-1">
-                  <span>Market Demand</span>
-                  <span>
-                    {index % 3 === 0
-                      ? "High"
-                      : index % 3 === 1
-                      ? "Very High"
-                      : "Moderate"}
+                  <span className="text-xs font-bold text-slate-400">
+                    Priority #{idx + 1}
                   </span>
                 </div>
 
-                <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full"
-                    style={{
-                      width:
-                        index % 3 === 0
-                          ? "80%"
-                          : index % 3 === 1
-                          ? "95%"
-                          : "65%",
-                    }}
-                  />
+                {/* Skill Name */}
+                <h3 className="text-lg font-extrabold text-slate-900 mb-1">
+                  {skill}
+                </h3>
+
+                {/* Meta Info */}
+                <div className="mt-2 space-y-1 text-xs text-slate-600">
+                  <p>
+                    <span className="font-semibold text-slate-700">
+                      Category:
+                    </span>{" "}
+                    {info.category}
+                  </p>
+                  <p>
+                    <span className="font-semibold text-slate-700">
+                      Est. Time:
+                    </span>{" "}
+                    {info.time}
+                  </p>
+                  <p className="text-slate-500">{info.impact}</p>
+                </div>
+
+                {/* Status */}
+                <div className="mt-4">
+                  {done ? (
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
+                      ✓ Completed
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">
+                      In Progress
+                    </span>
+                  )}
                 </div>
               </div>
+            </div>
+          );
+        })}
+      </div>
 
-              {/* Hiring Strength */}
-              <div className="mt-5 flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
-                <span className="text-sm text-slate-700 font-medium">
-                  Active Hiring Trend Across India
-                </span>
-              </div>
+      {/* Guidance */}
+      <div className="mt-14 bg-slate-50 border border-slate-200 rounded-2xl p-6">
+        <p className="text-slate-700 font-medium">
+          💡 <span className="font-bold">Pro Tip:</span>{" "}
+          Complete core skills first before moving to advanced ones.
+          This maximizes interview readiness and confidence.
+        </p>
+      </div>
+    </section>
+  );
+}
 
-              {/* Bottom subtle glow */}
-              <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-b from-transparent to-indigo-50/40 rounded-b-3xl"></div>
-            </motion.div>
-          ))}
+
+/* ---------------------------------------
+   ✅ SKILL GAP ANALYSIS (FIX)
+--------------------------------------- */
+function SkillGapAnalysis({ skills, completed }) {
+  const missing = skills.filter((s) => !completed.includes(s));
+  const readiness =
+    skills.length === 0
+      ? 0
+      : Math.round((completed.length / skills.length) * 100);
+
+  const level =
+    readiness < 40
+      ? "High Risk"
+      : readiness < 70
+      ? "Moderate Gap"
+      : readiness < 90
+      ? "Nearly Ready"
+      : "Job Ready";
+
+  const recommendations = {
+    "High Risk":
+      "Focus on fundamentals immediately. Missing core skills will block interviews.",
+    "Moderate Gap":
+      "You’re progressing well. Close the remaining gaps to reach job readiness.",
+    "Nearly Ready":
+      "Polish remaining skills and start mock interviews.",
+    "Job Ready":
+      "Minimal gaps detected. Start applying with confidence.",
+  };
+
+  return (
+    <section className="mt-28 relative">
+      {/* Background glow */}
+      <div className="absolute -top-20 left-0 w-64 h-64 bg-indigo-200/40 blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute -bottom-20 right-0 w-64 h-64 bg-purple-200/40 blur-3xl rounded-full pointer-events-none" />
+
+      <div className="relative bg-white/90 backdrop-blur-xl border border-slate-200 rounded-3xl p-10 shadow-[0_35px_90px_rgba(0,0,0,0.08)]">
+        {/* Header */}
+        <div className="mb-10">
+          <h2 className="text-4xl font-extrabold tracking-tight text-slate-900">
+            Skill Gap Analysis
+          </h2>
+          <p className="mt-3 max-w-2xl text-slate-600">
+            A clear breakdown of what’s holding you back — and exactly how to
+            close the gap between your current skills and job readiness.
+          </p>
         </div>
+
+        {/* Readiness Card */}
+        <div className="mb-10 bg-slate-50 border border-slate-200 rounded-2xl p-6">
+          <div className="flex justify-between items-center mb-3">
+            <div>
+              <p className="text-sm font-semibold text-slate-700">
+                Overall Readiness Score
+              </p>
+              <p className="text-xs text-slate-500">
+                Based on completed vs required skills
+              </p>
+            </div>
+
+            <div className="text-right">
+              <p className="text-2xl font-extrabold text-indigo-600">
+                {readiness}%
+              </p>
+              <p
+                className={`text-xs font-bold ${
+                  readiness < 40
+                    ? "text-red-600"
+                    : readiness < 70
+                    ? "text-amber-600"
+                    : readiness < 90
+                    ? "text-indigo-600"
+                    : "text-emerald-600"
+                }`}
+              >
+                {level}
+              </p>
+            </div>
+          </div>
+
+          <div className="h-3 bg-slate-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 transition-all duration-500"
+              style={{ width: `${readiness}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Missing Skills */}
+        {missing.length === 0 ? (
+          <div className="bg-emerald-50 border border-emerald-300 rounded-2xl p-6">
+            <p className="font-semibold text-emerald-700">
+              🎉 No skill gaps detected
+            </p>
+            <p className="text-sm text-emerald-600 mt-1">
+              You meet the skill expectations for your target role.
+              Focus on interviews and applications.
+            </p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Missing Skills List */}
+            <div>
+              <p className="font-bold text-slate-900 mb-4">
+                Skills You Should Focus On Next
+              </p>
+
+              <ul className="space-y-3">
+                {missing.map((skill, idx) => (
+                  <li
+                    key={skill}
+                    className="flex items-center justify-between bg-slate-100 border border-slate-200 rounded-xl px-4 py-3"
+                  >
+                    <span className="font-semibold text-slate-800">
+                      {skill}
+                    </span>
+
+                    <span className="text-xs font-bold text-slate-500">
+                      Priority #{idx + 1}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Insight Panel */}
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6">
+              <p className="font-bold text-slate-900 mb-2">
+                What This Means
+              </p>
+
+              <p className="text-sm text-slate-700 leading-relaxed">
+                {recommendations[level]}
+              </p>
+
+              <div className="mt-6">
+                <p className="text-xs text-slate-500 mb-2">
+                  Suggested next action
+                </p>
+                <div className="inline-flex items-center px-4 py-2 rounded-full bg-indigo-100 text-indigo-700 text-sm font-semibold">
+                  Complete the next 2 skills to boost readiness by ~20%
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
 }
 
 /* ---------------------------------------
-   NEXT STEPS
+   WEEKLY PLANNER
 --------------------------------------- */
-function NextSteps() {
+function WeeklyPlanner({ roadmap }) {
+  const weeks = roadmap.flatMap((p) => p.items).slice(0, 6);
+
   return (
-    <section className="relative mt-28">
-      {/* Animated Aurora Glow */}
-      <motion.div
-        animate={{ opacity: [0.4, 0.7, 0.4], scale: [1, 1.05, 1] }}
-        transition={{ duration: 9, repeat: Infinity }}
-        className="absolute -top-20 left-0 w-[500px] h-[500px] bg-indigo-400/30 blur-[160px] rounded-full"
-      />
-      <motion.div
-        animate={{ opacity: [0.3, 0.6, 0.3], scale: [1.04, 1, 1.04] }}
-        transition={{ duration: 10, repeat: Infinity }}
-        className="absolute -bottom-20 right-0 w-[500px] h-[500px] bg-purple-400/30 blur-[180px] rounded-full"
-      />
+    <section className="mt-28 relative">
+      {/* Ambient background accents */}
+      <div className="absolute -top-20 -left-20 w-72 h-72 bg-indigo-200/40 blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-purple-200/40 blur-3xl rounded-full pointer-events-none" />
 
-      {/* Main Card */}
-      <div
-        className="
-          relative z-10
-          bg-gradient-to-br from-indigo-700 to-purple-700 
-          text-white rounded-3xl p-14 
-          shadow-[0_35px_100px_rgba(0,0,0,0.25)]
-          overflow-hidden
-        "
-      >
-        {/* Glass Light Overlay */}
-        <div className="absolute inset-0 bg-white/5 backdrop-blur-3xl pointer-events-none"></div>
-
-        {/* Heading */}
-        <h2 className="relative text-4xl font-extrabold mb-4">
-          Next Steps — Your 30-Day Action Plan
-        </h2>
-
-        {/* Subline */}
-        <p className="relative text-white/80 mb-10 text-lg">
-          Follow this guided roadmap to confidently progress toward your target
-          role.
-        </p>
-
-        {/* Checklist Cards */}
-        <div className="relative grid md:grid-cols-2 gap-8 mt-6">
-          {/* Step 1 */}
-          <motion.div
-            whileHover={{ y: -8, scale: 1.02 }}
-            className="
-              bg-white/10 backdrop-blur-xl rounded-2xl p-6 
-              shadow-[0_12px_40px_rgba(255,255,255,0.15)] 
-              transition-all border border-white/20
-            "
-          >
-            <div className="flex gap-4 items-start">
-              <div className="w-10 h-10 rounded-full bg-emerald-400 flex items-center justify-center text-indigo-900 text-xl shadow-md">
-                <FiCheckCircle />
-              </div>
-
-              <div>
-                <h4 className="font-bold text-xl mb-1">Polish Your Resume</h4>
-                <p className="text-white/80 text-sm leading-relaxed">
-                  Highlight achievements, tailor skills, sharpen formatting to
-                  stand out.
-                </p>
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="mt-5">
-              <div className="text-xs font-semibold text-white/70 mb-1">
-                Progress: 40%
-              </div>
-              <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-                <div className="h-full w-[40%] bg-emerald-400 rounded-full"></div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Step 2 */}
-          <motion.div
-            whileHover={{ y: -8, scale: 1.02 }}
-            className="
-              bg-white/10 backdrop-blur-xl rounded-2xl p-6 
-              shadow-[0_12px_40px_rgba(255,255,255,0.15)] 
-              transition-all border border-white/20
-            "
-          >
-            <div className="flex gap-4 items-start">
-              <div className="w-10 h-10 rounded-full bg-yellow-400 flex items-center justify-center text-indigo-900 text-xl shadow-md">
-                ⚡
-              </div>
-
-              <div>
-                <h4 className="font-bold text-xl mb-1">
-                  Build Portfolio Projects
-                </h4>
-                <p className="text-white/80 text-sm leading-relaxed">
-                  Complete at least 2 end-to-end apps showcasing UI, API &
-                  deployment.
-                </p>
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="mt-5">
-              <div className="text-xs font-semibold text-white/70 mb-1">
-                Progress: 20%
-              </div>
-              <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-                <div className="h-full w-[20%] bg-yellow-300 rounded-full"></div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Step 3 */}
-          <motion.div
-            whileHover={{ y: -8, scale: 1.02 }}
-            className="
-              bg-white/10 backdrop-blur-xl rounded-2xl p-6 
-              shadow-[0_12px_40px_rgba(255,255,255,0.15)] 
-              transition-all border border-white/20
-            "
-          >
-            <div className="flex gap-4 items-start">
-              <div className="w-10 h-10 rounded-full bg-blue-400 flex items-center justify-center text-indigo-900 text-xl shadow-md">
-                🧠
-              </div>
-
-              <div>
-                <h4 className="font-bold text-xl mb-1">Master Interviews</h4>
-                <p className="text-white/80 text-sm leading-relaxed">
-                  Practice system design, DSA, and mock interviews weekly.
-                </p>
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="mt-5">
-              <div className="text-xs font-semibold text-white/70 mb-1">
-                Progress: 10%
-              </div>
-              <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-                <div className="h-full w-[10%] bg-blue-300 rounded-full"></div>
-              </div>
-            </div>
-          </motion.div>
+      {/* Container */}
+      <div className="relative bg-white/90 backdrop-blur-2xl border border-slate-200 rounded-3xl p-10 shadow-[0_35px_90px_rgba(0,0,0,0.08)]">
+        {/* Header */}
+        <div className="mb-12">
+          <h2 className="text-4xl font-extrabold tracking-tight text-slate-900">
+            Weekly Learning Planner
+          </h2>
+          <p className="mt-3 max-w-2xl text-slate-600">
+            A focused execution plan that converts your roadmap into
+            achievable weekly goals. Follow this consistently to build
+            momentum and confidence.
+          </p>
         </div>
 
-        {/* CTA Button */}
-        <div className="relative mt-12 text-center">
-          <button
-            className="
-              px-12 py-4 rounded-full
-              bg-white text-indigo-700 font-bold text-lg
-              shadow-xl hover:scale-105 transition
-              hover:shadow-[0_20px_60px_rgba(255,255,255,0.4)]
-            "
-          >
-            Apply to Suggested Roles
-          </button>
+        {/* Timeline */}
+        <div className="relative space-y-8 pl-14">
+          {/* Vertical line */}
+          <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-gradient-to-b from-indigo-300 via-purple-300 to-transparent" />
+
+          {weeks.map((task, i) => (
+            <div key={i} className="relative group">
+              {/* Timeline dot */}
+              <div
+                className="
+                  absolute left-3 top-6 w-6 h-6 rounded-full
+                  bg-gradient-to-br from-indigo-600 to-purple-600
+                  shadow-[0_0_20px_rgba(99,102,241,0.5)]
+                  group-hover:scale-110 transition
+                "
+              />
+
+              {/* Week card */}
+              <div
+                className="
+                  bg-white rounded-2xl p-6
+                  border border-slate-200
+                  shadow-[0_18px_50px_rgba(0,0,0,0.06)]
+                  hover:shadow-[0_28px_80px_rgba(0,0,0,0.12)]
+                  transition-all
+                  hover:-translate-y-1
+                "
+              >
+                {/* Header row */}
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-xs font-bold uppercase tracking-wide text-indigo-600">
+                    Week {i + 1}
+                  </span>
+
+                  <span className="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600 font-semibold">
+                    Learning Focus
+                  </span>
+                </div>
+
+                {/* Task */}
+                <h3 className="text-lg font-bold text-slate-900 leading-snug">
+                  {task}
+                </h3>
+
+                {/* Outcome */}
+                <p className="text-sm text-slate-600 mt-2">
+                  Outcome: You’ll strengthen this concept through practice and
+                  move one step closer to interview readiness.
+                </p>
+
+                {/* Effort + tip */}
+                <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-500">
+                  <span className="flex items-center gap-2">
+                    ⏱ <span>6–8 hrs recommended</span>
+                  </span>
+                  <span className="flex items-center gap-2">
+                    🎯 <span>Hands-on + revision</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer Insight */}
+        <div className="mt-12 bg-slate-50 border border-slate-200 rounded-2xl p-6">
+          <p className="text-slate-700 font-medium">
+            📌 <span className="font-bold">Execution Tip:</span>{" "}
+            Don’t rush. Completing each week fully is far more effective than
+            skimming multiple topics without depth.
+          </p>
         </div>
       </div>
     </section>
   );
 }
+
+
+/* ---------------------------------------
+   INTERVIEW READINESS
+--------------------------------------- */
+function InterviewReadiness({ skills, projects }) {
+  const skillScore = Math.min(100, skills.length * 10);
+  const projectScore = Math.min(100, projects.length * 15);
+  const score = Math.min(100, skillScore + projectScore);
+
+  const level =
+    score < 40
+      ? "Foundational"
+      : score < 70
+      ? "Intermediate"
+      : score < 90
+      ? "Job-Ready"
+      : "Interview-Elite";
+
+  const recommendation =
+    score < 40
+      ? "Build core skills first. Complete 3–4 fundamentals before attempting interviews."
+      : score < 70
+      ? "Add 1–2 strong projects and revise weak areas."
+      : score < 90
+      ? "Start mock interviews and system design basics."
+      : "You’re ready. Apply confidently and network actively.";
+
+  return (
+    <section className="mt-28 relative">
+      {/* Ambient glow */}
+      <div className="absolute -top-24 left-0 w-72 h-72 bg-indigo-200/40 blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute -bottom-24 right-0 w-72 h-72 bg-purple-200/40 blur-3xl rounded-full pointer-events-none" />
+
+      <div className="relative bg-white/90 backdrop-blur-2xl border border-slate-200 rounded-3xl p-10 shadow-[0_35px_90px_rgba(0,0,0,0.08)]">
+        {/* Header */}
+        <div className="mb-10">
+          <h2 className="text-4xl font-extrabold tracking-tight text-slate-900">
+            Interview Readiness
+          </h2>
+          <p className="mt-3 max-w-2xl text-slate-600">
+            A real-world indicator of how prepared you are for technical
+            interviews—based on skill mastery and project depth.
+          </p>
+        </div>
+
+        {/* Main Grid */}
+        <div className="grid md:grid-cols-3 gap-10 items-center">
+          {/* Radial Score */}
+          <div className="flex flex-col items-center">
+            <div className="relative w-44 h-44">
+              <svg className="w-full h-full rotate-[-90deg]">
+                <circle
+                  cx="88"
+                  cy="88"
+                  r="76"
+                  fill="none"
+                  stroke="#e5e7eb"
+                  strokeWidth="12"
+                />
+                <circle
+                  cx="88"
+                  cy="88"
+                  r="76"
+                  fill="none"
+                  stroke="url(#ir-gradient)"
+                  strokeWidth="12"
+                  strokeDasharray={478}
+                  strokeDashoffset={478 - (478 * score) / 100}
+                  strokeLinecap="round"
+                />
+                <defs>
+                  <linearGradient id="ir-gradient">
+                    <stop offset="0%" stopColor="#6366f1" />
+                    <stop offset="100%" stopColor="#8b5cf6" />
+                  </linearGradient>
+                </defs>
+              </svg>
+
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-4xl font-extrabold text-slate-900">
+                  {score}%
+                </span>
+                <span className="text-sm font-semibold text-indigo-600 mt-1">
+                  {level}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Breakdown */}
+          <div className="md:col-span-2 space-y-6">
+            {/* Skills */}
+            <div>
+              <div className="flex justify-between text-sm font-semibold text-slate-700 mb-2">
+                <span>Skills Coverage</span>
+                <span>{skillScore}%</span>
+              </div>
+              <div className="h-3 bg-slate-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all"
+                  style={{ width: `${skillScore}%` }}
+                />
+              </div>
+              <p className="text-xs text-slate-500 mt-1">
+                Depth & consistency of core skills
+              </p>
+            </div>
+
+            {/* Projects */}
+            <div>
+              <div className="flex justify-between text-sm font-semibold text-slate-700 mb-2">
+                <span>Project Experience</span>
+                <span>{projectScore}%</span>
+              </div>
+              <div className="h-3 bg-slate-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all"
+                  style={{ width: `${projectScore}%` }}
+                />
+              </div>
+              <p className="text-xs text-slate-500 mt-1">
+                Real-world problem solving & implementation
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Guidance */}
+        <div className="mt-12 bg-slate-50 border border-slate-200 rounded-2xl p-6">
+          <p className="text-slate-700 font-medium">
+            🎯 <span className="font-bold">Next Recommendation:</span>{" "}
+            {recommendation}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+/* ---------------------------------------
+   HIRING CHECKLIST
+--------------------------------------- */
+function HiringChecklist() {
+  const [checks, setChecks] = useState({
+    resume: false,
+    portfolio: false,
+    linkedin: false,
+    mock: false,
+  });
+
+  function toggle(key) {
+    setChecks((p) => ({ ...p, [key]: !p[key] }));
+  }
+
+  const items = {
+    resume: {
+      title: "Resume Optimized",
+      desc: "ATS-friendly, quantified impact, role-specific keywords",
+    },
+    portfolio: {
+      title: "Portfolio Ready",
+      desc: "Live projects, GitHub links, clear problem → solution narrative",
+    },
+    linkedin: {
+      title: "LinkedIn Optimized",
+      desc: "Recruiter keywords, strong headline, active engagement",
+    },
+    mock: {
+      title: "Mock Interviews Completed",
+      desc: "Technical + behavioral confidence under pressure",
+    },
+  };
+
+  const completedCount = Object.values(checks).filter(Boolean).length;
+  const progress = Math.round(
+    (completedCount / Object.keys(checks).length) * 100
+  );
+
+  return (
+    <section className="mt-28 relative">
+      {/* Ambient glow */}
+      <div className="absolute -top-20 left-0 w-64 h-64 bg-indigo-200/40 blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute -bottom-20 right-0 w-64 h-64 bg-purple-200/40 blur-3xl rounded-full pointer-events-none" />
+
+      <div className="relative bg-white/90 backdrop-blur-xl border border-slate-200 rounded-3xl p-10 shadow-[0_35px_90px_rgba(0,0,0,0.08)]">
+        {/* Header */}
+        <div className="mb-10">
+          <h2 className="text-4xl font-extrabold tracking-tight text-slate-900">
+            Hiring Readiness Checklist
+          </h2>
+          <p className="mt-3 max-w-2xl text-slate-600">
+            These are the exact checkpoints recruiters expect before shortlisting
+            candidates. Complete them to move from “applying” to “getting calls”.
+          </p>
+        </div>
+
+        {/* Progress */}
+        <div className="mb-12">
+          <div className="flex justify-between items-center mb-2">
+            <span className="font-semibold text-slate-700">
+              Overall Hiring Readiness
+            </span>
+            <span className="font-bold text-indigo-600">
+              {progress}%
+            </span>
+          </div>
+
+          <div className="h-3 bg-slate-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 transition-all"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+
+          <p className="text-xs text-slate-500 mt-2">
+            Most recruiters shortlist candidates above 75% readiness
+          </p>
+        </div>
+
+        {/* Checklist Grid */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {Object.entries(items).map(([key, meta]) => {
+            const active = checks[key];
+
+            return (
+              <div
+                key={key}
+                onClick={() => toggle(key)}
+                className={`
+                  cursor-pointer p-6 rounded-2xl border transition-all
+                  hover:-translate-y-1 hover:shadow-md
+                  ${
+                    active
+                      ? "bg-emerald-50 border-emerald-400"
+                      : "bg-slate-50 border-slate-200"
+                  }
+                `}
+              >
+                <div className="flex items-start gap-4">
+                  <FiCheckCircle
+                    className={`text-2xl mt-1 ${
+                      active
+                        ? "text-emerald-600"
+                        : "text-slate-400"
+                    }`}
+                  />
+
+                  <div>
+                    <p className="font-bold text-slate-900">
+                      {meta.title}
+                    </p>
+                    <p className="text-sm text-slate-600 mt-1">
+                      {meta.desc}
+                    </p>
+
+                    {active && (
+                      <span className="inline-block mt-3 text-xs font-semibold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full">
+                        Completed ✓
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Guidance */}
+        <div className="mt-12 bg-slate-50 border border-slate-200 rounded-2xl p-6">
+          <p className="text-slate-700 font-medium">
+            🧠 <span className="font-bold">Hiring Insight:</span>{" "}
+            {progress < 50
+              ? "Start with resume and portfolio. They create first impressions."
+              : progress < 80
+              ? "Polish LinkedIn and begin mock interviews to boost confidence."
+              : "You’re hiring-ready. Apply aggressively and network actively."}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 
 /* ---------------------------------------
    MAIN PAGE
 --------------------------------------- */
 export default function CareerRoadmap() {
-  const [currentRole, setCurrentRole] = useState("Fresher / Student");
+  const [currentRole, setCurrentRole] = useState("Fresher");
   const [targetRole, setTargetRole] = useState("Full Stack Developer");
 
+  const [roadmap, setRoadmap] = useState([]);
+  const [skills, setSkills] = useState([]);
+  const [completedSkills, setCompletedSkills] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [salary, setSalary] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  async function loadData() {
+    setLoading(true);
+    try {
+      const roadmapRes = await generateRoadmap({ currentRole, targetRole });
+      const skillsRes = await getSkills(targetRole);
+      const projectsRes = await getProjects();
+      const salaryRes = await getSalary();
+
+      setRoadmap(roadmapRes?.data?.roadmap || []);
+      setSkills(skillsRes?.skills || []);
+      setProjects(projectsRes?.projects || []);
+      setSalary(salaryRes?.data || []);
+      setCompletedSkills([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-      <Hero />
+<main className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/40 to-purple-50/40">
+  <section className="max-w-6xl mx-auto px-6 py-24 relative">
+    {/* Hero */}
+    <div className="mb-16">
+      <h1 className="text-5xl font-extrabold tracking-tight text-slate-900">
+        Career Roadmap Planner
+      </h1>
 
-      <section className="max-w-6xl mx-auto px-6 pb-32">
-        {/* INPUT PANEL */}
-        <InputPanel
-          currentRole={currentRole}
-          setCurrentRole={setCurrentRole}
-          targetRole={targetRole}
-          setTargetRole={setTargetRole}
-        />
+      <p className="mt-4 max-w-3xl text-lg text-slate-600 leading-relaxed">
+        Generate a personalized, phase-wise learning roadmap based on your
+        current role and career goals. Track skills, close gaps, and measure
+        interview readiness — all in one place.
+      </p>
 
-        {/* ROADMAP TIMELINE */}
-        <section className="mt-24">
-          <h2 className="text-3xl font-extrabold mb-6 text-slate-900">
-            Roadmap Overview
-          </h2>
-          <RoadmapTimeline roadmap={sampleRoadmap} />
-        </section>
+      <div className="mt-6 flex flex-wrap gap-4 text-sm text-slate-600">
+        <span className="px-4 py-2 rounded-full bg-indigo-100 text-indigo-700 font-semibold">
+          📈 Skill-based roadmap
+        </span>
+        <span className="px-4 py-2 rounded-full bg-purple-100 text-purple-700 font-semibold">
+          🎯 Interview-focused
+        </span>
+        <span className="px-4 py-2 rounded-full bg-emerald-100 text-emerald-700 font-semibold">
+          🧠 Gap analysis included
+        </span>
+      </div>
+    </div>
 
-        {/* SKILLS */}
-        <SkillsSection role={targetRole} />
+    {/* Controls Card */}
+    <div className="relative mb-14">
+      {/* Glow */}
+      <div className="absolute -inset-4 bg-gradient-to-r from-indigo-200/40 to-purple-200/40 blur-3xl rounded-3xl pointer-events-none" />
 
-        {/* PROJECTS */}
-        <ProjectsSection />
+      <div className="relative bg-white/90 backdrop-blur-xl border border-slate-200 rounded-3xl p-8 shadow-[0_30px_80px_rgba(0,0,0,0.08)]">
+        <div className="grid md:grid-cols-3 gap-8 items-end">
+          {/* Current Role */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Your Current Role
+            </label>
+            <input
+              value={currentRole}
+              onChange={(e) => setCurrentRole(e.target.value)}
+              placeholder="e.g. Fresher, Junior Developer"
+              className="
+                w-full px-4 py-3 rounded-xl
+                border border-slate-300
+                focus:outline-none focus:ring-2 focus:ring-indigo-400
+                text-slate-800
+              "
+            />
+            <p className="text-xs text-slate-500 mt-2">
+              This helps assess your starting point
+            </p>
+          </div>
 
-        {/* SALARY */}
-        <SalarySection />
+          {/* Target Role */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Target Role
+            </label>
+            <input
+              value={targetRole}
+              onChange={(e) => setTargetRole(e.target.value)}
+              placeholder="e.g. Frontend / Full Stack Developer"
+              className="
+                w-full px-4 py-3 rounded-xl
+                border border-slate-300
+                focus:outline-none focus:ring-2 focus:ring-purple-400
+                text-slate-800
+              "
+            />
+            <p className="text-xs text-slate-500 mt-2">
+              Roadmap will align to this role
+            </p>
+          </div>
 
-        {/* NEXT STEPS */}
-        <NextSteps />
-      </section>
+          {/* CTA */}
+          <button
+            onClick={loadData}
+            className="
+              h-[52px] rounded-xl
+              bg-gradient-to-r from-indigo-600 to-purple-600
+              text-slate-100 font-semibold
+              flex items-center justify-center gap-2
+              shadow-[0_15px_40px_rgba(99,102,241,0.35)]
+              hover:shadow-[0_25px_60px_rgba(99,102,241,0.55)]
+              hover:scale-[1.03]
+              transition
+            "
+          >
+            <FiRefreshCw />
+            Generate Roadmap
+          </button>
+        </div>
+      </div>
+    </div>
 
-      <Footer />
-    </main>
+    {/* Loading State */}
+    {loading && (
+      <div className="mb-10 flex items-center gap-3 text-indigo-600 font-semibold">
+        <span className="animate-spin">⏳</span>
+        Updating your personalized roadmap…
+      </div>
+    )}
+
+    {/* Sections */}
+    <RoadmapTimeline roadmap={roadmap} />
+
+    <SkillsSection
+      skills={skills}
+      completed={completedSkills}
+      setCompleted={setCompletedSkills}
+    />
+
+    <SkillGapAnalysis
+      skills={skills}
+      completed={completedSkills}
+    />
+
+    <WeeklyPlanner roadmap={roadmap} />
+
+    <InterviewReadiness
+      skills={completedSkills}
+      projects={projects}
+    />
+
+    <HiringChecklist />
+  </section>
+
+  <Footer />
+</main>
+
   );
 }

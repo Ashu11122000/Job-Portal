@@ -1,40 +1,110 @@
-import mysql from "mysql2/promise";
+import express from "express";
+import cors from "cors";
 
-let pool = null;
-
-/**
- * ✅ SAFETY CHECK
- * If MySQL env vars are missing (local machine),
- * do NOT attempt DB connection.
- */
-const hasDbEnv =
-  process.env.MYSQLHOST &&
-  process.env.MYSQLUSER &&
-  (process.env.MYSQL_ROOT_PASSWORD || process.env.MYSQLPASSWORD) &&
-  (process.env.MYSQL_DATABASE || process.env.MYSQLDATABASE);
-
-if (!hasDbEnv) {
-  console.warn("⚠️ MySQL env vars missing → DB connection skipped (local mode)");
-} else {
-  pool = mysql.createPool({
-    host: process.env.MYSQLHOST,
-    user: process.env.MYSQLUSER,
-    password: process.env.MYSQL_ROOT_PASSWORD || process.env.MYSQLPASSWORD,
-    database: process.env.MYSQL_DATABASE || process.env.MYSQLDATABASE,
-    port: Number(process.env.MYSQLPORT),
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
-    connectTimeout: 15000,
-  });
-
-  // ✅ NON-BLOCKING health check (Railway only)
-  pool
-    .query("SELECT 1")
-    .then(() => console.log("✅ MySQL pool ready"))
-    .catch((err) =>
-      console.error("❌ MySQL pool error:", err.message)
-    );
+/* -------------------- ENV CONFIG -------------------- */
+// Load dotenv only in local/dev
+if (process.env.NODE_ENV !== "production") {
+  const dotenv = await import("dotenv");
+  dotenv.config();
 }
 
-export default pool;
+/* -------------------- ROUTES -------------------- */
+import authRoutes from "./routes/authRoutes.js";
+import jobRoutes from "./routes/jobRoutes.js";
+import applicationRoutes from "./routes/applicationRoutes.js";
+import companyRoutes from "./routes/companyRoutes.js";
+import companyLogoRoutes from "./routes/companyLogoRoutes.js";
+import resumeRoutes from "./routes/resumeRoutes.js";
+import mockInterviewRoutes from "./routes/mockInterviewRoutes.js";
+import settingsRoutes from "./routes/settingsRoutes.js";
+import logsRoutes from "./routes/logsRoutes.js";
+import roadmapRoutes from "./routes/roadmapRoutes.js"; // ✅ NEW
+
+import logger from "./utils/logger.js";
+
+const app = express();
+
+/* -------------------- GLOBAL MIDDLEWARES -------------------- */
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+/* -------------------- CORS (PRODUCTION SAFE) -------------------- */
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://job-portal-frontend.vercel.app",
+  "https://job-portal-frontend-phi-blush.vercel.app",
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow server-to-server, Postman, Railway health checks
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      logger.warn(`🚫 CORS blocked: ${origin}`);
+      return callback(new Error(`CORS blocked: ${origin}`));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+logger.info("✅ Middlewares initialized");
+
+/* -------------------- API ROUTES -------------------- */
+app.use("/api/auth", authRoutes);
+app.use("/api/jobs", jobRoutes);
+app.use("/api/applications", applicationRoutes);
+
+app.use("/api/company", companyRoutes);
+app.use("/api/company/logo", companyLogoRoutes);
+app.use("/api/resume", resumeRoutes);
+app.use("/api/mock-interview", mockInterviewRoutes);
+
+// ✅ Career Roadmap APIs
+app.use("/api/roadmap", roadmapRoutes);
+
+// Admin
+app.use("/api/admin/settings", settingsRoutes);
+app.use("/api/admin/logs", logsRoutes);
+
+logger.info("✅ All routes loaded");
+
+/* -------------------- HEALTH CHECK (Railway) -------------------- */
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+/* -------------------- 404 HANDLER -------------------- */
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "API route not found",
+  });
+});
+
+/* -------------------- GLOBAL ERROR HANDLER -------------------- */
+app.use((err, req, res, next) => {
+  logger.error(`🔥 SERVER ERROR → ${err.message}`);
+
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
+});
+
+/* -------------------- SERVER -------------------- */
+const PORT = process.env.PORT || 8080;
+
+app.listen(PORT, () => {
+  logger.info(`🚀 Server running on port ${PORT}`);
+});

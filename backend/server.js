@@ -1,8 +1,8 @@
+// server.js
 import express from "express";
 import cors from "cors";
 
 /* -------------------- ENV CONFIG -------------------- */
-// Load dotenv only in local/dev
 if (process.env.NODE_ENV !== "production") {
   const dotenv = await import("dotenv");
   dotenv.config();
@@ -18,17 +18,17 @@ import resumeRoutes from "./routes/resumeRoutes.js";
 import mockInterviewRoutes from "./routes/mockInterviewRoutes.js";
 import settingsRoutes from "./routes/settingsRoutes.js";
 import logsRoutes from "./routes/logsRoutes.js";
-import roadmapRoutes from "./routes/roadmapRoutes.js"; // ✅ NEW
+import roadmapRoutes from "./routes/roadmapRoutes.js";
 
 import logger from "./utils/logger.js";
 
 const app = express();
 
 /* -------------------- GLOBAL MIDDLEWARES -------------------- */
-app.use(express.json());
+app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-/* -------------------- CORS (PRODUCTION SAFE) -------------------- */
+/* -------------------- CORS (RAILWAY SAFE) -------------------- */
 const allowedOrigins = [
   "http://localhost:5173",
   "https://job-portal-frontend.vercel.app",
@@ -38,7 +38,7 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow server-to-server, Postman, Railway health checks
+      // Allow Postman, server-to-server, Railway probes
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
@@ -46,7 +46,7 @@ app.use(
       }
 
       logger.warn(`🚫 CORS blocked: ${origin}`);
-      return callback(new Error(`CORS blocked: ${origin}`));
+      return callback(null, false); // ❗ don’t throw
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -60,26 +60,22 @@ logger.info("✅ Middlewares initialized");
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
-
 app.use("/api/company", companyRoutes);
 app.use("/api/company/logo", companyLogoRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/mock-interview", mockInterviewRoutes);
-
-// ✅ Career Roadmap APIs
 app.use("/api/roadmap", roadmapRoutes);
-
-// Admin
 app.use("/api/admin/settings", settingsRoutes);
 app.use("/api/admin/logs", logsRoutes);
 
 logger.info("✅ All routes loaded");
 
-/* -------------------- HEALTH CHECK (Railway) -------------------- */
+/* -------------------- HEALTH CHECK -------------------- */
 app.get("/health", (req, res) => {
   res.status(200).json({
     status: "OK",
     uptime: process.uptime(),
+    env: process.env.NODE_ENV || "development",
     timestamp: new Date().toISOString(),
   });
 });
@@ -94,11 +90,18 @@ app.use((req, res) => {
 
 /* -------------------- GLOBAL ERROR HANDLER -------------------- */
 app.use((err, req, res, next) => {
-  logger.error(`🔥 SERVER ERROR → ${err.message}`);
+  logger.error("🔥 SERVER ERROR", {
+    path: req.originalUrl,
+    message: err.message,
+    stack: err.stack,
+  });
 
   res.status(err.status || 500).json({
     success: false,
-    message: err.message || "Internal Server Error",
+    message:
+      process.env.NODE_ENV === "production"
+        ? "Internal server error"
+        : err.message,
   });
 });
 

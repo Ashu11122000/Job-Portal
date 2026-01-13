@@ -1,5 +1,5 @@
 // src/pages/tools/ResumeBuilder.jsx
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   FiFileText,
@@ -17,11 +17,17 @@ import {
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import Footer from "../../components/layout/Footer";
-import { saveResumeApi, getResumeApi, listResumesApi } from "../../api/resumeApi";
+import {
+  saveResumeApi,
+  getResumeApi,
+  listResumesApi,
+} from "../../api/resumeApi";
 
 export default function ResumeBuilder() {
-  const [template, setTemplate] = useState("modern");
   const [darkMode, setDarkMode] = useState(false);
+  const [resumeId, setResumeId] = useState("");
+  const [savedList, setSavedList] = useState([]);
+  const [loadingList, setLoadingList] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -38,57 +44,37 @@ export default function ResumeBuilder() {
     links: "",
   });
 
-  const [visible, setVisible] = useState({
-    name: true,
-    title: true,
-    summary: true,
-    skills: true,
-    experience: true,
-    education: true,
-    certifications: true,
-    projects: true,
-    email: true,
-    phone: true,
-    location: true,
-    links: true,
-  });
+  const [visible, setVisible] = useState(
+    Object.fromEntries(Object.keys(form).map((k) => [k, true]))
+  );
 
-  const [resumeId, setResumeId] = useState("");
-  const [savedList, setSavedList] = useState([]);
+  /* ---------------- BASIC HANDLERS ---------------- */
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
-  };
 
-  const toggleVisible = (key) => {
+  const toggleVisible = (key) =>
     setVisible((v) => ({ ...v, [key]: !v[key] }));
-  };
 
   const autoFill = () => {
-    const data = {
+    setForm({
       name: "Ashish Kumar",
       title: "Full Stack Developer",
       summary:
-        "Full-stack developer with strong experience in React.js, Spring Boot, MySQL, and cloud deployments.",
-      skills: "React.js, Java, Spring Boot, MySQL, Docker, Kubernetes, Git",
-      experience:
-        "- Built HRMS using React + Spring Boot\n- Implemented JWT Auth + RBAC",
-      education: "B.Tech in Computer Science – 2023 – VTU Bangalore",
-      certifications: "AWS Cloud Practitioner, Java Certification",
-      projects: "Netflix Clone, Job Portal Backend",
+        "Full-stack developer with strong experience in React, Node.js, MySQL, and cloud deployments.",
+      skills: "React, Node.js, MySQL, Docker, Git",
+      experience: "Built Job Portal & Resume Builder applications",
+      education: "B.Tech Computer Science – 2023",
+      certifications: "AWS Cloud Practitioner",
+      projects: "Job Portal, Resume Builder",
       email: "ashish@example.com",
       phone: "+91 9876543210",
-      location: "Bangalore, India",
-      links: "GitHub, LinkedIn",
-    };
-
-    setForm(data);
-    setVisible((v) => {
-      const all = { ...v };
-      Object.keys(all).forEach((k) => (all[k] = true));
-      return all;
+      location: "India",
+      links: "GitHub | LinkedIn",
     });
   };
+
+  /* ---------------- PDF EXPORT ---------------- */
 
   const exportPDF = async () => {
     const resume = document.getElementById("resume-preview");
@@ -105,176 +91,327 @@ export default function ResumeBuilder() {
     pdf.save("resume.pdf");
   };
 
-  // ---- API FUNCTIONS ----
+  /* ---------------- API CALLS (SAFE) ---------------- */
 
   const handleSaveResume = async () => {
     try {
       const res = await saveResumeApi(form);
-      setResumeId(res.data.resumeId);
-      alert("Resume saved successfully!");
+      setResumeId(res?.data?.resumeId || "");
+      alert("✅ Resume saved successfully");
     } catch (err) {
-      alert("Failed to save resume");
-      console.error(err);
+      console.error("Save error:", err);
+      alert("❌ Failed to save resume");
     }
   };
 
   const handleLoadResume = async () => {
     if (!resumeId) return;
+
     try {
       const res = await getResumeApi(resumeId);
-      setForm(res.data.resume);
+      if (res?.data?.resume) {
+        setForm(res.data.resume);
+      }
     } catch (err) {
-      alert("Failed to load resume");
-      console.error(err);
+      console.error("Load error:", err);
+      alert("❌ Failed to load resume");
     }
   };
 
   const handleRefreshList = async () => {
+    setLoadingList(true);
     try {
       const res = await listResumesApi();
-      setSavedList(res.data.resumes);
+
+      // ✅ HARD GUARD AGAINST 500 / EMPTY RESPONSE
+      const resumes = Array.isArray(res?.data?.resumes)
+        ? res.data.resumes
+        : [];
+
+      setSavedList(resumes);
     } catch (err) {
-      alert("Failed to fetch resumes list");
-      console.error(err);
+      console.error("List error:", err);
+      alert("⚠️ Resume list unavailable (server issue)");
+      setSavedList([]);
+    } finally {
+      setLoadingList(false);
     }
   };
 
-  useEffect(() => {
-    handleRefreshList();
-  }, []);
-
-  const templateStyles = {
-    modern: "rounded-3xl border shadow-xl p-10",
-    minimal: "border-l-4 border-indigo-600 pl-6 pr-4",
-    ats: "border border-slate-300 p-6 text-sm tracking-wide",
-  };
+  /* ---------------- UI ---------------- */
 
   return (
     <>
-      <section className="min-h-screen bg-linear-to-br from-indigo-50 via-white to-purple-50 pt-32 pb-24 px-6">
+      <section className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 pt-32 pb-24 px-6">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12">
 
-          {/* LEFT PANEL */}
-          <div>
-            <h1 className="text-4xl font-extrabold text-black mb-6">
-              <FiLayers className="inline-block mr-2" /> AI Resume Builder
-            </h1>
+          {/* LEFT */}
+<div className="relative">
+  {/* Header */}
+  <div className="mb-8">
+    <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 flex items-center gap-3">
+      <span className="p-3 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-indigo-50 shadow-lg">
+        <FiLayers />
+      </span>
+      AI Resume Builder
+    </h1>
 
-            {/* ACTION BUTTONS */}
-            <div className="flex gap-4 mb-6">
-              <button
-                onClick={() => setDarkMode(!darkMode)}
-                className="px-5 py-2 rounded-xl bg-black text-white flex items-center gap-2 hover:scale-[1.03] shadow-md"
-              >
-                {darkMode ? <FiSun /> : <FiMoon />}
-                {darkMode ? "Light" : "Dark"}
-              </button>
+    <p className="mt-3 max-w-2xl text-slate-600 text-base leading-relaxed">
+      Build a professional, ATS-friendly resume powered by intelligent
+      automation. Customize every section, preview instantly, and export with
+      confidence.
+    </p>
+  </div>
 
-              <button
-                onClick={autoFill}
-                className="px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold flex items-center gap-2 shadow-lg hover:scale-[1.03]"
-              >
-                <FiZap /> Auto-Fill (AI)
-              </button>
-            </div>
+  {/* Primary Actions */}
+  <div className="flex flex-wrap gap-4 mb-8">
+    <button
+      onClick={() => setDarkMode(!darkMode)}
+      className="
+        px-6 py-3 rounded-xl
+        bg-slate-800 text-slate-100
+        flex items-center gap-2
+        shadow-md hover:shadow-lg
+        hover:scale-[1.03]
+        transition
+      "
+    >
+      {darkMode ? <FiSun /> : <FiMoon />}
+      <span className="font-semibold">
+        {darkMode ? "Light Mode" : "Dark Mode"}
+      </span>
+    </button>
 
-            {/* SAVE / LOAD / REFRESH */}
-            <div className="flex gap-3 mb-4">
-              <button onClick={handleSaveResume} className="px-4 py-2 rounded-xl bg-green-600 text-white font-semibold shadow-lg hover:scale-[1.03]">
-                <FiLayers className="inline mr-2"/> Save Resume
-              </button>
+    <button
+      onClick={autoFill}
+      className="
+        px-6 py-3 rounded-xl
+        bg-gradient-to-r from-indigo-600 to-purple-600
+        text-indigo-50
+        font-semibold
+        flex items-center gap-2
+        shadow-lg hover:shadow-xl
+        hover:scale-[1.03]
+        transition
+      "
+    >
+      <FiZap />
+      AI Auto-Fill Resume
+    </button>
+  </div>
 
-              <button onClick={handleLoadResume} disabled={!resumeId} className="px-4 py-2 rounded-xl bg-blue-600 text-white font-semibold shadow-lg hover:scale-[1.03] disabled:opacity-50">
-                <FiDownload className="inline mr-2"/> Load Resume
-              </button>
+  {/* Save / Load / Refresh */}
+  <div className="flex flex-wrap gap-3 mb-6">
+    <button
+      onClick={handleSaveResume}
+      className="
+        px-5 py-2.5 rounded-xl
+        bg-emerald-600 text-emerald-50
+        font-semibold
+        flex items-center gap-2
+        shadow hover:shadow-md
+        transition
+      "
+    >
+      <FiLayers />
+      Save Resume
+    </button>
 
-              <button onClick={handleRefreshList} className="px-4 py-2 rounded-xl bg-purple-700 text-white font-semibold shadow-lg hover:scale-[1.03]">
-                <FiRefreshCw className="inline mr-2"/> Refresh List
-              </button>
-            </div>
+    <button
+      onClick={handleLoadResume}
+      disabled={!resumeId}
+      className="
+        px-5 py-2.5 rounded-xl
+        bg-indigo-600 text-indigo-50
+        font-semibold
+        flex items-center gap-2
+        shadow hover:shadow-md
+        transition
+        disabled:opacity-50
+      "
+    >
+      <FiDownload />
+      Load Resume
+    </button>
 
-            {/* DROPDOWN */}
-            {savedList.length > 0 && (
-              <select onChange={(e) => setResumeId(e.target.value)} className="w-full p-3 rounded-xl border border-black text-black mb-6 shadow-md">
-                <option value="">Select saved resume</option>
-                {savedList.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.name} – {r.title}
-                  </option>
-                ))}
-              </select>
-            )}
+    <button
+      onClick={handleRefreshList}
+      className="
+        px-5 py-2.5 rounded-xl
+        bg-purple-700 text-purple-50
+        font-semibold
+        flex items-center gap-2
+        shadow hover:shadow-md
+        transition
+      "
+    >
+      <FiRefreshCw />
+      Refresh List
+    </button>
+  </div>
 
-            {/* FORM */}
-            <div className="space-y-5 bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border p-8">
-              <Field label="Full Name" visible={visible.name} toggleVisible={() => toggleVisible("name")}>
-                <input name="name" onChange={handleChange} value={form.name} disabled={!visible.name} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
-              </Field>
+  {/* Loading State */}
+  {loadingList && (
+    <div className="mb-4 flex items-center gap-2 text-sm text-indigo-600 font-medium">
+      <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+      Fetching your saved resumes…
+    </div>
+  )}
 
-              <Field label="Headline / Role" visible={visible.title} toggleVisible={() => toggleVisible("title")}>
-                <input name="title" onChange={handleChange} value={form.title} disabled={!visible.title} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
-              </Field>
+  {/* Saved Resume Selector */}
+  {savedList.length > 0 && (
+    <div className="mb-8">
+      <label className="block mb-2 text-sm font-semibold text-slate-700">
+        Load a previously saved resume
+      </label>
 
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="Email" visible={visible.email} toggleVisible={() => toggleVisible("email")}>
-                  <input name="email" onChange={handleChange} value={form.email} disabled={!visible.email} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
-                </Field>
+      <select
+        onChange={(e) => setResumeId(e.target.value)}
+        className="
+          w-full p-3 rounded-xl
+          border border-slate-300
+          bg-slate-50
+          text-slate-800
+          shadow-sm
+          focus:ring-2 focus:ring-indigo-500
+        "
+      >
+        <option value="">Select resume</option>
+        {savedList.map((r) => (
+          <option key={r.id || r._id} value={r.id || r._id}>
+            {r.name} — {r.title}
+          </option>
+        ))}
+      </select>
+    </div>
+  )}
 
-                <Field label="Phone" visible={visible.phone} toggleVisible={() => toggleVisible("phone")}>
-                  <input name="phone" onChange={handleChange} value={form.phone} disabled={!visible.phone} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
-                </Field>
-              </div>
+  {/* Form Container */}
+  <div
+    className="
+      space-y-5
+      bg-slate-50/80 backdrop-blur-xl
+      rounded-3xl
+      border border-slate-200
+      shadow-[0_30px_80px_rgba(0,0,0,0.08)]
+      p-8
+    "
+  >
+    <p className="text-sm text-slate-600 mb-2">
+      Toggle visibility to control what appears on your resume preview.
+    </p>
 
-              <Field label="Location" visible={visible.location} toggleVisible={() => toggleVisible("location")}>
-                <input name="location" onChange={handleChange} value={form.location} disabled={!visible.location} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
-              </Field>
+    {Object.keys(form).map((key) => (
+      <Field
+        key={key}
+        label={key}
+        visible={visible[key]}
+        toggleVisible={() => toggleVisible(key)}
+      >
+        <input
+          name={key}
+          value={form[key]}
+          onChange={handleChange}
+          disabled={!visible[key]}
+          className="
+            w-full p-3 rounded-xl
+            border border-slate-300
+            bg-white
+            text-slate-800
+            shadow-sm
+            disabled:opacity-50
+            focus:ring-2 focus:ring-indigo-500
+          "
+        />
+      </Field>
+    ))}
+  </div>
+</div>
 
-              <Field label="Summary" visible={visible.summary} toggleVisible={() => toggleVisible("summary")}>
-                <textarea name="summary" onChange={handleChange} value={form.summary} disabled={!visible.summary} rows={3} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
-              </Field>
 
-              <Field label="Skills" visible={visible.skills} toggleVisible={() => toggleVisible("skills")}>
-                <textarea name="skills" onChange={handleChange} value={form.skills} disabled={!visible.skills} rows={2} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
-              </Field>
+          {/* RIGHT */}
+         <motion.div
+  id="resume-preview"
+  className={`
+    relative overflow-hidden
+    rounded-[28px] p-10
+    border
+    shadow-[0_40px_120px_rgba(0,0,0,0.12)]
+    backdrop-blur-xl
+    transition-all
+    ${
+      darkMode
+        ? "bg-slate-900/90 text-slate-100 border-slate-700"
+        : "bg-white/90 text-slate-900 border-slate-200"
+    }
+  `}
+  initial={{ opacity: 0, x: 40 }}
+  animate={{ opacity: 1, x: 0 }}
+  transition={{ duration: 0.5, ease: "easeOut" }}
+>
+  {/* Ambient Glow */}
+  <div className="pointer-events-none absolute -top-24 -right-24 w-64 h-64 bg-indigo-500/20 blur-3xl rounded-full" />
+  <div className="pointer-events-none absolute -bottom-24 -left-24 w-64 h-64 bg-purple-500/20 blur-3xl rounded-full" />
 
-              <Field label="Experience" visible={visible.experience} toggleVisible={() => toggleVisible("experience")}>
-                <textarea name="experience" onChange={handleChange} value={form.experience} disabled={!visible.experience} rows={3} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
-              </Field>
+  {/* Header */}
+  <div className="relative z-10 flex items-center justify-between mb-8">
+    <div>
+      <h2 className="text-2xl font-extrabold tracking-tight flex items-center gap-3">
+        <span className="p-2 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 text-indigo-50 shadow-md">
+          <FiFileText />
+        </span>
+        Resume Preview
+      </h2>
 
-              <Field label="Education" visible={visible.education} toggleVisible={() => toggleVisible("education")}>
-                <textarea name="education" onChange={handleChange} value={form.education} disabled={!visible.education} rows={2} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
-              </Field>
+      <p className="mt-2 text-sm text-slate-500 max-w-sm">
+        This is exactly how recruiters will see your resume. Optimized for
+        clarity, ATS, and impact.
+      </p>
+    </div>
 
-              <Field label="Projects" visible={visible.projects} toggleVisible={() => toggleVisible("projects")}>
-                <textarea name="projects" onChange={handleChange} value={form.projects} disabled={!visible.projects} rows={2} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
-              </Field>
+    <button
+      onClick={exportPDF}
+      className="
+        px-5 py-2.5 rounded-xl
+        bg-gradient-to-r from-slate-900 to-slate-700
+        text-slate-100
+        font-semibold
+        flex items-center gap-2
+        shadow-lg hover:shadow-xl
+        hover:scale-[1.04]
+        transition
+      "
+    >
+      <FiDownload />
+      Export PDF
+    </button>
+  </div>
 
-              <Field label="Certifications" visible={visible.certifications} toggleVisible={() => toggleVisible("certifications")}>
-                <textarea name="certifications" onChange={handleChange} value={form.certifications} disabled={!visible.certifications} rows={2} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
-              </Field>
+  {/* Divider */}
+  <div className="relative z-10 h-px w-full bg-gradient-to-r from-transparent via-slate-300 to-transparent mb-8" />
 
-              <Field label="Links" visible={visible.links} toggleVisible={() => toggleVisible("links")}>
-                <textarea name="links" onChange={handleChange} value={form.links} disabled={!visible.links} rows={1} className="w-full p-3 rounded-xl border border-black text-black disabled:opacity-50 shadow-md" />
-              </Field>
-            </div>
-          </div>
+  {/* Preview Content */}
+  <div
+    className={`
+      relative z-10
+      rounded-2xl p-8
+      leading-relaxed
+      ${
+        darkMode
+          ? "bg-slate-800/70"
+          : "bg-slate-50"
+      }
+    `}
+  >
+    <ResumePreviewContent form={form} visible={visible} />
+  </div>
 
-          {/* RIGHT PANEL */}
-          <motion.div
-            id="resume-preview"
-            className={`${templateStyles[template]} ${darkMode ? "bg-slate-900 text-white" : "bg-white text-black"} shadow-xl`}
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-          >
-            <div className="flex justify-between mb-4">
-              <h2 className="text-xl font-bold flex items-center gap-2 text-black"><FiFileText /> Resume Preview</h2>
-              <button onClick={exportPDF} className="px-4 py-2 rounded-xl bg-black text-white font-semibold flex items-center gap-2 hover:scale-[1.03] shadow-lg">
-                <FiDownload /> Export PDF
-              </button>
-            </div>
-
-            <ResumePreviewContent form={form} visible={visible} />
-          </motion.div>
+  {/* Footer Hint */}
+  <div className="relative z-10 mt-6 text-xs text-slate-500 flex items-center gap-2">
+    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+    Tip: Keep content concise—recruiters scan resumes in under 7 seconds.
+  </div>
+</motion.div>
 
         </div>
       </section>
@@ -284,35 +421,111 @@ export default function ResumeBuilder() {
   );
 }
 
-// ---- Supporting Components ----
+/* ---------------- SUPPORT ---------------- */
 
 function Field({ label, children, visible, toggleVisible }) {
   return (
-    <div>
-      <label className="flex items-center gap-2 font-semibold text-black mb-1">
-        <input type="checkbox" checked={visible} onChange={toggleVisible} className="h-4 w-4 border-2 border-black" />
-        {label}
-      </label>
-      {children}
+    <div className="relative rounded-2xl border border-slate-200 bg-slate-50/80 p-4 shadow-sm transition hover:shadow-md">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-2">
+        <label className="flex items-center gap-3 font-semibold capitalize text-slate-800">
+          <input
+            type="checkbox"
+            checked={visible}
+            onChange={toggleVisible}
+            className="
+              h-4 w-4 rounded
+              border-slate-300
+              text-indigo-600
+              focus:ring-indigo-500
+            "
+          />
+          {label}
+        </label>
+
+        <span
+          className={`text-xs font-semibold px-2 py-1 rounded-full
+            ${
+              visible
+                ? "bg-emerald-100 text-emerald-700"
+                : "bg-slate-200 text-slate-500"
+            }`}
+        >
+          {visible ? "Visible" : "Hidden"}
+        </span>
+      </div>
+
+      {/* Input Area */}
+      <div
+        className={`transition-all ${
+          visible ? "opacity-100" : "opacity-50"
+        }`}
+      >
+        {children}
+      </div>
+
+      {/* Helper Text */}
+      <p className="mt-2 text-xs text-slate-500">
+        This section will {visible ? "appear" : "not appear"} on your resume.
+      </p>
     </div>
   );
 }
 
+
 function ResumePreviewContent({ form, visible }) {
   return (
-    <div className="space-y-6 text-sm">
-      {visible.name && <h1 className="text-2xl font-black">{form.name}</h1>}
-      {visible.title && <h2 className="text-lg font-bold">{form.title}</h2>}
-      {visible.summary && <p>{form.summary}</p>}
-      {visible.skills && <p><strong>Skills:</strong> {form.skills}</p>}
-      {visible.experience && <p><strong>Experience:</strong> {form.experience}</p>}
-      {visible.education && <p><strong>Education:</strong> {form.education}</p>}
-      {visible.projects && <p><strong>Projects:</strong> {form.projects}</p>}
-      {visible.certifications && <p><strong>Certifications:</strong> {form.certifications}</p>}
-      {visible.email && <p><FiMail className="inline mr-2" />{form.email}</p>}
-      {visible.phone && <p><FiPhone className="inline mr-2" />{form.phone}</p>}
-      {visible.location && <p><FiMapPin className="inline mr-2" />{form.location}</p>}
-      {visible.links && <p><FiLink className="inline mr-2" />{form.links}</p>}
+    <div className="space-y-6 text-[15px] leading-relaxed">
+      {Object.entries(form).map(([key, value]) => {
+        if (!visible[key] || !value) return null;
+
+        return (
+          <div
+            key={key}
+            className="
+              group
+              rounded-xl
+              border border-slate-200
+              bg-white/70
+              p-4
+              shadow-sm
+              transition
+              hover:shadow-md
+            "
+          >
+            {/* Label */}
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wide text-indigo-600">
+                {key.replace(/_/g, " ")}
+              </span>
+
+              <span className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition">
+                Recruiter view
+              </span>
+            </div>
+
+            {/* Content */}
+            <p className="text-slate-800 whitespace-pre-line">
+              {value}
+            </p>
+          </div>
+        );
+      })}
+
+      {/* Empty State */}
+      {Object.keys(form).every(
+        (k) => !visible[k] || !form[k]
+      ) && (
+        <div className="text-center py-12 text-slate-500">
+          <p className="font-semibold">
+            No resume sections visible
+          </p>
+          <p className="text-sm mt-1">
+            Enable sections from the form to preview your resume.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
+
