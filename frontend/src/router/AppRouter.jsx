@@ -25,7 +25,6 @@ import CareerTools from './../pages/CareerTools';
 import CareerRoadmap from "./../pages/tools/CareerRoadmap";
 import ResumeBuilder from './../pages/tools/ResumeBuilder';
 import CoverLetterTool from './../pages/tools/CoverLetterTool';
-import CertificationTracker from './../pages/tools/CertificationTracker';
 import SalaryEstimator from './../pages/tools/SalaryEstimator';
 
 
@@ -94,7 +93,6 @@ export default function AppRouter() {
   <Route path="tools/resume-builder" element={<ResumeBuilder />} />
   <Route path="tools/career-roadmap" element={<CareerRoadmap />} />
   <Route path="tools/salary-estimator" element={<SalaryEstimator />} />
-  <Route path="tools/certification-tracker" element={<CertificationTracker />} />
   <Route path="tools/cover-letter" element={<CoverLetterTool/>} />
         </Route>
 

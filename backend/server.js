@@ -19,6 +19,7 @@ import mockInterviewRoutes from "./routes/mockInterviewRoutes.js";
 import settingsRoutes from "./routes/settingsRoutes.js";
 import logsRoutes from "./routes/logsRoutes.js";
 import roadmapRoutes from "./routes/roadmapRoutes.js";
+import coverLetterRoutes from "./routes/coverLetterRoutes.js";
 
 import logger from "./utils/logger.js";
 
@@ -75,6 +76,7 @@ app.use("/api/mock-interview", mockInterviewRoutes);
 app.use("/api/roadmap", roadmapRoutes);
 app.use("/api/admin/settings", settingsRoutes);
 app.use("/api/admin/logs", logsRoutes);
+app.use("/api/cover-letter", coverLetterRoutes);
 
 /* -------------------- HEALTH CHECK -------------------- */
 app.get("/health", (req, res) => {
