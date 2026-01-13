@@ -38,14 +38,16 @@ export default function MockInterviewTool() {
     loadSessions();
   }, []);
 
-  const loadSessions = async () => {
-    try {
-      const res = await listSessionsApi();
-      setSessions(res.data.sessions || []);
-    } catch (err) {
-      console.error("Load sessions error:", err);
-    }
-  };
+const loadSessions = async () => {
+  try {
+    const res = await listSessionsApi();
+    setSessions(res.data.sessions || []);
+  } catch (err) {
+    console.error("Load sessions error:", err?.response?.data || err);
+    setSessions([]); // prevent crash
+  }
+};
+
 
   /* ---------------- SESSION ---------------- */
 
@@ -122,7 +124,7 @@ export default function MockInterviewTool() {
         <div className="max-w-6xl mx-auto">
 
           {/* HEADER */}
-          <div className="text-center mb-16">
+<div className="text-center mb-16">
             <h1 className="text-5xl font-black text-slate-900 mb-4">
               AI Mock Interview Practice
             </h1>

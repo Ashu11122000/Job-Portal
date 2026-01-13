@@ -45,14 +45,20 @@ app.use(
         return callback(null, true);
       }
 
+      // ❗ DO NOT block silently — respond safely
       logger.warn(`🚫 CORS blocked: ${origin}`);
-      return callback(null, false); // ❗ don’t throw
+      return callback(null, true); // allow but logged
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 204,
   })
 );
+
+// ✅ Handle preflight requests explicitly
+app.options("*", cors());
+
 
 logger.info("✅ Middlewares initialized");
 

@@ -2,18 +2,18 @@ import pool from "../../config/db.js";
 
 export const listSessions = async (req, res) => {
   try {
-    // ✅ DB not connected (Railway / env issue)
+    // ✅ Guard: DB not available
     if (!pool) {
+      console.warn("⚠️ DB pool not initialized");
       return res.status(503).json({
         success: false,
-        message: "Database connection not available",
+        message: "Database not connected",
         sessions: [],
       });
     }
 
-    // ✅ Query DB safely
-    const [rows] = await pool.execute(
-      `
+    // ✅ Safe query
+    const [rows] = await pool.execute(`
       SELECT 
         id,
         role,
@@ -21,19 +21,19 @@ export const listSessions = async (req, res) => {
         created_at
       FROM mock_interviews
       ORDER BY created_at DESC
-      `
-    );
+    `);
 
-    return res.json({
+    return res.status(200).json({
       success: true,
       sessions: rows,
     });
   } catch (err) {
-    console.error("❌ listSessions error:", err.message);
+    console.error("❌ listSessions error:", err);
 
     return res.status(500).json({
       success: false,
-      message: "Failed to fetch mock interview sessions",
+      message: "Failed to load interview sessions",
+      error: err.message,
       sessions: [],
     });
   }
