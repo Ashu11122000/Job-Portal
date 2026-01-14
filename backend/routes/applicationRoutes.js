@@ -3,16 +3,48 @@ import pool from "../config/db.js";
 
 const router = express.Router();
 
-// Submit job application
-router.post("/apply", async (req, res) => {
+/**
+ * APPLY FOR A JOB
+ * Frontend should call: POST /api/applications
+ * (We also keep /apply as alias)
+ */
+const applyJobHandler = async (req, res) => {
   const { jobId, userId, resume } = req.body;
 
+  if (!jobId || !userId) {
+    return res.status(400).json({
+      success: false,
+      message: "jobId and userId are required",
+    });
+  }
+
   try {
-    const [job] = await pool.query("SELECT id FROM jobs WHERE id=?", [jobId]);
+    // 1. Check if job exists
+    const [job] = await pool.query(
+      "SELECT id FROM jobs WHERE id = ?",
+      [jobId]
+    );
+
     if (job.length === 0) {
-      return res.status(404).json({ success: false, message: "Job not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Job not found" });
     }
 
+    // 2. Prevent duplicate application
+    const [existing] = await pool.query(
+      "SELECT id FROM applications WHERE job_id = ? AND user_id = ?",
+      [jobId, userId]
+    );
+
+    if (existing.length > 0) {
+      return res.status(409).json({
+        success: false,
+        message: "You have already applied for this job",
+      });
+    }
+
+    // 3. Insert application
     const [result] = await pool.query(
       "INSERT INTO applications (job_id, user_id, resume) VALUES (?,?,?)",
       [jobId, userId, resume || null]
@@ -20,20 +52,32 @@ router.post("/apply", async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Application submitted",
+      message: "Application submitted successfully",
       applicationId: result.insertId,
     });
   } catch (err) {
-    console.error("❌ Apply API Error:", err);
-    res.status(500).json({ success: false, message: "Failed to apply" });
+    console.error("❌ Apply Job API Error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to apply for job",
+    });
   }
-});
+};
 
-// Fetch applications of a specific user (Candidate / Recruiter / Admin can use)
+/* ✅ MAIN APPLY ROUTE (THIS FIXES YOUR UI ERROR) */
+router.post("/", applyJobHandler);
+
+/* ✅ BACKWARD-COMPATIBLE ALIAS */
+router.post("/apply", applyJobHandler);
+
+/**
+ * GET APPLICATIONS BY USER
+ * GET /api/applications/user/:userId
+ */
 router.get("/user/:userId", async (req, res) => {
   try {
     const [apps] = await pool.query(
-      "SELECT * FROM applications WHERE user_id=? ORDER BY id DESC",
+      "SELECT * FROM applications WHERE user_id = ? ORDER BY id DESC",
       [req.params.userId]
     );
 
@@ -44,25 +88,41 @@ router.get("/user/:userId", async (req, res) => {
     });
   } catch (err) {
     console.error("❌ Fetch Applications Error:", err);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 });
 
-// Delete an application (if needed later)
+/**
+ * DELETE APPLICATION
+ * DELETE /api/applications/:id
+ */
 router.delete("/:id", async (req, res) => {
   try {
-    const [result] = await pool.query("DELETE FROM applications WHERE id=?", [
-      req.params.id,
-    ]);
+    const [result] = await pool.query(
+      "DELETE FROM applications WHERE id = ?",
+      [req.params.id]
+    );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ success: false, message: "Application not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Application not found",
+      });
     }
 
-    res.json({ success: true, message: "Application deleted" });
+    res.json({
+      success: true,
+      message: "Application deleted successfully",
+    });
   } catch (err) {
     console.error("❌ Delete Application Error:", err);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 });
 
