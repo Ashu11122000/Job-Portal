@@ -7,7 +7,6 @@ const router = express.Router();
  * =========================================================
  * APPLY FOR A JOB
  * POST /api/applications
- * (We also keep /apply as alias)
  * =========================================================
  */
 const applyJobHandler = async (req, res) => {
@@ -21,7 +20,6 @@ const applyJobHandler = async (req, res) => {
   }
 
   try {
-    // 1. Check if job exists
     const [job] = await pool.query(
       "SELECT id FROM jobs WHERE id = ?",
       [jobId]
@@ -34,7 +32,6 @@ const applyJobHandler = async (req, res) => {
       });
     }
 
-    // 2. Prevent duplicate application
     const [existing] = await pool.query(
       "SELECT id FROM applications WHERE job_id = ? AND user_id = ?",
       [jobId, userId]
@@ -47,7 +44,6 @@ const applyJobHandler = async (req, res) => {
       });
     }
 
-    // 3. Insert application (matches DB schema)
     const [result] = await pool.query(
       "INSERT INTO applications (job_id, user_id, status) VALUES (?, ?, ?)",
       [jobId, userId, "pending"]
@@ -59,23 +55,20 @@ const applyJobHandler = async (req, res) => {
       applicationId: result.insertId,
     });
   } catch (err) {
-    console.error("❌ Apply Job DB Error:", err.sqlMessage || err.message);
+    console.error("❌ Apply Job Error:", err.message);
     res.status(500).json({
       success: false,
-      message: err.sqlMessage || "Database error",
+      message: "Database error",
     });
   }
 };
 
-/* ✅ MAIN APPLY ROUTE */
 router.post("/", applyJobHandler);
-
-/* ✅ BACKWARD-COMPATIBLE ALIAS */
 router.post("/apply", applyJobHandler);
 
 /**
  * =========================================================
- * GET APPLICATIONS BY USER (WITH JOB DETAILS)
+ * GET APPLICATIONS BY USER (✔ FIXED JOIN)
  * GET /api/applications/user/:userId
  * =========================================================
  */
@@ -89,10 +82,11 @@ router.get("/user/:userId", async (req, res) => {
         a.applied_at,
         j.id AS job_id,
         j.title AS job_title,
-        j.company,
-        j.location
+        j.location,
+        c.company_name AS company
       FROM applications a
       JOIN jobs j ON a.job_id = j.id
+      LEFT JOIN companies c ON j.company_id = c.id
       WHERE a.user_id = ?
       ORDER BY a.id DESC
       `,
@@ -105,7 +99,7 @@ router.get("/user/:userId", async (req, res) => {
       applications: apps,
     });
   } catch (err) {
-    console.error("❌ Fetch Applications Error:", err.sqlMessage || err.message);
+    console.error("❌ Fetch Applications Error:", err.message);
     res.status(500).json({
       success: false,
       message: "Failed to fetch applications",
@@ -116,7 +110,6 @@ router.get("/user/:userId", async (req, res) => {
 /**
  * =========================================================
  * DELETE APPLICATION
- * DELETE /api/applications/:id
  * =========================================================
  */
 router.delete("/:id", async (req, res) => {
@@ -138,7 +131,7 @@ router.delete("/:id", async (req, res) => {
       message: "Application deleted successfully",
     });
   } catch (err) {
-    console.error("❌ Delete Application Error:", err.sqlMessage || err.message);
+    console.error("❌ Delete Application Error:", err.message);
     res.status(500).json({
       success: false,
       message: "Server error",
