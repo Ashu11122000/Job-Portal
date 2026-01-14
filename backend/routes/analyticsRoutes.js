@@ -1,9 +1,6 @@
 import express from "express";
-import {
-  getAnalyticsSummary,
-  getJobStats,
-  getApplicationStats,
-} from "../controllers/analyticsController.js";
+import { getAnalyticsSummary, getJobStats, getApplicationStats} from './../controllers/analytics/analyticsController';
+
 
 const router = express.Router();
 
