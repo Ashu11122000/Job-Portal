@@ -9,7 +9,7 @@ const router = express.Router();
  * (We also keep /apply as alias)
  */
 const applyJobHandler = async (req, res) => {
-  const { jobId, userId, resume } = req.body;
+  const { jobId, userId } = req.body; // ❌ resume removed (not in DB)
 
   if (!jobId || !userId) {
     return res.status(400).json({
@@ -26,9 +26,10 @@ const applyJobHandler = async (req, res) => {
     );
 
     if (job.length === 0) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Job not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Job not found",
+      });
     }
 
     // 2. Prevent duplicate application
@@ -44,10 +45,10 @@ const applyJobHandler = async (req, res) => {
       });
     }
 
-    // 3. Insert application
+    // 3. Insert application (✅ FIXED — matches DB schema)
     const [result] = await pool.query(
-      "INSERT INTO applications (job_id, user_id, resume) VALUES (?,?,?)",
-      [jobId, userId, resume || null]
+      "INSERT INTO applications (job_id, user_id, status) VALUES (?, ?, ?)",
+      [jobId, userId, "pending"]
     );
 
     res.status(201).json({
@@ -56,15 +57,15 @@ const applyJobHandler = async (req, res) => {
       applicationId: result.insertId,
     });
   } catch (err) {
-    console.error("❌ Apply Job API Error:", err);
+    console.error("❌ Apply Job DB Error:", err.sqlMessage || err.message);
     res.status(500).json({
       success: false,
-      message: "Failed to apply for job",
+      message: err.sqlMessage || "Database error",
     });
   }
 };
 
-/* ✅ MAIN APPLY ROUTE (THIS FIXES YOUR UI ERROR) */
+/* ✅ MAIN APPLY ROUTE */
 router.post("/", applyJobHandler);
 
 /* ✅ BACKWARD-COMPATIBLE ALIAS */
