@@ -67,36 +67,27 @@ export default function JobDetail() {
   }, [job]);
 
   const handleApply = async () => {
-    if (!isLoggedIn) {
-      alert("Please login as a candidate to apply.");
-      navigate("/login");
-      return;
+  try {
+    await applyForJob({
+      jobId: job.id,
+      userId: user.id,   // 🔥 REQUIRED
+      resume: coverLetter || null,
+    });
+
+    alert("Application submitted successfully");
+  } catch (err) {
+    console.error(err);
+
+    if (err.response?.status === 400) {
+      alert("Missing jobId or userId");
+    } else if (err.response?.status === 409) {
+      alert("You already applied for this job");
+    } else {
+      alert("Failed to apply");
     }
+  }
+};
 
-    if (user?.role !== "candidate") {
-      alert("Only candidates can apply for jobs.");
-      return;
-    }
-
-    setApplyLoading(true);
-    setApplicationStatus("pending");
-
-    try {
-      await applyForJob({
-        jobId: job.id || job._id,
-        coverLetter: "I am very interested in this role.",
-      });
-
-      setApplicationStatus("applied");
-      alert("✅ Application submitted successfully!");
-    } catch (err) {
-      console.error(err);
-      setApplicationStatus("not_applied");
-      alert(err.response?.data?.message || "Failed to apply.");
-    } finally {
-      setApplyLoading(false);
-    }
-  };
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
