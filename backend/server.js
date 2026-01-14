@@ -20,6 +20,7 @@ import logsRoutes from "./routes/logsRoutes.js";
 import roadmapRoutes from "./routes/roadmapRoutes.js";
 import coverLetterRoutes from "./routes/coverLetterRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
+import analyticsRoutes from "./routes/analyticsRoutes.js";
 
 import logger from "./utils/logger.js";
 
@@ -77,6 +78,7 @@ app.use("/api/admin/settings", settingsRoutes);
 app.use("/api/admin/logs", logsRoutes);
 app.use("/api/cover-letter", coverLetterRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 /* -------------------- HEALTH CHECK -------------------- */
 app.get("/health", (req, res) => {
