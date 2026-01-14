@@ -70,8 +70,8 @@ export default function JobDetail() {
   try {
     await applyForJob({
       jobId: job.id,
-      userId: user.id,   // 🔥 REQUIRED
-      resume: coverLetter || null,
+      userId: user.id,
+      resume: null, // ✅ FIX
     });
 
     alert("Application submitted successfully");
@@ -79,7 +79,7 @@ export default function JobDetail() {
     console.error(err);
 
     if (err.response?.status === 400) {
-      alert("Missing jobId or userId");
+      alert("Missing required data");
     } else if (err.response?.status === 409) {
       alert("You already applied for this job");
     } else {
@@ -87,6 +87,7 @@ export default function JobDetail() {
     }
   }
 };
+
 
 
   const handleShare = () => {
