@@ -1,10 +1,17 @@
 // src/components/applications/MyApplications.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { getMyApplications } from "../../api/applicationApi";
 import { useAuthContext } from "../../context/AuthContext";
 import ApplicationCard from "../cards/ApplicationCard";
-import { FiSearch, FiInbox } from "react-icons/fi";
+import {
+  FiSearch,
+  FiInbox,
+  FiBriefcase,
+  FiClock,
+  FiCheckCircle,
+  FiXCircle,
+} from "react-icons/fi";
 
 export default function MyApplications() {
   const { user } = useAuthContext();
@@ -12,65 +19,127 @@ export default function MyApplications() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
+  /* ================= FETCH DATA ================= */
   useEffect(() => {
     if (!user?.id) return;
 
+    setLoading(true);
     getMyApplications(user.id)
-      .then((res) => setApplications(res.data.applications || []))
+      .then((res) => {
+        setApplications(res.data?.applications || []);
+      })
+      .catch((err) => {
+        console.error("❌ Fetch Applications Error:", err);
+      })
       .finally(() => setLoading(false));
   }, [user?.id]);
 
-  const filtered = applications.filter(app =>
-    (app.job_title || "").toLowerCase().includes(search.toLowerCase())
-  );
+  /* ================= DERIVED DATA ================= */
+  const filteredApplications = useMemo(() => {
+    return applications.filter((app) =>
+      (app.job_title || "")
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    );
+  }, [applications, search]);
 
+  const stats = useMemo(() => {
+    return {
+      applied: applications.length,
+      pending: applications.filter((a) => a.status === "pending").length,
+      selected: applications.filter((a) => a.status === "selected").length,
+      rejected: applications.filter((a) => a.status === "rejected").length,
+    };
+  }, [applications]);
+
+  /* ================= UI ================= */
   return (
-    <section className="bg-gradient-to-b from-purple-950 to-slate-950 py-24">
-      <div className="max-w-6xl mx-auto px-6 text-white">
+    <section className="bg-gradient-to-b from-slate-950 via-indigo-950 to-purple-950 py-24">
+      <div className="max-w-7xl mx-auto px-6 text-white">
 
-        {/* HEADER */}
+        {/* ================= HEADER ================= */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mb-10"
+          className="mb-14"
         >
-          <h1 className="text-5xl font-extrabold mb-3">My Applications</h1>
+          <h1 className="text-5xl font-extrabold mb-4">
+            My Applications
+          </h1>
           <p className="text-white/60 max-w-2xl">
-            Track every opportunity you’ve applied for, monitor progress,
-            and stay ahead in your job search.
+            Track all the jobs you’ve applied for, monitor their progress,
+            and stay one step ahead in your career journey.
           </p>
         </motion.div>
 
-        {/* SEARCH */}
-        <div className="relative mb-10 max-w-md">
+        {/* ================= STATS ================= */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-14">
+          <StatCard icon={<FiBriefcase />} label="Applied" value={stats.applied} />
+          <StatCard icon={<FiClock />} label="Pending" value={stats.pending} />
+          <StatCard icon={<FiCheckCircle />} label="Selected" value={stats.selected} />
+          <StatCard icon={<FiXCircle />} label="Rejected" value={stats.rejected} />
+        </div>
+
+        {/* ================= SEARCH ================= */}
+        <div className="relative max-w-md mb-12">
           <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by job title..."
-            className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white/10 border border-white/20 focus:outline-none"
+            className="w-full pl-12 pr-4 py-3 rounded-2xl
+              bg-white/10 border border-white/20
+              focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
-        {/* CONTENT */}
+        {/* ================= CONTENT ================= */}
         {loading ? (
-          <p className="text-white/60">Loading applications...</p>
-        ) : filtered.length === 0 ? (
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-10 text-center">
-            <FiInbox className="mx-auto text-4xl mb-4 text-white/40" />
-            <p className="text-white/60">
-              You haven’t applied to any jobs yet.
+          <p className="text-white/60">Loading your applications...</p>
+        ) : filteredApplications.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white/5 border border-white/10
+              rounded-3xl p-14 text-center"
+          >
+            <FiInbox className="mx-auto text-5xl mb-6 text-white/40" />
+            <p className="text-white/60 text-lg">
+              No applications found.
             </p>
-          </div>
+          </motion.div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map(app => (
-              <ApplicationCard key={app.id} application={app} />
+            {filteredApplications.map((app, index) => (
+              <motion.div
+                key={app.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <ApplicationCard application={app} />
+              </motion.div>
             ))}
           </div>
         )}
       </div>
     </section>
+  );
+}
+
+/* ================= STAT CARD ================= */
+function StatCard({ icon, label, value }) {
+  return (
+    <motion.div
+      whileHover={{ y: -6, scale: 1.04 }}
+      className="bg-white/10 backdrop-blur-xl
+        border border-white/20 rounded-3xl
+        p-6 shadow-xl"
+    >
+      <div className="text-3xl text-indigo-300 mb-2">{icon}</div>
+      <p className="text-sm text-white/60">{label}</p>
+      <p className="text-3xl font-black">{value}</p>
+    </motion.div>
   );
 }

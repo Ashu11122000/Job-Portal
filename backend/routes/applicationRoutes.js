@@ -20,6 +20,7 @@ const applyJobHandler = async (req, res) => {
   }
 
   try {
+    // 1️⃣ Check job exists
     const [job] = await pool.query(
       "SELECT id FROM jobs WHERE id = ?",
       [jobId]
@@ -32,6 +33,7 @@ const applyJobHandler = async (req, res) => {
       });
     }
 
+    // 2️⃣ Prevent duplicate application
     const [existing] = await pool.query(
       "SELECT id FROM applications WHERE job_id = ? AND user_id = ?",
       [jobId, userId]
@@ -44,6 +46,7 @@ const applyJobHandler = async (req, res) => {
       });
     }
 
+    // 3️⃣ Insert application
     const [result] = await pool.query(
       "INSERT INTO applications (job_id, user_id, status) VALUES (?, ?, ?)",
       [jobId, userId, "pending"]
@@ -55,20 +58,21 @@ const applyJobHandler = async (req, res) => {
       applicationId: result.insertId,
     });
   } catch (err) {
-    console.error("❌ Apply Job Error:", err.message);
+    console.error("❌ Apply Job Error:", err);
     res.status(500).json({
       success: false,
-      message: "Database error",
+      message: err.sqlMessage || err.message || "Database error",
     });
   }
 };
 
+/* ✅ MAIN APPLY ROUTES */
 router.post("/", applyJobHandler);
 router.post("/apply", applyJobHandler);
 
 /**
  * =========================================================
- * GET APPLICATIONS BY USER (✔ FIXED JOIN)
+ * GET APPLICATIONS BY USER (SAFE VERSION)
  * GET /api/applications/user/:userId
  * =========================================================
  */
@@ -82,11 +86,9 @@ router.get("/user/:userId", async (req, res) => {
         a.applied_at,
         j.id AS job_id,
         j.title AS job_title,
-        j.location,
-        c.company_name AS company
+        j.location
       FROM applications a
       JOIN jobs j ON a.job_id = j.id
-      LEFT JOIN companies c ON j.company_id = c.id
       WHERE a.user_id = ?
       ORDER BY a.id DESC
       `,
@@ -99,10 +101,10 @@ router.get("/user/:userId", async (req, res) => {
       applications: apps,
     });
   } catch (err) {
-    console.error("❌ Fetch Applications Error:", err.message);
+    console.error("❌ Fetch Applications Error:", err);
     res.status(500).json({
       success: false,
-      message: "Failed to fetch applications",
+      message: err.sqlMessage || err.message || "Failed to fetch applications",
     });
   }
 });
@@ -110,6 +112,7 @@ router.get("/user/:userId", async (req, res) => {
 /**
  * =========================================================
  * DELETE APPLICATION
+ * DELETE /api/applications/:id
  * =========================================================
  */
 router.delete("/:id", async (req, res) => {
@@ -131,10 +134,10 @@ router.delete("/:id", async (req, res) => {
       message: "Application deleted successfully",
     });
   } catch (err) {
-    console.error("❌ Delete Application Error:", err.message);
+    console.error("❌ Delete Application Error:", err);
     res.status(500).json({
       success: false,
-      message: "Server error",
+      message: err.sqlMessage || err.message || "Server error",
     });
   }
 });
