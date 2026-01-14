@@ -4,12 +4,14 @@ import pool from "../config/db.js";
 const router = express.Router();
 
 /**
+ * =========================================================
  * APPLY FOR A JOB
- * Frontend should call: POST /api/applications
+ * POST /api/applications
  * (We also keep /apply as alias)
+ * =========================================================
  */
 const applyJobHandler = async (req, res) => {
-  const { jobId, userId } = req.body; // ❌ resume removed (not in DB)
+  const { jobId, userId } = req.body;
 
   if (!jobId || !userId) {
     return res.status(400).json({
@@ -45,7 +47,7 @@ const applyJobHandler = async (req, res) => {
       });
     }
 
-    // 3. Insert application (✅ FIXED — matches DB schema)
+    // 3. Insert application (matches DB schema)
     const [result] = await pool.query(
       "INSERT INTO applications (job_id, user_id, status) VALUES (?, ?, ?)",
       [jobId, userId, "pending"]
@@ -72,13 +74,28 @@ router.post("/", applyJobHandler);
 router.post("/apply", applyJobHandler);
 
 /**
- * GET APPLICATIONS BY USER
+ * =========================================================
+ * GET APPLICATIONS BY USER (WITH JOB DETAILS)
  * GET /api/applications/user/:userId
+ * =========================================================
  */
 router.get("/user/:userId", async (req, res) => {
   try {
     const [apps] = await pool.query(
-      "SELECT * FROM applications WHERE user_id = ? ORDER BY id DESC",
+      `
+      SELECT 
+        a.id,
+        a.status,
+        a.applied_at,
+        j.id AS job_id,
+        j.title AS job_title,
+        j.company,
+        j.location
+      FROM applications a
+      JOIN jobs j ON a.job_id = j.id
+      WHERE a.user_id = ?
+      ORDER BY a.id DESC
+      `,
       [req.params.userId]
     );
 
@@ -88,17 +105,19 @@ router.get("/user/:userId", async (req, res) => {
       applications: apps,
     });
   } catch (err) {
-    console.error("❌ Fetch Applications Error:", err);
+    console.error("❌ Fetch Applications Error:", err.sqlMessage || err.message);
     res.status(500).json({
       success: false,
-      message: "Server error",
+      message: "Failed to fetch applications",
     });
   }
 });
 
 /**
+ * =========================================================
  * DELETE APPLICATION
  * DELETE /api/applications/:id
+ * =========================================================
  */
 router.delete("/:id", async (req, res) => {
   try {
@@ -119,7 +138,7 @@ router.delete("/:id", async (req, res) => {
       message: "Application deleted successfully",
     });
   } catch (err) {
-    console.error("❌ Delete Application Error:", err);
+    console.error("❌ Delete Application Error:", err.sqlMessage || err.message);
     res.status(500).json({
       success: false,
       message: "Server error",
