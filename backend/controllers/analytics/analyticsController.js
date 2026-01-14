@@ -1,9 +1,11 @@
 // controllers/analytics.controller.js
+// controllers/analytics/analyticsController.js
 import {
   getAnalyticsSummaryService,
   getJobStatsService,
   getApplicationStatsService,
-} from "../services/analyticsService.js";
+} from "../../services/analyticsService.js";
+
 
 export const getAnalyticsSummary = async (req, res) => {
   try {
