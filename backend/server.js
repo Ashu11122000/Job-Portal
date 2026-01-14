@@ -26,45 +26,36 @@ import logger from "./utils/logger.js";
 
 const app = express();
 
-/* -------------------- GLOBAL MIDDLEWARES -------------------- */
+/* -------------------- BODY PARSERS -------------------- */
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-/* -------------------- CORS (FIXED & STABLE) -------------------- */
+/* -------------------- ✅ CORS (FINAL & CORRECT) -------------------- */
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://job-portal-frontend.vercel.app",
-  "https://job-portal-frontend-phi-blush.vercel.app",
+  "https://job-portal-frontend-main.vercel.app",
 ];
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      // allow server-to-server & tools like curl
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 200,
   })
 );
 
-/* 🔥 HARD FIX: Preflight handler */
-app.use((req, res, next) => {
-  if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Origin", req.headers.origin);
-    res.header(
-      "Access-Control-Allow-Methods",
-      "GET,POST,PUT,DELETE,OPTIONS"
-    );
-    res.header(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization"
-    );
-    res.header("Access-Control-Allow-Credentials", "true");
-    return res.sendStatus(204);
-  }
-  next();
-});
-
-logger.info("✅ CORS & middlewares initialized");
+logger.info("✅ CORS initialized");
 
 /* -------------------- API ROUTES -------------------- */
 app.use("/api/auth", authRoutes);
